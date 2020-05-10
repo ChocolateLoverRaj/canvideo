@@ -1,0 +1,29 @@
+{
+  "name": "canvideo",
+  "version": "1.0.0",
+  "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChocolateLoverRaj/canvideo.git"
+  },
+  "keywords": [
+    "canvas",
+    "animation",
+    "video"
+  ],
+  "author": "Rajas Paranjpe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ChocolateLoverRaj/canvideo/issues"
+  },
+  "homepage": "https://github.com/ChocolateLoverRaj/canvideo#readme",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.20",
+    "canvas": "^2.6.1",
+    "fluent-ffmpeg": "^2.1.2"
+  }
+}
