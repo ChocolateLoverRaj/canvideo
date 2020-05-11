@@ -1,60 +1,61 @@
 import fs = require('fs');
-import events = require('events');
-import canvas = require('canvas');
+import ffmpeg = require('fluent-ffmpeg');
 
 declare namespace canvideo {
-    type colorRepresentor = string | [number, number, number];
-    type color = canvideo.Color | colorRepresentor;
+    interface CodecData {
+        format: string,
+        audio: string,
+        video: string,
+        duration: string,
+        video_details: Array<string>
+    }
+    interface Progress {
+        frames: number,
+        currentFps: number,
+        currentKbps: number,
+        targetSize: 2,
+        timemark: string,
+        percent: number
+    }
+
+    type color = canvideo.Color | string | [number, number, number];
 
     export function setTempPath(path: fs.PathLike): void;
 
     export class Color {
-        constructor(color: colorRepresentor): this;
+        constructor(color: color): this;
 
-        value: number;
+        color: number;
 
         static isValid(color: any): boolean;
     }
 
-    export class Shape  {
+    export class Shape extends Color {
         constructor(color: color): this;
-
-        color: Color;
     }
 
     export class Rectangle extends Shape {
-        constructor(x: number, y: number, width: number, height: number, color?: color): this;
+        constructor(x: number, y: number, width: number, height: number, color?: color): Rectangle;
 
         x: number;
         y: number;
         width: number;
         height: number;
-
-        draw(ctx: canvas.CanvasRenderingContext2D): void;
-    }
-
-    export class Keyframe {
-        constructor(): this;
-
-        shapes: Array<Shape>;
-
-        joinToAnimation(animation: Animation): this;
-        addShape(shape: Shape): this;
-        render(frameNumber: number): number;
     }
 
     export interface Animation {
-        on(event: "done", handler: () => void): this;
-        on(event: "error", handler: () => void): this;
+        on(event: 'start', handler: (commandLine?: string) => void): this;
+        on(event: 'codecData', handler: (data?: CodecData) => void): this;
+        on(event: 'progress', handler: (progress?: Progress) => void): this;
+        on(event: 'stderr', handler: (stderr?: string) => void): this;
+        on(event: 'error', handler: (err?: Error, stdout?: string, stderr?: string) => void): this;
+        on(event: 'end', handler: (stdout?: string, stderr?: string) => void): this;
     }
-    export class Animation extends events.EventEmitter {
+    export class Animation extends ffmpeg {
         constructor(): Animation;
 
-        keyframes: Array<Keyframe>;
-        tempPath: fs.PathLike;
-
-        addKeyFrame(keyframe: Keyframe): this;
-        export(filePath: fs.PathLike): this;
+        add(shape: Shape): this;
+        export(filePath: fs.PathLike, tempPath?: fs.PathLike): this;
     }
 } 
 

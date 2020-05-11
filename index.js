@@ -5,15 +5,11 @@
 //Node.js Modules
 const fs = require('fs');
 const path = require('path');
-const EventEmitter = require('events').EventEmitter;
 
 //Npm Modules
 const { createCanvas } = require('canvas');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
-
-//My Modules
-const AsyncLoop = require("./asyncLoop");
 
 //Set ffmpeg path
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -44,7 +40,7 @@ canvideo.setTempPath = function (path) {
 canvideo.Color = class {
     constructor(color = "white") {
         if (canvideo.Color.isValid(color)) {
-            this.value = color;
+            this.color = color;
         }
         else {
             throw new TypeError(`Color: ${color} is not a valid color.`);
@@ -90,49 +86,10 @@ canvideo.Color = class {
 }
 
 //Shape
-canvideo.Shape = class {
+canvideo.Shape = class extends canvideo.Color {
     constructor(color) {
-        if (color instanceof canvideo.Color) {
-            this.color = color;
-        }
-        else {
-            this.color = new canvideo.Color(color);
-        }
+        super(color);
     };
-}
-
-//Control Point
-canvideo.ControlPoint = class {
-    static defaultSetterX(value) {
-        this._x = value;
-    }
-    static defaultSetterY(value) {
-        this._y = value;
-    }
-    constructor(shape, setterX = defaultSetterX, setterY = defaultSetterY) {
-        if (shape instanceof canvideo.Shape) {
-            this.shape = shape;
-            this.setterX = setterX;
-            this.setterY = setterY;
-            this._x = 0;
-            this._y = 0;
-        }
-        else {
-            throw new TypeError(`Shape: ${shape} is not of type Shape`);
-        }
-    }
-    set x(value) {
-        return this.setterX(value);
-    }
-    get x(){
-        return this._x;
-    }
-    set y(value) {
-        return this.setterY(value);
-    }
-    get y() {
-        return this._y;
-    }
 }
 
 //Rectangle
@@ -164,111 +121,26 @@ canvideo.Rectangle = class extends canvideo.Shape {
             throw new TypeError(`height: ${height} is not a number.`);
         }
     }
-
-    draw(ctx) {
-        ctx.fillStyle = this.color.value;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-    }
-}
-
-//Frame Class
-canvideo.Keyframe = class {
-    constructor() {
-        this.shapes = [];
-    }
-    joinToAnimation(animation) {
-        if (animation instanceof canvideo.Animation) {
-            this.animation = animation;
-        }
-        else {
-            throw new TypeError("Animation is not of type Animation.");
-        }
-
-        return this;
-    }
-    addShape(shape) {
-        if (shape instanceof canvideo.Shape) {
-            this.shapes.push(shape);
-        }
-        else {
-            throw new TypeError("shape is not of type Shape.");
-        }
-        return this;
-    }
-    render(frameNumber) {
-        if (typeof frameNumber == 'number') {
-            //Render frame 0
-            var canvas = createCanvas(200, 200);
-            var ctx = canvas.getContext('2d');
-            for (var i = 0; i < this.shapes.length; i++) {
-                this.shapes[i].draw(ctx);
-            }
-            var framePath = this.animation.tempPath + "/frame" + frameNumber + ".jpg";
-            canvas.createJPEGStream()
-                .on("end", () => {
-                    this.animation.loop.emit("result", false);
-                })
-                .on("error", err => {
-                    this.animation.loop.emit("result", err, frameNumber);
-                })
-                .pipe(fs.createWriteStream(framePath));
-
-            return 1;
-        }
-        else {
-            throw new TypeError("frameNumber is not a number");
-        }
-    }
 }
 
 //Animation class
-canvideo.Animation = class extends EventEmitter {
+canvideo.Animation = class extends ffmpeg {
     constructor() {
         super();
-
-        this.keyframes = [];
-        this.tempPath = config.tempPath;
-        this.loop = new AsyncLoop();
-
-        this.command = ffmpeg();
-        this.command.on('end', () => {
-            this.emit("done");
-        });
-        this.command.on('error', () => {
-            this.emit("error");
-        });
+        this.shapes = [];
     }
 
-    set tempPath(value) {
-        if (typeof value == 'string' || value instanceof Buffer || value instanceof URL) {
-            //Make sure it exists
-            if (fs.existsSync(value)) {
-                this._tempPath = value;
-            }
-            else {
-                throw new URIError(`Path: ${value} does not exist.`);
-            }
+    add(shape) {
+        if (shape instanceof canvideo.Rectangle) {
+            this.shapes.push(shape);
         }
         else {
-            throw new TypeError(`Path: ${value} is not a valid path type.`);
+            throw new TypeError("shape is not of type Rectangle");
         }
-    }
-    get tempPath() {
-        return this._tempPath;
-    }
-
-    addKeyframe(keyframe) {
-        if (keyframe instanceof canvideo.Keyframe) {
-            keyframe.joinToAnimation(this);
-            this.keyframes.push(keyframe);
-        }
-        else {
-            throw new TypeError("keyframe is not of type Keyframe.");
-        }
-
         return this;
     }
-    export(filePath) {
+
+    export(filePath, tempPath = config.tempPath) {
         if (typeof filePath == 'string' || filePath instanceof Buffer || filePath instanceof URL) {
             if (path.extname(filePath) !== ".mp4") {
                 throw new URIError(`File path: ${filePath} must have the extension .mp4.`);
@@ -277,22 +149,33 @@ canvideo.Animation = class extends EventEmitter {
         else {
             throw new TypeError(`File path: ${filePath} is not a valid path type.`);
         }
-
-        for (var i = 0; i < this.keyframes.length; i++) {
-            this.loop.goal += this.keyframes[i].render(this.loop.goal);
+        if (typeof tempPath == 'string' || tempPath instanceof Buffer || tempPath instanceof URL) {
+            //Make sure it exists
+            if (!fs.existsSync(tempPath)) {
+                throw new URIError(`Path: ${tempPath} does not exist.`);
+            }
         }
-        this.loop.on("done", errors => {
-            if (!errors) {
-                this.command
-                    .input(config.tempPath + "/frame%1d.jpg")
-                    .inputFPS(1)
-                    .save(filePath)
-                    .outputFPS(1);
-            }
-            else {
-                this.emit("error");
-            }
-        });
+        else {
+            throw new TypeError(`Path: ${tempPath} is not a valid path type.`);
+        }
+
+        //Create the canvas
+        var canvas = createCanvas(200, 200);
+        var ctx = canvas.getContext('2d');
+
+        for (var i = 0; i < this.shapes.length; i++) {
+            let { x, y, width, height, color } = this.shapes[i];
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, width, height);
+        }
+
+        //Save the canvas
+        canvas.createJPEGStream().pipe(fs.createWriteStream(config.tempPath + "/frame0.jpg"));
+
+        this.input(config.tempPath + "/frame%1d.jpg")
+            .inputFPS(1)
+            .save(filePath)
+            .outputFPS(1);
 
         return this;
     }
