@@ -13,7 +13,8 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
 
 //My Modules
-const AsyncLoop = require("./asyncLoop");
+const AsyncLoop = require("./lib/asyncLoop");
+const myMath = require("./lib/myMath");
 
 //Set ffmpeg path
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -124,7 +125,7 @@ canvideo.ControlPoint = class {
     set x(value) {
         return this.setterX(value);
     }
-    get x(){
+    get x() {
         return this._x;
     }
     set y(value) {
@@ -173,19 +174,38 @@ canvideo.Rectangle = class extends canvideo.Shape {
 
 //Frame Class
 canvideo.Keyframe = class {
-    constructor() {
+    constructor(startTime) {
+        if (typeof startTime == 'number') {
+            this.startTime = startTime;
+        }
+        else {
+            throw new TypeError("startTime must be a number.");
+        }
         this.shapes = [];
     }
-    joinToAnimation(animation) {
-        if (animation instanceof canvideo.Animation) {
-            this.animation = animation;
+    set animation(value) {
+        if (value instanceof canvideo.Animation) {
+            this._animation = value;
         }
         else {
             throw new TypeError("Animation is not of type Animation.");
         }
-
-        return this;
     }
+    get animation() {
+        return this._animation;
+    }
+    set frameNumber(value) {
+        if (typeof value == 'number') {
+            this._frameNumber = value;
+        }
+        else {
+            throw new TypeError("frameNumber must be a number.");
+        }
+    }
+    get frameNumber() {
+        return this._frameNumber;
+    }
+
     addShape(shape) {
         if (shape instanceof canvideo.Shape) {
             this.shapes.push(shape);
@@ -195,40 +215,130 @@ canvideo.Keyframe = class {
         }
         return this;
     }
-    render(frameNumber) {
-        if (typeof frameNumber == 'number') {
-            //Render frame 0
-            var canvas = createCanvas(200, 200);
-            var ctx = canvas.getContext('2d');
-            for (var i = 0; i < this.shapes.length; i++) {
-                this.shapes[i].draw(ctx);
+    render(shapes = []) {
+        if (typeof this.frameNumber == 'number') {
+            if (shapes instanceof Array) {
+                for (var i = 0; i < shapes.length; i++) {
+                    if (!(shapes[i] instanceof canvideo.Shape)) {
+                        throw new TypeError(`shapes[${i}] is not a Shape.`);
+                    }
+                }
             }
-            var framePath = this.animation.tempPath + "/frame" + frameNumber + ".jpg";
+            else {
+                throw new TypeError("Shapes must be an array of shapes.");
+            }
+
+            var shapesToRender = shapes.concat(this.shapes);
+            this.animation.loop.goal += 1;
+
+            //Render frame 0
+            var canvas = createCanvas(this.animation.width, this.animation.height);
+            var ctx = canvas.getContext('2d');
+            for (var i = 0; i < shapesToRender.length; i++) {
+                shapesToRender[i].draw(ctx);
+            }
+            var framePath = this.animation.tempPath + "/frame" + this.frameNumber + ".jpg";
             canvas.createJPEGStream()
                 .on("end", () => {
                     this.animation.loop.emit("result", false);
                 })
                 .on("error", err => {
-                    this.animation.loop.emit("result", err, frameNumber);
+                    this.animation.loop.emit("result", err, this.frameNumber);
                 })
                 .pipe(fs.createWriteStream(framePath));
 
-            return 1;
+            //Render next keyframe
+            if (this.frameNumber + 1 < this.animation.keyframes.length) {
+                this.animation.keyframes[this.frameNumber + 1].render(shapesToRender);
+            }
+            else {
+                //This is the last frame
+            }
+
+            return this;
         }
         else {
-            throw new TypeError("frameNumber is not a number");
+            throw new TypeError("this.frameNumber is not a number");
         }
     }
 }
 
 //Animation class
 canvideo.Animation = class extends EventEmitter {
-    constructor() {
+    constructor(arg1 = { width: 200, height: 200 }, arg2, arg3) {
+        //Constructor: width: number, height: number, fps
+        //Constructor: { width: number, height: number }, fps
+        //Constructor: { w: number, h: number }, fps
+        //Constructor: { width: number, height: number, fps: number}
+        //Constructor: { w: number, h: number, fps: number}
+        //Constructor: { size: { width: number, height: number }, fps: number }
+        //Constructor: { size: { w: number, h: number }, fps: number }
+        var width, height, fps;
+        function typeCheck(arg1, arg2, arg3) {
+            if (typeof arg1 == 'number' && typeof arg2 == 'number' && typeof arg3 == 'number') {
+                width = arg1, height = arg2, fps = arg3;
+            }
+            else if (typeof arg1 == 'object' && typeof arg2 == 'number' && typeof arg3 == 'undefined') {
+                fps = arg2;
+                if (typeof arg1.width == 'number' && typeof arg1.height == 'number') {
+                    width = arg1.width, height = arg1.height;
+                }
+                else if (typeof arg1.w == 'number' && typeof arg1.h == 'number') {
+                    width = arg1.w, height = arg1.h;
+                }
+                else {
+                    return false;
+                }
+            }
+            else if (typeof arg1 == 'object' && typeof arg1.fps == 'number' && typeof arg2 == 'undefined' && typeof arg3 == 'undefined') {
+                fps = arg1.fps;
+                if (typeof arg1.size == 'object') {
+                    if (typeof arg1.size.width == 'number' && typeof arg1.size.height == 'number') {
+                        width = arg1.size.width, height = arg1.size.height;
+                    }
+                    else if (typeof arg1.size.w == 'number' && typeof arg1.size.h == 'number') {
+                        width = arg1.size.w, height = arg1.size.h;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    if (typeof arg1.width == 'number' && typeof arg1.height == 'number') {
+                        width = arg1.width, height = arg1.height;
+                    }
+                    else if (typeof arg1.w == 'number' && typeof arg1.h == 'number') {
+                        width = arg1.w, height = arg1.h;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+            else {
+                console.log("none")
+                return false;
+            }
+        }
+        if (typeCheck(arg1, arg2, arg3) === false) {
+            throw new TypeError("Invalid constructor.");
+        }
+        if (myMath.isOdd(width)) {
+            throw new TypeError("width must be an even number.");
+        }
+        if (myMath.isOdd(height)) {
+            throw new TypeError("height must be an even number.");
+        }
+
         super();
 
         this.keyframes = [];
         this.tempPath = config.tempPath;
         this.loop = new AsyncLoop();
+        this.width = width;
+        this.height = height;
+        this.fps = fps;
+        this.exported = false;
 
         this.command = ffmpeg();
         this.command.on('end', () => {
@@ -240,6 +350,9 @@ canvideo.Animation = class extends EventEmitter {
     }
 
     set tempPath(value) {
+        if (this.exported) {
+            throw new SyntaxError("Cannot change tempPath after exporting.");
+        }
         if (typeof value == 'string' || value instanceof Buffer || value instanceof URL) {
             //Make sure it exists
             if (fs.existsSync(value)) {
@@ -256,11 +369,19 @@ canvideo.Animation = class extends EventEmitter {
     get tempPath() {
         return this._tempPath;
     }
+    get spf() {
+        return 1 / this.fps;
+    }
 
     addKeyframe(keyframe) {
+        if (this.exported) {
+            throw new SyntaxError("Cannot add keyframe after exporting.");
+        }
         if (keyframe instanceof canvideo.Keyframe) {
-            keyframe.joinToAnimation(this);
-            this.keyframes.push(keyframe);
+            var frameNumber = Math.round(keyframe.startTime * this.fps);
+            keyframe.animation = this;
+            keyframe.frameNumber = frameNumber;
+            this.keyframes[frameNumber] = keyframe;
         }
         else {
             throw new TypeError("keyframe is not of type Keyframe.");
@@ -269,6 +390,9 @@ canvideo.Animation = class extends EventEmitter {
         return this;
     }
     export(filePath) {
+        if (this.exported) {
+            throw new SyntaxError("Cannot export twice.");
+        }
         if (typeof filePath == 'string' || filePath instanceof Buffer || filePath instanceof URL) {
             if (path.extname(filePath) !== ".mp4") {
                 throw new URIError(`File path: ${filePath} must have the extension .mp4.`);
@@ -277,22 +401,35 @@ canvideo.Animation = class extends EventEmitter {
         else {
             throw new TypeError(`File path: ${filePath} is not a valid path type.`);
         }
-
-        for (var i = 0; i < this.keyframes.length; i++) {
-            this.loop.goal += this.keyframes[i].render(this.loop.goal);
+        
+        //Make sure there is a keyframe at 0 seconds
+        if (!(this.keyframes[0] instanceof canvideo.Keyframe)) {
+            this.addKeyframe(new canvideo.Keyframe(0));
         }
+
+        //Fill in the blank frames
+        for (var i = 0; i < this.keyframes.length; i++) {
+            if (!(this.keyframes[i] instanceof canvideo.Keyframe)) {
+                this.addKeyframe(new canvideo.Keyframe(i * this.spf));
+            }
+        }
+
+        //Render the first frame
+        this.keyframes[0].render();
+
         this.loop.on("done", errors => {
             if (!errors) {
                 this.command
                     .input(config.tempPath + "/frame%1d.jpg")
-                    .inputFPS(1)
+                    .inputFPS(this.fps)
                     .save(filePath)
-                    .outputFPS(1);
+                    .outputFPS(this.fps);
             }
             else {
                 this.emit("error");
             }
         });
+        this.exported = true;
 
         return this;
     }

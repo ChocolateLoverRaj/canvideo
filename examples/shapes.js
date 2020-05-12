@@ -1,20 +1,19 @@
 const canvideo = require("../index");
+const path = require('path');
 
-canvideo.setTempPath("C://Users/jui/Desktop/Trash");
+canvideo.setTempPath(path.join(__dirname, "./res"));
 
-var animation = new canvideo.Animation();
-
+var animation = new canvideo.Animation({ width: 200, height: 200 }, 4);
 
 animation
-    .addKeyframe(new canvideo.Keyframe()
+    .addKeyframe(new canvideo.Keyframe(0.25)
         .addShape(new canvideo.Rectangle(0, 0, 100, 100, "blue"))
-        .addShape(new canvideo.Rectangle(50, 50, 100, 100, "cyan"))
-        .addShape(new canvideo.Rectangle(100, 100, 100, 100, "white"))
     )
-    .addKeyframe(new canvideo.Keyframe()
-        .addShape(new canvideo.Rectangle(100, 100, 100, 100, "white"))
+    .addKeyframe(new canvideo.Keyframe(0.5)
         .addShape(new canvideo.Rectangle(50, 50, 100, 100, "cyan"))
-        .addShape(new canvideo.Rectangle(0, 0, 100, 100, "blue"))
+    )
+    .addKeyframe(new canvideo.Keyframe(0.75)
+        .addShape(new canvideo.Rectangle(100, 100, 100, 100, "white"))
     )
 
 animation.on("done", () => {
@@ -24,4 +23,4 @@ animation.on("error", () => {
     console.log("error!");
 });
 
-animation.export("C://Users/jui/Desktop/Trash/output.mp4");
+animation.export(path.join(__dirname, "./res/output.mp4"));
