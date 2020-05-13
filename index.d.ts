@@ -3,8 +3,15 @@ import events = require('events');
 import canvas = require('canvas');
 
 declare namespace canvideo {
-    type colorRepresentor = string | [number, number, number];
-    type color = canvideo.Color | colorRepresentor;
+    //Valid CSS Color
+    type cssColor = string;
+    //Number between 0 and 255
+    type colorIntensity = number;
+    //Number between 0 and 1
+    type colorOpacity = number;
+    type rgbColor = [colorIntensity, colorIntensity, colorIntensity];
+    type rgbaColor = [colorIntensity, colorIntensity, colorIntensity, colorOpacity];
+    type color = canvideo.Color | cssColor | rgbColor | rgbaColor;
     type animationSize = AnimationSize | AnimationSizeShort;
     type evenNumber = number;
 
@@ -27,14 +34,16 @@ declare namespace canvideo {
     export function setTempPath(path: fs.PathLike): void;
 
     export class Color {
-        constructor(color: colorRepresentor): this;
+        constructor(color: cssColor): this;
+        constructor(color: rgbColor): this;
+        constructor(color: rgbaColor): this;
+        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity): this;
+        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity): this;
 
         value: number;
-
-        static isValid(color: any): boolean;
     }
 
-    export abstract class Shape  {
+    export abstract class Shape {
         constructor(color: color): this;
 
         color: Color;
@@ -60,7 +69,7 @@ declare namespace canvideo {
 
         addShape(shape: Shape): this;
         render(shapes: Array<Shape>): void;
-    }    
+    }
 
     export interface AnimationAfterExport {
         on(event: "done", handler: () => void): this;
@@ -97,6 +106,6 @@ declare namespace canvideo {
         addKeyFrame(keyframe: Keyframe): this;
         export(filePath: fs.PathLike): AnimationAfterExport;
     }
-} 
+}
 
 export = canvideo;

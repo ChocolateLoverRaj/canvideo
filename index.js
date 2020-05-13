@@ -43,51 +43,79 @@ canvideo.setTempPath = function (path) {
 
 //Color
 canvideo.Color = class {
-    constructor(color = "white") {
-        if (canvideo.Color.isValid(color)) {
-            this.value = color;
+    //Constructor: color: string
+    //Constructor: [r: number, g: number, b: number]
+    //Constructor: [r: number, g: number, b: number, a: number]
+    //Constructor: r: number, g: number, b: number
+    //Constructor: r: number, g: number, b: number, a: number
+    constructor(arg1, arg2, arg3, arg4) {
+        function validValue(color) {
+            if (color == "black" && color == "#000000") {
+                return "#000000";
+            }
+            else {
+                canvideo.Color.testCtx.fillStyle = "#000000";
+                canvideo.Color.testCtx.fillStyle = color;
+                return canvideo.Color.testCtx.fillStyle == "#000000" ? false : canvideo.Color.testCtx.fillStyle;
+            }
+        }
+        function validIntensity(n) {
+            return typeof n === 'number' && n >= 0 && n <= 255;
+        }
+        function validOpacity(n) {
+            return typeof n === 'number' && n >= 0 && n <= 1;
+        }
+
+        if (typeof arg1 === 'string' && typeof arg2 === 'undefined' && typeof arg3 === 'undefined' && typeof arg4 === 'undefined') {
+            var color = validValue(arg1);
+            if (color === false) {
+                throw new TypeError("Color is not a valid CSS color.");
+            }
+            else {
+                this.value = color;
+            }
         }
         else {
-            throw new TypeError(`Color: ${color} is not a valid color.`);
+            var values = [];
+            if (arg1 instanceof Array && typeof arg2 === 'undefined' && typeof arg3 === 'undefined' && typeof arg4 === 'undefined') {
+                if (arg1.length === 3 || arg1.length == 4) {
+                    values = arg1;
+                }
+                else {
+                    throw new TypeError("Array must be rgb or rgba.");
+                }
+            }
+            else if (typeof arg1 === 'number' && typeof arg2 === 'number' && typeof arg3 === 'number' && typeof arg4 === 'undefined') {
+                values = [arg1, arg2, arg3];
+            }
+            else if (typeof arg1 === 'number' && typeof arg2 === 'number' && typeof arg3 === 'number' && typeof arg4 === 'number') {
+                values = [arg1, arg2, arg3, arg4];
+            }
+            else {
+                throw new TypeError("Invalid constructor.");
+            }
+            if (values.length === 3) {
+                if (validIntensity(values[0]) && validIntensity(values[1]) && validIntensity(values[2])) {
+                    this.value = validValue(`rgb(${values[0]}, ${values[1]}, ${values[2]})`);
+                }
+                else {
+                    throw new TypeError("Invalid rgb type.");
+                }
+            }
+            else if (values.length === 4) {
+                if (validIntensity(values[0]) && validIntensity(values[1]) && validIntensity(values[2]) && validOpacity(values[3])) {
+                    this.value = validValue(`rgba(${values[0]}, ${values[1]}, ${values[2]}, ${values[3]})`);
+                }
+                else {
+                    throw new TypeError("Invalid rgba type.");
+                }
+            }
+            else {
+                throw new TypeError("Invalid constructor.");
+            }
         }
     }
     static testCtx = createCanvas(1, 1).getContext('2d');
-    static isValid(color) {
-        function isRGB(color) {
-            if (typeof color == 'object' && color instanceof Array && color.length == 3) {
-                for (var i = 0; i < 3; i++) {
-                    if (!(typeof color[i] == 'number' && color[i] >= 0 && color[i] <= 255)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
-        //Type checking
-        if (color instanceof canvideo.Color) {
-            return true;
-        }
-        else if (typeof color == 'string' || isRGB(color)) {
-            //Make sure color is not black
-            if (color == "black" || color == "#000000" || color == [0, 0, 0]) {
-                return true;
-            }
-            else {
-                //Reset fillStyle
-                this.testCtx.fillStyle = "black";
-                //If fillStyle is valid then it should be something other than black
-                this.testCtx.fillStyle = color;
-                return this.testCtx.fillStyle !== "#000000";
-            }
-        }
-        else {
-            throw TypeError("Invalid color type.");
-        }
-    }
 }
 
 //Shape
@@ -401,7 +429,7 @@ canvideo.Animation = class extends EventEmitter {
         else {
             throw new TypeError(`File path: ${filePath} is not a valid path type.`);
         }
-        
+
         //Make sure there is a keyframe at 0 seconds
         if (!(this.keyframes[0] instanceof canvideo.Keyframe)) {
             this.addKeyframe(new canvideo.Keyframe(0));
