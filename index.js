@@ -131,17 +131,17 @@ canvideo.Shape = class {
         this.deleteTime = Infinity;
     };
 
-    set animation(value) {
-        if (value instanceof canvideo.Animation) {
-            this._animation = value;
-            this.deleteFrame = this.animation.frameAtTime(this.deleteTime);
+    set video(value) {
+        if (value instanceof canvideo.Video) {
+            this._video = value;
+            this.deleteFrame = this.video.frameAtTime(this.deleteTime);
         }
         else {
-            throw new TypeError("Animation is not of type Animation.");
+            throw new TypeError("Video is not of type Video.");
         }
     }
-    get animation() {
-        return this._animation;
+    get video() {
+        return this._video;
     }
 
     setDeleteTime(time) {
@@ -239,19 +239,19 @@ canvideo.Keyframe = class {
         }
         this.shapes = [];
     }
-    set animation(value) {
-        if (value instanceof canvideo.Animation) {
-            this._animation = value;
+    set video(value) {
+        if (value instanceof canvideo.Video) {
+            this._video = value;
             for (var i = 0; i < this.shapes.length; i++) {
-                this.shapes[i].animation = this.animation;
+                this.shapes[i].video = this.video;
             }
         }
         else {
-            throw new TypeError("Animation is not of type Animation.");
+            throw new TypeError("Video is not of type Video.");
         }
     }
-    get animation() {
-        return this._animation;
+    get video() {
+        return this._video;
     }
     set frameNumber(value) {
         if (typeof value == 'number') {
@@ -296,27 +296,27 @@ canvideo.Keyframe = class {
             }
 
             shapesToRender = shapesToRender.concat(this.shapes);
-            this.animation.loop.goal++;
+            this.video.loop.goal++;
 
             //Render frame 0
-            var canvas = createCanvas(this.animation.width, this.animation.height);
+            var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
             for (var i = 0; i < shapesToRender.length; i++) {
                 shapesToRender[i].draw(ctx);
             }
-            var framePath = this.animation.tempPath + "/frame" + this.frameNumber + ".jpg";
+            var framePath = this.video.tempPath + "/frame" + this.frameNumber + ".jpg";
             canvas.createJPEGStream()
                 .on("end", () => {
-                    this.animation.loop.emit("result", false);
+                    this.video.loop.emit("result", false);
                 })
                 .on("error", err => {
-                    this.animation.loop.emit("result", err, this.frameNumber);
+                    this.video.loop.emit("result", err, this.frameNumber);
                 })
                 .pipe(fs.createWriteStream(framePath));
 
             //Render next keyframe
-            if (this.frameNumber + 1 < this.animation.keyframes.length) {
-                this.animation.keyframes[this.frameNumber + 1].render(shapesToRender);
+            if (this.frameNumber + 1 < this.video.keyframes.length) {
+                this.video.keyframes[this.frameNumber + 1].render(shapesToRender);
             }
             else {
                 //This is the last frame
@@ -330,8 +330,8 @@ canvideo.Keyframe = class {
     }
 }
 
-//Animation class
-canvideo.Animation = class extends EventEmitter {
+//Video class
+canvideo.Video = class extends EventEmitter {
     constructor(arg1 = { width: 200, height: 200 }, arg2, arg3) {
         //Constructor: width: number, height: number, fps
         //Constructor: { width: number, height: number }, fps
@@ -446,7 +446,7 @@ canvideo.Animation = class extends EventEmitter {
         }
         if (keyframe instanceof canvideo.Keyframe) {
             var frameNumber = Math.round(keyframe.startTime * this.fps);
-            keyframe.animation = this;
+            keyframe.video = this;
             keyframe.frameNumber = frameNumber;
             this.keyframes[frameNumber] = keyframe;
         }

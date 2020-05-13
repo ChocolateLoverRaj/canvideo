@@ -1,11 +1,11 @@
-const canvideo = require("../index");
+const canvideo = require("../../index");
 const path = require('path');
 
 canvideo.setTempPath(path.join(__dirname, "./res"));
 
-var animation = new canvideo.Animation({ width: 600, height: 600 }, 2);
+var video = new canvideo.Video({ width: 600, height: 600 }, 2);
 
-animation
+video
     .addKeyframe(new canvideo.Keyframe(0)
         .addShape(new canvideo.Rectangle(300, 300, 300, 300, "green")
             .setDeleteTime(0.5)
@@ -41,11 +41,11 @@ animation
     )
 
 
-animation.on("done", () => {
+video.on("done", () => {
     console.log("done")
 });
-animation.on("error", () => {
+video.on("error", () => {
     console.log("error!");
 });
 
-animation.export(path.join(__dirname, "./res/output.mp4"));
+video.export(path.join(__dirname, "./res/output.mp4"));
