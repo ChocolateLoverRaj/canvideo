@@ -3,17 +3,17 @@ const path = require('path');
 
 canvideo.setTempPath(path.join(__dirname, "./res"));
 
-var animation = new canvideo.Animation({ width: 200, height: 200 }, 4);
+var animation = new canvideo.Animation({ width: 400, height: 400 }, 1);
 
 animation
-    .addKeyframe(new canvideo.Keyframe(0.25)
-        .addShape(new canvideo.Rectangle(0, 0, 100, 100, "blue"))
+    .addKeyframe(new canvideo.Keyframe(0)
+        .addShape(new canvideo.Rectangle(0, 0, 200, 200, [255, 0, 0, 0.5]))
     )
-    .addKeyframe(new canvideo.Keyframe(0.5)
-        .addShape(new canvideo.Rectangle(50, 50, 100, 100, "cyan"))
+    .addKeyframe(new canvideo.Keyframe(1)
+        .addShape(new canvideo.Rectangle(100, 100, 200, 200, new canvideo.Color([0, 255, 0, 0.5])))
     )
-    .addKeyframe(new canvideo.Keyframe(0.75)
-        .addShape(new canvideo.Rectangle(100, 100, 100, 100, "white"))
+    .addKeyframe(new canvideo.Keyframe(2)
+        .addShape(new canvideo.Rectangle(200, 200, 200, 200, new canvideo.Color(0, 0, 255, 0.5)))
     )
 
 animation.on("done", () => {
