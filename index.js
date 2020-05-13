@@ -127,7 +127,33 @@ canvideo.Shape = class {
         else {
             this.color = new canvideo.Color(color);
         }
+        this.deleteFrame = Infinity;
+        this.deleteTime = Infinity;
     };
+
+    set animation(value) {
+        if (value instanceof canvideo.Animation) {
+            this._animation = value;
+            this.deleteFrame = this.animation.frameAtTime(this.deleteTime);
+        }
+        else {
+            throw new TypeError("Animation is not of type Animation.");
+        }
+    }
+    get animation() {
+        return this._animation;
+    }
+
+    setDeleteTime(time) {
+        if (typeof time === 'number') {
+            this.deleteTime = time;
+        }
+        else {
+            throw new TypeError("time must be a number (number of seconds).");
+        }
+
+        return this;
+    }
 }
 
 //Control Point
@@ -197,6 +223,8 @@ canvideo.Rectangle = class extends canvideo.Shape {
     draw(ctx) {
         ctx.fillStyle = this.color.value;
         ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        return this;
     }
 }
 
@@ -214,6 +242,9 @@ canvideo.Keyframe = class {
     set animation(value) {
         if (value instanceof canvideo.Animation) {
             this._animation = value;
+            for (var i = 0; i < this.shapes.length; i++) {
+                this.shapes[i].animation = this.animation;
+            }
         }
         else {
             throw new TypeError("Animation is not of type Animation.");
@@ -245,9 +276,17 @@ canvideo.Keyframe = class {
     }
     render(shapes = []) {
         if (typeof this.frameNumber == 'number') {
+            var shapesToRender = [];
+
             if (shapes instanceof Array) {
                 for (var i = 0; i < shapes.length; i++) {
-                    if (!(shapes[i] instanceof canvideo.Shape)) {
+                    if (shapes[i] instanceof canvideo.Shape) {
+                        if (shapes[i].deleteFrame > this.frameNumber) {
+                            shapesToRender.push(shapes[i]);
+                        }
+                    }
+                    else {
+                        console.log(shapes, this.frameNumber)
                         throw new TypeError(`shapes[${i}] is not a Shape.`);
                     }
                 }
@@ -256,8 +295,8 @@ canvideo.Keyframe = class {
                 throw new TypeError("Shapes must be an array of shapes.");
             }
 
-            var shapesToRender = shapes.concat(this.shapes);
-            this.animation.loop.goal += 1;
+            shapesToRender = shapesToRender.concat(this.shapes);
+            this.animation.loop.goal++;
 
             //Render frame 0
             var canvas = createCanvas(this.animation.width, this.animation.height);
@@ -416,6 +455,14 @@ canvideo.Animation = class extends EventEmitter {
         }
 
         return this;
+    }
+    frameAtTime(time) {
+        if (typeof time === 'number') {
+            return Math.round(time * this.fps);
+        }
+        else {
+            throw new TypeError("time must be a number.");
+        }
     }
     export(filePath) {
         if (this.exported) {
