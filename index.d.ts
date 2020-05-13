@@ -47,6 +47,10 @@ declare namespace canvideo {
         constructor(color: color): this;
 
         color: Color;
+        deleteTime: number;
+        deleteFrame: number;
+
+        setDeleteTime(time: number): this;
     }
 
     export class Rectangle extends Shape {
@@ -56,8 +60,9 @@ declare namespace canvideo {
         y: number;
         width: number;
         height: number;
+        animation: Animation;
 
-        draw(ctx: canvas.CanvasRenderingContext2D): void;
+        draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
     export class Keyframe {
@@ -83,6 +88,8 @@ declare namespace canvideo {
         fps: number;
 
         get spf(): number;
+
+        frameAtTime(time: number): number;
     }
 
     export interface Animation {
@@ -104,6 +111,7 @@ declare namespace canvideo {
         get spf(): number;
 
         addKeyFrame(keyframe: Keyframe): this;
+        frameAtTime(time: number): number;
         export(filePath: fs.PathLike): AnimationAfterExport;
     }
 }
