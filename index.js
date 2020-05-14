@@ -43,6 +43,8 @@ canvideo.setTempPath = function (path) {
 
 //Color
 canvideo.Color = class {
+    static testCtx = createCanvas(1, 1).getContext('2d');
+
     //Constructor: color: string
     //Constructor: [r: number, g: number, b: number]
     //Constructor: [r: number, g: number, b: number, a: number]
@@ -115,12 +117,182 @@ canvideo.Color = class {
             }
         }
     }
-    static testCtx = createCanvas(1, 1).getContext('2d');
+}
+
+//Linear animation
+canvideo.Animation = class {
+    constructor(startValue, endValue) {
+        if (typeof startValue === 'object' && typeof endValue === 'object') {
+            this.startValue = startValue;
+            this.endValue = endValue;
+            this.reversed = false;
+            this.doLast = false;
+        }
+        else {
+            throw new TypeError("start and end values must be numbers.");
+        }
+    }
+
+    reverse() {
+        this.reversed = true;
+        return this;
+    }
+    calculate(percentage) {
+        if (this.reversed) {
+            percentage = 1 - Math.abs(percentage * 2 - 1);
+        }
+        var value = {};
+        for (var key in this.startValue) {
+            var startValue = this.startValue[key], endValue = this.endValue[key];
+            var difference = endValue - startValue;
+            value[key] = startValue + percentage * difference;
+        }
+        return value;
+    }
+    last(){
+        this.doLast = true;
+        return this;
+    }
+}
+
+//Animanager
+canvideo.Animanager = class {
+    constructor(defaultValue, setVideo) {
+        if (typeof defaultValue === 'object' && typeof setVideo === 'function') {
+            this.defaultValue = defaultValue;
+            this.changes = new Map();
+            this.changesToAdd = [];
+            this.animations = new Map();
+            this.currentAnimations = [];
+            this.setVideo = setVideo;
+        }
+        else {
+            throw new TypeError("Bad constructor");
+        }
+    }
+
+    set video(value) {
+        if (value instanceof canvideo.Video) {
+            this._video = value;
+            for (var i = 0; i < this.currentAnimations.length; i++) {
+                var { startTime, endTime, value, isAnimationClass } = this.currentAnimations[i];
+                var startFrame = this.video.frameAtTime(startTime), endFrame = this.video.frameAtTime(endTime);
+                var animation = {
+                    startTime: startTime,
+                    startFrame: startFrame,
+                    endTime: endTime,
+                    endFrame: endFrame,
+                    value: value,
+                    isAnimationClass: isAnimationClass
+                };
+                if (this.animations.has(startFrame)) {
+                    this.animations.set(startFrame, this.animations.get(startFrame).push(animation));
+                }
+                else {
+                    this.animations.set(startFrame, [animation]);
+                }
+            }
+            this.currentAnimations = [];
+            for (var i = 0; i < this.changesToAdd.length; i++) {
+                var { startTime, value } = this.changesToAdd[i];
+                var startFrame = this.video.frameAtTime(startTime);
+                var change = {
+                    startTime: startTime,
+                    startFrame: startFrame,
+                    value: value
+                };
+                if (this.changes.has(startFrame)) {
+                    change.value = Object.assign(this.changes.get(startFrame), change.value);
+                    this.changes.set(startFrame, change);
+                }
+                else{
+                    this.changes.set(startFrame, change);
+                }
+            }
+            this.changesToAdd = [];
+            this.setVideo(value);
+        }
+        else {
+            throw new TypeError("Video is not of type Video.");
+        }
+    }
+    get video() {
+        return this._video;
+    }
+
+    animate(startTime, endTime, value) {
+        if (typeof startTime === 'number' && typeof endTime === 'number') {
+            var animation = {
+                startTime: startTime,
+                endTime: endTime,
+                value: value
+            }
+            if(typeof value === 'function' && value.length === 1){
+                animation.isAnimationClass = false;
+            }
+            else if(value instanceof canvideo.Animation){
+                animation.isAnimationClass = true;
+                if(animation.doLast){
+                    this.setAt(endTime, animation.endValue);
+                }
+            }
+            else{
+                throw new TypeError("value must be a function or Animation class instance.");
+            }
+            this.currentAnimations.push(animation);
+        }
+        else {
+            throw new TypeError("Start and end times must be numbers. value function must take one number parameter.");
+        }
+
+        return this;
+    }
+    setAt(startTime, value) {
+        if (typeof startTime === 'number' && typeof value === 'object') {
+            this.changesToAdd.push({
+                startTime: startTime,
+                value: value
+            });
+        }
+        else {
+            throw new TypeError("Invalid arguements.");
+        }
+        return this;
+    }
+    valueAt(frameNumber) {
+        if(this.changes.has(frameNumber)){
+            this.defaultValue = Object.assign(this.defaultValue, this.changes.get(frameNumber).value);
+        }
+        if (this.animations.has(frameNumber)) {
+            this.currentAnimations = this.currentAnimations.concat(this.animations.get(frameNumber));
+        }
+
+        var nextFrameAnimations = [];
+        var calculatedValue = this.defaultValue;
+        for (var i = 0; i < this.currentAnimations.length; i++) {
+            var { startFrame, endFrame, value, isAnimationClass } = this.currentAnimations[i];
+            var percentage = (frameNumber - startFrame) / (endFrame - startFrame);
+            if (frameNumber <= endFrame) {
+                nextFrameAnimations.push(this.currentAnimations[i]);
+            }
+            if (isAnimationClass) {
+                calculatedValue = Object.assign(calculatedValue, value.calculate(percentage));
+            }
+            else {
+                calculatedValue = Object.assign(calculatedValue, value(percentage));
+            }
+        }
+        this.currentAnimations = nextFrameAnimations;
+        return calculatedValue;
+    }
 }
 
 //Shape
-canvideo.Shape = class {
-    constructor(color) {
+canvideo.Shape = class extends canvideo.Animanager {
+    constructor(color, defaultValue) {
+        super(defaultValue, function (value) {
+            this.deleteFrame = this.video.frameAtTime(this.deleteTime);
+        });
         if (color instanceof canvideo.Color) {
             this.color = color;
         }
@@ -130,19 +302,6 @@ canvideo.Shape = class {
         this.deleteFrame = Infinity;
         this.deleteTime = Infinity;
     };
-
-    set animation(value) {
-        if (value instanceof canvideo.Animation) {
-            this._animation = value;
-            this.deleteFrame = this.animation.frameAtTime(this.deleteTime);
-        }
-        else {
-            throw new TypeError("Animation is not of type Animation.");
-        }
-    }
-    get animation() {
-        return this._animation;
-    }
 
     setDeleteTime(time) {
         if (typeof time === 'number') {
@@ -193,42 +352,36 @@ canvideo.ControlPoint = class {
 //Rectangle
 canvideo.Rectangle = class extends canvideo.Shape {
     constructor(x = 0, y = 0, width = 100, height = 100, color) {
-        super(color);
-        if (typeof x == 'number') {
-            this.x = x;
-        }
-        else {
+        if (!typeof x == 'number') {
             throw new TypeError(`x: ${x} is not a number.`);
         }
-        if (typeof y == 'number') {
-            this.y = y;
-        }
-        else {
+        if (!typeof y == 'number') {
             throw new TypeError(`y: ${y} is not a number.`);
         }
-        if (typeof width == 'number') {
-            this.width = width;
-        }
-        else {
+        if (!typeof width == 'number') {
             throw new TypeError(`width: ${width} is not a number.`);
         }
-        if (typeof height == 'number') {
-            this.height = height;
-        }
-        else {
+        if (!typeof height == 'number') {
             throw new TypeError(`height: ${height} is not a number.`);
         }
+        super(color, {
+            x: x,
+            y: y,
+            width: width,
+            height: height
+        });
     }
 
-    draw(ctx) {
+    draw(ctx, frameNumber) {
+        var value = this.valueAt(frameNumber);
         ctx.fillStyle = this.color.value;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillRect(value.x, value.y, value.width, value.height);
 
         return this;
     }
 }
 
-//Frame Class
+//Keyframe Class
 canvideo.Keyframe = class {
     constructor(startTime) {
         if (typeof startTime == 'number') {
@@ -239,19 +392,19 @@ canvideo.Keyframe = class {
         }
         this.shapes = [];
     }
-    set animation(value) {
-        if (value instanceof canvideo.Animation) {
-            this._animation = value;
+    set video(value) {
+        if (value instanceof canvideo.Video) {
+            this._video = value;
             for (var i = 0; i < this.shapes.length; i++) {
-                this.shapes[i].animation = this.animation;
+                this.shapes[i].video = this.video;
             }
         }
         else {
-            throw new TypeError("Animation is not of type Animation.");
+            throw new TypeError("Video is not of type Video.");
         }
     }
-    get animation() {
-        return this._animation;
+    get video() {
+        return this._video;
     }
     set frameNumber(value) {
         if (typeof value == 'number') {
@@ -296,27 +449,27 @@ canvideo.Keyframe = class {
             }
 
             shapesToRender = shapesToRender.concat(this.shapes);
-            this.animation.loop.goal++;
+            this.video.loop.goal++;
 
             //Render frame 0
-            var canvas = createCanvas(this.animation.width, this.animation.height);
+            var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
             for (var i = 0; i < shapesToRender.length; i++) {
-                shapesToRender[i].draw(ctx);
+                shapesToRender[i].draw(ctx, this.frameNumber);
             }
-            var framePath = this.animation.tempPath + "/frame" + this.frameNumber + ".jpg";
+            var framePath = this.video.tempPath + "/frame" + this.frameNumber + ".jpg";
             canvas.createJPEGStream()
                 .on("end", () => {
-                    this.animation.loop.emit("result", false);
+                    this.video.loop.emit("result", false);
                 })
                 .on("error", err => {
-                    this.animation.loop.emit("result", err, this.frameNumber);
+                    this.video.loop.emit("result", err, this.frameNumber);
                 })
                 .pipe(fs.createWriteStream(framePath));
 
             //Render next keyframe
-            if (this.frameNumber + 1 < this.animation.keyframes.length) {
-                this.animation.keyframes[this.frameNumber + 1].render(shapesToRender);
+            if (this.frameNumber + 1 < this.video.keyframes.length) {
+                this.video.keyframes[this.frameNumber + 1].render(shapesToRender);
             }
             else {
                 //This is the last frame
@@ -330,8 +483,8 @@ canvideo.Keyframe = class {
     }
 }
 
-//Animation class
-canvideo.Animation = class extends EventEmitter {
+//Video class
+canvideo.Video = class extends EventEmitter {
     constructor(arg1 = { width: 200, height: 200 }, arg2, arg3) {
         //Constructor: width: number, height: number, fps
         //Constructor: { width: number, height: number }, fps
@@ -446,7 +599,7 @@ canvideo.Animation = class extends EventEmitter {
         }
         if (keyframe instanceof canvideo.Keyframe) {
             var frameNumber = Math.round(keyframe.startTime * this.fps);
-            keyframe.animation = this;
+            keyframe.video = this;
             keyframe.frameNumber = frameNumber;
             this.keyframes[frameNumber] = keyframe;
         }
