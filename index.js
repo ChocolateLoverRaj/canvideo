@@ -379,14 +379,6 @@ canvideo.Rectangle = class extends canvideo.Shape {
 
         return this;
     }
-    animateWidth(animation) {
-        if (animation instanceof canvideo.Rectangle.WidthAnimation) {
-            this.animations.push(animation);
-        }
-        else {
-            throw new TypeError("animation must be of type Animation.");
-        }
-    }
 }
 
 //Keyframe Class

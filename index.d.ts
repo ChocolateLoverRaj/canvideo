@@ -27,53 +27,75 @@ declare namespace canvideo {
         size: videoSize;
         fps: number;
     }
-    interface VideoOptionsAll implements videoSize {
+    interface VideoOptionsAll extends VideoSize {
         fps: number;
+    }
+    interface ShapeAttributes{
+        color: Color
+    }
+    interface RectangleAttributes extends ShapeAttributes{
+        x: number,
+        y: number,
+        width: number,
+        height: number
     }
 
     export function setTempPath(path: fs.PathLike): void;
 
     export class Color {
-        constructor(color: cssColor): this;
-        constructor(color: rgbColor): this;
-        constructor(color: rgbaColor): this;
-        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity): this;
-        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity): this;
+        constructor(color: cssColor);
+        constructor(color: rgbColor);
+        constructor(color: rgbaColor);
+        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity);
+        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity);
 
         value: number;
     }
 
-    export abstract class Shape {
-        constructor(color: color): this;
+    export class Animation {
+        constructor(startValue: number, endValue: number);
+
+        reverse(): this;
+        calculate(percentage: number): void;
+        last(): this;
+    }
+
+    export class Animanager<Attributes>{
+        constructor(defaultValue: object, setVideo: (video: Video) => void);
+
+        video: Video;
+        defaultValue: Attributes;
+
+        animate(startTime: number, endTime: number, value: (percentage: number) => Attributes | Animation): this;
+        setAt(startTime: number, value: Attributes): this;
+        valueAt(frameNumber: number): Attributes;
+    }
+
+    export abstract class Shape<Attributes extends ShapeAttributes> extends Animanager<Attributes> {
+        constructor(color: color, defaultValue: Attributes);
 
         color: Color;
         deleteTime: number;
         deleteFrame: number;
 
         setDeleteTime(time: number): this;
+
+        abstract draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
-    export class Rectangle extends Shape {
-        constructor(x: number, y: number, width: number, height: number, color?: color): this;
-
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        video: Video;
-
-        draw(ctx: canvas.CanvasRenderingContext2D): this;
+    export class Rectangle extends Shape<RectangleAttributes> {
+        constructor(x: number, y: number, width: number, height: number, color?: color);
     }
 
     export class Keyframe {
-        constructor(startTime: number): this;
+        constructor(startTime: number);
 
-        shapes: Array<Shape>;
+        shapes: Array<Shape<any>>;
         video: Video;
         frameNumber: number;
 
-        addShape(shape: Shape): this;
-        render(shapes: Array<Shape>): void;
+        addShape(shape: Shape<any>): this;
+        render(shapes: Array<Shape<any>>): void;
     }
 
     export interface VideoAfterExport {
@@ -97,10 +119,10 @@ declare namespace canvideo {
         on(event: "error", handler: () => void): this;
     }
     export class Video extends events.EventEmitter {
-        constructor(width: evenNumber, height: evenNumber, fps: number): this;
-        constructor(size: videoSize, fps: number): this;
-        constructor(options: VideoOptions): this;
-        constructor(options: VideoOptionsAll): this;
+        constructor(width: evenNumber, height: evenNumber, fps: number);
+        constructor(size: videoSize, fps: number);
+        constructor(options: VideoOptions);
+        constructor(options: VideoOptionsAll);
 
         keyframes: Array<Keyframe>;
         tempPath: fs.PathLike;
