@@ -126,6 +126,7 @@ canvideo.Animation = class {
             this.startValue = startValue;
             this.endValue = endValue;
             this.reversed = false;
+            this.doLast = false;
         }
         else {
             throw new TypeError("start and end values must be numbers.");
@@ -147,7 +148,11 @@ canvideo.Animation = class {
             value[key] = startValue + percentage * difference;
         }
         return value;
-    };
+    }
+    last(){
+        this.doLast = true;
+        return this;
+    }
 }
 
 //Animanager
@@ -155,6 +160,8 @@ canvideo.Animanager = class {
     constructor(defaultValue, setVideo) {
         if (typeof defaultValue === 'object' && typeof setVideo === 'function') {
             this.defaultValue = defaultValue;
+            this.changes = new Map();
+            this.changesToAdd = [];
             this.animations = new Map();
             this.currentAnimations = [];
             this.setVideo = setVideo;
@@ -186,6 +193,23 @@ canvideo.Animanager = class {
                 }
             }
             this.currentAnimations = [];
+            for (var i = 0; i < this.changesToAdd.length; i++) {
+                var { startTime, value } = this.changesToAdd[i];
+                var startFrame = this.video.frameAtTime(startTime);
+                var change = {
+                    startTime: startTime,
+                    startFrame: startFrame,
+                    value: value
+                };
+                if (this.changes.has(startFrame)) {
+                    change.value = Object.assign(this.changes.get(startFrame), change.value);
+                    this.changes.set(startFrame, change);
+                }
+                else{
+                    this.changes.set(startFrame, change);
+                }
+            }
+            this.changesToAdd = [];
             this.setVideo(value);
         }
         else {
@@ -197,13 +221,25 @@ canvideo.Animanager = class {
     }
 
     animate(startTime, endTime, value) {
-        if (typeof startTime == 'number' && typeof endTime === 'number' && (typeof value === 'function' && value.length === 1) || value instanceof canvideo.Animation) {
-            this.currentAnimations.push({
+        if (typeof startTime === 'number' && typeof endTime === 'number') {
+            var animation = {
                 startTime: startTime,
                 endTime: endTime,
-                value: value,
-                isAnimationClass: value instanceof canvideo.Animation ? true : false
-            });
+                value: value
+            }
+            if(typeof value === 'function' && value.length === 1){
+                animation.isAnimationClass = false;
+            }
+            else if(value instanceof canvideo.Animation){
+                animation.isAnimationClass = true;
+                if(animation.doLast){
+                    this.setAt(endTime, animation.endValue);
+                }
+            }
+            else{
+                throw new TypeError("value must be a function or Animation class instance.");
+            }
+            this.currentAnimations.push(animation);
         }
         else {
             throw new TypeError("Start and end times must be numbers. value function must take one number parameter.");
@@ -211,7 +247,22 @@ canvideo.Animanager = class {
 
         return this;
     }
+    setAt(startTime, value) {
+        if (typeof startTime === 'number' && typeof value === 'object') {
+            this.changesToAdd.push({
+                startTime: startTime,
+                value: value
+            });
+        }
+        else {
+            throw new TypeError("Invalid arguements.");
+        }
+        return this;
+    }
     valueAt(frameNumber) {
+        if(this.changes.has(frameNumber)){
+            this.defaultValue = Object.assign(this.defaultValue, this.changes.get(frameNumber).value);
+        }
         if (this.animations.has(frameNumber)) {
             this.currentAnimations = this.currentAnimations.concat(this.animations.get(frameNumber));
         }
