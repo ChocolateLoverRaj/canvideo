@@ -149,7 +149,7 @@ canvideo.Animation = class {
         }
         return value;
     }
-    last(){
+    last() {
         this.doLast = true;
         return this;
     }
@@ -205,7 +205,7 @@ canvideo.Animanager = class {
                     change.value = Object.assign(this.changes.get(startFrame), change.value);
                     this.changes.set(startFrame, change);
                 }
-                else{
+                else {
                     this.changes.set(startFrame, change);
                 }
             }
@@ -227,16 +227,16 @@ canvideo.Animanager = class {
                 endTime: endTime,
                 value: value
             }
-            if(typeof value === 'function' && value.length === 1){
+            if (typeof value === 'function' && value.length === 1) {
                 animation.isAnimationClass = false;
             }
-            else if(value instanceof canvideo.Animation){
+            else if (value instanceof canvideo.Animation) {
                 animation.isAnimationClass = true;
-                if(animation.doLast){
+                if (animation.doLast) {
                     this.setAt(endTime, animation.endValue);
                 }
             }
-            else{
+            else {
                 throw new TypeError("value must be a function or Animation class instance.");
             }
             this.currentAnimations.push(animation);
@@ -260,7 +260,7 @@ canvideo.Animanager = class {
         return this;
     }
     valueAt(frameNumber) {
-        if(this.changes.has(frameNumber)){
+        if (this.changes.has(frameNumber)) {
             this.defaultValue = Object.assign(this.defaultValue, this.changes.get(frameNumber).value);
         }
         if (this.animations.has(frameNumber)) {
@@ -289,8 +289,11 @@ canvideo.Animanager = class {
 
 //Shape
 canvideo.Shape = class extends canvideo.Animanager {
-    constructor(color, defaultValue) {
-        super(defaultValue, function (value) {
+    constructor(color, defaultValue, layer = 0) {
+        if (!(typeof layer === 'number' && Number.isSafeInteger(layer) && layer >= 0)) {
+            throw new TypeError("layer must be a non negative integer.");
+        }
+        super(Object.assign({ layer: layer }, defaultValue), function (value) {
             this.deleteFrame = this.video.frameAtTime(this.deleteTime);
         });
         if (color instanceof canvideo.Color) {
@@ -351,7 +354,7 @@ canvideo.ControlPoint = class {
 
 //Rectangle
 canvideo.Rectangle = class extends canvideo.Shape {
-    constructor(x = 0, y = 0, width = 100, height = 100, color) {
+    constructor(x = 0, y = 0, width = 100, height = 100, color, layer) {
         if (!typeof x == 'number') {
             throw new TypeError(`x: ${x} is not a number.`);
         }
@@ -369,7 +372,7 @@ canvideo.Rectangle = class extends canvideo.Shape {
             y: y,
             width: width,
             height: height
-        });
+        }, layer);
     }
 
     draw(ctx, frameNumber) {
@@ -420,6 +423,7 @@ canvideo.Keyframe = class {
 
     addShape(shape) {
         if (shape instanceof canvideo.Shape) {
+            shape.shapeIndex = this.shapes.length;
             this.shapes.push(shape);
         }
         else {
@@ -429,6 +433,15 @@ canvideo.Keyframe = class {
     }
     render(shapes = []) {
         if (typeof this.frameNumber == 'number') {
+            function sorter(a, b) {
+                if (a.valueAt(this.frameNumber).layer === b.valueAt(this.frameNumber).layer) {
+                    return a.shapeIndex - b.shapeIndex;
+                }
+                else {
+                    return a.valueAt(this.frameNumber).layer - b.valueAt(this.frameNumber).layer;
+                }
+            };
+
             var shapesToRender = [];
 
             if (shapes instanceof Array) {
@@ -448,7 +461,7 @@ canvideo.Keyframe = class {
                 throw new TypeError("Shapes must be an array of shapes.");
             }
 
-            shapesToRender = shapesToRender.concat(this.shapes);
+            shapesToRender = shapesToRender.concat(this.shapes).sort(sorter.bind(this));
             this.video.loop.goal++;
 
             //Render frame 0

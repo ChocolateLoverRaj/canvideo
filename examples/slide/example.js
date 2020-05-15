@@ -26,6 +26,7 @@ video
             .animate(0, 2, new canvideo.Animation(vertical, horizontal)
                 .reverse()
             )
+            .setAt(1, { layer: 1 })
         )
         .addShape(new canvideo.Rectangle(0, 200, 200, 0, "white")
             .animate(0, 2, new canvideo.Animation(horizontal, vertical)
