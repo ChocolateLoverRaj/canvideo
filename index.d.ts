@@ -82,7 +82,7 @@ declare namespace canvideo {
 
         setDeleteTime(time: number): this;
 
-        abstract draw(ctx: canvas.CanvasRenderingContext2D): this;
+        draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
     export class Rectangle extends Shape<RectangleAttributes> {

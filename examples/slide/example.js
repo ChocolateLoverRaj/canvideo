@@ -5,7 +5,7 @@ const path = require('path');
 
 canvideo.setTempPath(path.join(__dirname, "./res"));
 
-var video = new canvideo.Video({ width: 400, height: 400 }, 60);
+var video = new canvideo.Video({ width: 400, height: 400 }, 24);
 
 var vertical = {
     x: 200,
@@ -22,26 +22,14 @@ var horizontal = {
 
 video
     .addKeyframe(new canvideo.Keyframe(0)
-        .addShape(new canvideo.Rectangle(200, 0, 0, 200, "green")
-            .animate(0, 2, new canvideo.Animation(vertical, horizontal)
-                .reverse()
-            )
-            .setAt(1, { layer: 1 })
-        )
-        .addShape(new canvideo.Rectangle(0, 200, 200, 0, "white")
-            .animate(0, 2, new canvideo.Animation(horizontal, vertical)
-                .reverse()
-            )
-        )
-        .addShape(new canvideo.Rectangle(0, 0, 100, 100, "brown")
-            .animate(0, 1, new canvideo.Animation({ x: 0 }, { x: 300 })
+        .addShape(new canvideo.Rectangle(0, 0, 100, 100, "blue")
+            .animate(0, 1, new canvideo.Animation({ x: 0, color: { r: 0 } }, { x: 300, color: { r: 255 } })
                 .last()
             )
         )
     )
-    .addKeyframe(new canvideo.Keyframe(119 / 60))
+    .addKeyframe(new canvideo.Keyframe(23 / 24))
     .export(path.join(__dirname, "./res/output.mp4"));
-
 
 video.on("done", () => {
     console.log("done")
