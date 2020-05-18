@@ -1,6 +1,7 @@
 import fs = require('fs');
 import events = require('events');
 import canvas = require('canvas');
+import tinyColor = require('tinycolor2');
 
 declare namespace canvideo {
     //Valid CSS Color
@@ -14,6 +15,7 @@ declare namespace canvideo {
     type color = canvideo.Color | cssColor | rgbColor | rgbaColor;
     type videoSize = VideoSize | VideoSizeShort;
     type evenNumber = number;
+    type nonNegativeInteger = number;
 
     interface VideoSize {
         width: evenNumber;
@@ -31,7 +33,8 @@ declare namespace canvideo {
         fps: number;
     }
     interface ShapeAttributes{
-        color: Color
+        color: Color,
+        layer: nonNegativeInteger
     }
     interface RectangleAttributes extends ShapeAttributes{
         x: number,
@@ -49,7 +52,17 @@ declare namespace canvideo {
         constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity);
         constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity);
 
-        value: number;
+        tinyColor: tinyColor.Instance;
+        r: colorIntensity;
+        red: colorIntensity;
+        g: colorIntensity;
+        green: colorIntensity;
+        b: colorIntensity;
+        blue: colorIntensity;
+        a: colorOpacity;
+        alpha: colorOpacity;
+
+        toString(): string;
     }
 
     export class Animation {
@@ -72,7 +85,7 @@ declare namespace canvideo {
     }
 
     export abstract class Shape<Attributes extends ShapeAttributes> extends Animanager<Attributes> {
-        constructor(color: color, defaultValue: Attributes);
+        constructor(color: color, defaultValue: Attributes, layer?: nonNegativeInteger);
 
         color: Color;
         deleteTime: number;
@@ -80,11 +93,11 @@ declare namespace canvideo {
 
         setDeleteTime(time: number): this;
 
-        abstract draw(ctx: canvas.CanvasRenderingContext2D): this;
+        draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
     export class Rectangle extends Shape<RectangleAttributes> {
-        constructor(x: number, y: number, width: number, height: number, color?: color);
+        constructor(x: number, y: number, width: number, height: number, color?: color, layer?: nonNegativeInteger);
     }
 
     export class Keyframe {
