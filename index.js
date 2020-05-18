@@ -110,19 +110,80 @@ canvideo.Color = class {
             }
         }
     }
+
     set r(value) {
-        if (value >= 0 && value <= 255) {
-            var rgba = this.tinyColor.toRgb();
-            rgba.r = value;
-            this.tinyColor = tinyColor(rgba);
-        }
-        else {
-            throw new TypeError("r must be between 0 and 255.");
-        }
+        this.setIntensity('r', value);
+    }
+    get r(){
+        return this.tinyColor.toRgb().r;
+    }
+    set red(value){
+        this.r = value;
+    }
+    get red(){
+        return this.r;
+    }
+
+    set g(value) {
+        this.setIntensity('g', value);
+    }
+    get g(){
+        return this.tinyColor.toRgb().g;
+    }
+    set green(value){
+        this.g = value;
+    }
+    get green(){
+        return this.g;
+    }
+
+    set b(value) {
+        this.setIntensity('b', value);
+    }
+    get b(){
+        return this.tinyColor.toRgb().b;
+    }
+    set blue(value){
+        this.b = value;
+    }
+    get blue(){
+        return this.b;
+    }
+
+    set a(value){
+        this.setAlpha(value);
+    }
+    get a(){
+        return this.tinyColor.toRgb().a;
+    }
+    set alpha(value){
+        this.a = value;
+    }
+    get alpha(){
+        return this.a;
     }
 
     toString() {
         return this.tinyColor.toString();
+    }
+
+    setIntensity(color, intensity){
+        if (intensity >= 0 && intensity <= 255) {
+            var rgba = this.tinyColor.toRgb();
+            rgba[color] = intensity;
+            this.tinyColor = tinyColor(rgba);
+        }
+        else {
+            throw new TypeError(`${color} must be between 0 and 255.`);
+        }
+    }
+    setAlpha(opacity){
+        if(opacity >= 0 && opacity <= 1){
+            this.tinyColor.setAlpha(opacity);
+        }
+        else{
+            throw new TypeError("Alpha must be between 0 and 1.");
+        }
     }
 }
 
@@ -162,8 +223,7 @@ canvideo.Animation = class {
             }
             return value;
         }
-        var a = calculateObject(this.startValue, this.endValue);
-        return a;
+        return calculateObject(this.startValue, this.endValue);
     }
     last() {
         this.doLast = true;

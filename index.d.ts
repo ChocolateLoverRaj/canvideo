@@ -53,8 +53,14 @@ declare namespace canvideo {
         constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity);
 
         tinyColor: tinyColor.Instance;
-
-        set r(value: number): void;
+        r: colorIntensity;
+        red: colorIntensity;
+        g: colorIntensity;
+        green: colorIntensity;
+        b: colorIntensity;
+        blue: colorIntensity;
+        a: colorOpacity;
+        alpha: colorOpacity;
 
         toString(): string;
     }

@@ -22,13 +22,13 @@ var horizontal = {
 
 video
     .addKeyframe(new canvideo.Keyframe(0)
-        .addShape(new canvideo.Rectangle(0, 0, 100, 100, "blue")
-            .animate(0, 1, new canvideo.Animation({ x: 0, color: { r: 0 } }, { x: 300, color: { r: 255 } })
-                .last()
+        .addShape(new canvideo.Rectangle(0, 0, 100, 100, "white")
+            .animate(0, 2, new canvideo.Animation({ x: 0, color: { alpha: 1 } }, { x: 300, color: { alpha: 0 } })
+                .reverse()
             )
         )
     )
-    .addKeyframe(new canvideo.Keyframe(23 / 24))
+    .addKeyframe(new canvideo.Keyframe((24 * 1 + 23) / 24))
     .export(path.join(__dirname, "./res/output.mp4"));
 
 video.on("done", () => {
