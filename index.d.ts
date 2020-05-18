@@ -1,6 +1,7 @@
 import fs = require('fs');
 import events = require('events');
 import canvas = require('canvas');
+import tinyColor = require('tinycolor2');
 
 declare namespace canvideo {
     //Valid CSS Color
@@ -51,7 +52,11 @@ declare namespace canvideo {
         constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity);
         constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity);
 
-        value: number;
+        tinyColor: tinyColor.Instance;
+
+        set r(value: number): void;
+
+        toString(): string;
     }
 
     export class Animation {
