@@ -1,6 +1,7 @@
 import fs = require('fs');
 import events = require('events');
 import canvas = require('canvas');
+import tinyColor = require('tinycolor2');
 
 declare namespace canvideo {
     //Valid CSS Color
@@ -12,70 +13,109 @@ declare namespace canvideo {
     type rgbColor = [colorIntensity, colorIntensity, colorIntensity];
     type rgbaColor = [colorIntensity, colorIntensity, colorIntensity, colorOpacity];
     type color = canvideo.Color | cssColor | rgbColor | rgbaColor;
-    type animationSize = AnimationSize | AnimationSizeShort;
+    type videoSize = VideoSize | VideoSizeShort;
     type evenNumber = number;
+    type nonNegativeInteger = number;
 
-    interface AnimationSize {
+    interface VideoSize {
         width: evenNumber;
         height: evenNumber;
     }
-    interface AnimationSizeShort {
+    interface VideoSizeShort {
         w: evenNumber;
         h: evenNumber;
     }
-    interface AnimationOptions {
-        size: animationSize;
+    interface VideoOptions {
+        size: videoSize;
         fps: number;
     }
-    interface AnimationOptionsAll implements animationSize {
+    interface VideoOptionsAll extends VideoSize {
         fps: number;
+    }
+    interface ShapeAttributes{
+        color: Color,
+        layer: nonNegativeInteger
+    }
+    interface RectangleAttributes extends ShapeAttributes{
+        x: number,
+        y: number,
+        width: number,
+        height: number
     }
 
     export function setTempPath(path: fs.PathLike): void;
 
     export class Color {
-        constructor(color: cssColor): this;
-        constructor(color: rgbColor): this;
-        constructor(color: rgbaColor): this;
-        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity): this;
-        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity): this;
+        constructor(color: cssColor);
+        constructor(color: rgbColor);
+        constructor(color: rgbaColor);
+        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity);
+        constructor(red: colorIntensity, green: colorIntensity, blue: colorIntensity, alpha: colorOpacity);
 
-        value: number;
+        tinyColor: tinyColor.Instance;
+        r: colorIntensity;
+        red: colorIntensity;
+        g: colorIntensity;
+        green: colorIntensity;
+        b: colorIntensity;
+        blue: colorIntensity;
+        a: colorOpacity;
+        alpha: colorOpacity;
+
+        toString(): string;
     }
 
-    export abstract class Shape {
-        constructor(color: color): this;
+    export class Animation {
+        constructor(startValue: number, endValue: number);
+
+        reverse(): this;
+        calculate(percentage: number): void;
+        last(): this;
+    }
+
+    export class Animanager<Attributes>{
+        constructor(defaultValue: object, setVideo: (video: Video) => void);
+
+        video: Video;
+        defaultValue: Attributes;
+
+        animate(startTime: number, endTime: number, value: (percentage: number) => Attributes | Animation): this;
+        setAt(startTime: number, value: Attributes): this;
+        valueAt(frameNumber: number): Attributes;
+    }
+
+    export abstract class Shape<Attributes extends ShapeAttributes> extends Animanager<Attributes> {
+        constructor(color: color, defaultValue: Attributes, layer?: nonNegativeInteger);
 
         color: Color;
+        deleteTime: number;
+        deleteFrame: number;
+
+        setDeleteTime(time: number): this;
+
+        draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
-    export class Rectangle extends Shape {
-        constructor(x: number, y: number, width: number, height: number, color?: color): this;
-
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-
-        draw(ctx: canvas.CanvasRenderingContext2D): void;
+    export class Rectangle extends Shape<RectangleAttributes> {
+        constructor(x: number, y: number, width: number, height: number, color?: color, layer?: nonNegativeInteger);
     }
 
     export class Keyframe {
-        constructor(startTime: number): this;
+        constructor(startTime: number);
 
-        shapes: Array<Shape>;
-        animation: Animation;
+        shapes: Array<Shape<any>>;
+        video: Video;
         frameNumber: number;
 
-        addShape(shape: Shape): this;
-        render(shapes: Array<Shape>): void;
+        addShape(shape: Shape<any>): this;
+        render(shapes: Array<Shape<any>>): void;
     }
 
-    export interface AnimationAfterExport {
+    export interface VideoAfterExport {
         on(event: "done", handler: () => void): this;
         on(event: "error", handler: () => void): this;
     }
-    export abstract class AnimationAfterExport {
+    export abstract class VideoAfterExport {
         keyframes: Array<Keyframe>;
         tempPath: fs.PathLike;
         width: evenNumber;
@@ -83,17 +123,19 @@ declare namespace canvideo {
         fps: number;
 
         get spf(): number;
+
+        frameAtTime(time: number): number;
     }
 
-    export interface Animation {
+    export interface Video {
         on(event: "done", handler: () => void): this;
         on(event: "error", handler: () => void): this;
     }
-    export class Animation extends events.EventEmitter {
-        constructor(width: evenNumber, height: evenNumber, fps: number): this;
-        constructor(size: animationSize, fps: number): this;
-        constructor(options: AnimationOptions): this;
-        constructor(options: AnimationOptionsAll): this;
+    export class Video extends events.EventEmitter {
+        constructor(width: evenNumber, height: evenNumber, fps: number);
+        constructor(size: videoSize, fps: number);
+        constructor(options: VideoOptions);
+        constructor(options: VideoOptionsAll);
 
         keyframes: Array<Keyframe>;
         tempPath: fs.PathLike;
@@ -104,7 +146,8 @@ declare namespace canvideo {
         get spf(): number;
 
         addKeyFrame(keyframe: Keyframe): this;
-        export(filePath: fs.PathLike): AnimationAfterExport;
+        frameAtTime(time: number): number;
+        export(filePath: fs.PathLike): VideoAfterExport;
     }
 }
 

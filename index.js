@@ -11,10 +11,12 @@ const EventEmitter = require('events').EventEmitter;
 const { createCanvas } = require('canvas');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
+const tinyColor = require('tinycolor2');
 
 //My Modules
 const AsyncLoop = require("./lib/asyncLoop");
 const myMath = require("./lib/myMath");
+const helper = require("./lib/helper");
 
 //Set ffmpeg path
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -50,14 +52,8 @@ canvideo.Color = class {
     //Constructor: r: number, g: number, b: number, a: number
     constructor(arg1, arg2, arg3, arg4) {
         function validValue(color) {
-            if (color == "black" && color == "#000000") {
-                return "#000000";
-            }
-            else {
-                canvideo.Color.testCtx.fillStyle = "#000000";
-                canvideo.Color.testCtx.fillStyle = color;
-                return canvideo.Color.testCtx.fillStyle == "#000000" ? false : canvideo.Color.testCtx.fillStyle;
-            }
+            var color = tinyColor(color);
+            return color.isValid();
         }
         function validIntensity(n) {
             return typeof n === 'number' && n >= 0 && n <= 255;
@@ -67,12 +63,11 @@ canvideo.Color = class {
         }
 
         if (typeof arg1 === 'string' && typeof arg2 === 'undefined' && typeof arg3 === 'undefined' && typeof arg4 === 'undefined') {
-            var color = validValue(arg1);
-            if (color === false) {
+            if (!validValue(arg1)) {
                 throw new TypeError("Color is not a valid CSS color.");
             }
             else {
-                this.value = color;
+                this.tinyColor = tinyColor(arg1);
             }
         }
         else {
@@ -96,7 +91,7 @@ canvideo.Color = class {
             }
             if (values.length === 3) {
                 if (validIntensity(values[0]) && validIntensity(values[1]) && validIntensity(values[2])) {
-                    this.value = validValue(`rgb(${values[0]}, ${values[1]}, ${values[2]})`);
+                    this.tinyColor = tinyColor({ r: values[0], g: values[1], b: values[2] });
                 }
                 else {
                     throw new TypeError("Invalid rgb type.");
@@ -104,7 +99,7 @@ canvideo.Color = class {
             }
             else if (values.length === 4) {
                 if (validIntensity(values[0]) && validIntensity(values[1]) && validIntensity(values[2]) && validOpacity(values[3])) {
-                    this.value = validValue(`rgba(${values[0]}, ${values[1]}, ${values[2]}, ${values[3]})`);
+                    this.tinyColor = tinyColor({ r: values[0], g: values[1], b: values[2], a: values[3] });
                 }
                 else {
                     throw new TypeError("Invalid rgba type.");
@@ -115,19 +110,297 @@ canvideo.Color = class {
             }
         }
     }
-    static testCtx = createCanvas(1, 1).getContext('2d');
+
+    set r(value) {
+        this.setIntensity('r', value);
+    }
+    get r(){
+        return this.tinyColor.toRgb().r;
+    }
+    set red(value){
+        this.r = value;
+    }
+    get red(){
+        return this.r;
+    }
+
+    set g(value) {
+        this.setIntensity('g', value);
+    }
+    get g(){
+        return this.tinyColor.toRgb().g;
+    }
+    set green(value){
+        this.g = value;
+    }
+    get green(){
+        return this.g;
+    }
+
+    set b(value) {
+        this.setIntensity('b', value);
+    }
+    get b(){
+        return this.tinyColor.toRgb().b;
+    }
+    set blue(value){
+        this.b = value;
+    }
+    get blue(){
+        return this.b;
+    }
+
+    set a(value){
+        this.setAlpha(value);
+    }
+    get a(){
+        return this.tinyColor.toRgb().a;
+    }
+    set alpha(value){
+        this.a = value;
+    }
+    get alpha(){
+        return this.a;
+    }
+
+    toString() {
+        return this.tinyColor.toString();
+    }
+
+    setIntensity(color, intensity){
+        if (intensity >= 0 && intensity <= 255) {
+            var rgba = this.tinyColor.toRgb();
+            rgba[color] = intensity;
+            this.tinyColor = tinyColor(rgba);
+        }
+        else {
+            throw new TypeError(`${color} must be between 0 and 255.`);
+        }
+    }
+    setAlpha(opacity){
+        if(opacity >= 0 && opacity <= 1){
+            this.tinyColor.setAlpha(opacity);
+        }
+        else{
+            throw new TypeError("Alpha must be between 0 and 1.");
+        }
+    }
+}
+
+//Linear animation
+canvideo.Animation = class {
+    constructor(startValue, endValue) {
+        if (typeof startValue === 'object' && typeof endValue === 'object') {
+            this.startValue = startValue;
+            this.endValue = endValue;
+            this.reversed = false;
+            this.doLast = false;
+        }
+        else {
+            throw new TypeError("start and end values must be numbers.");
+        }
+    }
+
+    reverse() {
+        this.reversed = true;
+        return this;
+    }
+    calculate(percentage) {
+        if (this.reversed) {
+            percentage = 1 - Math.abs(percentage * 2 - 1);
+        }
+        function calculateObject(startObject, endObject) {
+            var value = {};
+            for (var key in startObject) {
+                var startValue = startObject[key], endValue = endObject[key];
+                if (typeof startValue === 'number') {
+                    var difference = endValue - startValue;
+                    value[key] = startValue + percentage * difference;
+                }
+                else if (typeof startValue === 'object') {
+                    value[key] = calculateObject(startValue, endValue);
+                }
+            }
+            return value;
+        }
+        return calculateObject(this.startValue, this.endValue);
+    }
+    last() {
+        this.doLast = true;
+        return this;
+    }
+}
+
+//Animanager
+canvideo.Animanager = class {
+    constructor(defaultValue, setVideo) {
+        if (typeof defaultValue === 'object' && typeof setVideo === 'function') {
+            this.defaultValue = defaultValue;
+            this.changes = new Map();
+            this.changesToAdd = [];
+            this.animations = new Map();
+            this.currentAnimations = [];
+            this.setVideo = setVideo;
+        }
+        else {
+            throw new TypeError("Bad constructor");
+        }
+    }
+
+    set video(value) {
+        if (value instanceof canvideo.Video) {
+            this._video = value;
+            for (var i = 0; i < this.currentAnimations.length; i++) {
+                var { startTime, endTime, value, isAnimationClass } = this.currentAnimations[i];
+                var startFrame = this.video.frameAtTime(startTime), endFrame = this.video.frameAtTime(endTime);
+                var animation = {
+                    startTime: startTime,
+                    startFrame: startFrame,
+                    endTime: endTime,
+                    endFrame: endFrame,
+                    value: value,
+                    isAnimationClass: isAnimationClass
+                };
+                if (this.animations.has(startFrame)) {
+                    this.animations.set(startFrame, this.animations.get(startFrame).push(animation));
+                }
+                else {
+                    this.animations.set(startFrame, [animation]);
+                }
+            }
+            this.currentAnimations = [];
+            for (var i = 0; i < this.changesToAdd.length; i++) {
+                var { startTime, value } = this.changesToAdd[i];
+                var startFrame = this.video.frameAtTime(startTime);
+                var change = {
+                    startTime: startTime,
+                    startFrame: startFrame,
+                    value: value
+                };
+                if (this.changes.has(startFrame)) {
+                    change.value = helper.recursiveAssign(this.changes.get(startFrame), change.value);
+                    this.changes.set(startFrame, change);
+                }
+                else {
+                    this.changes.set(startFrame, change);
+                }
+            }
+            this.changesToAdd = [];
+            this.setVideo(value);
+        }
+        else {
+            throw new TypeError("Video is not of type Video.");
+        }
+    }
+    get video() {
+        return this._video;
+    }
+
+    animate(startTime, endTime, value) {
+        if (typeof startTime === 'number' && typeof endTime === 'number') {
+            var animation = {
+                startTime: startTime,
+                endTime: endTime,
+                value: value
+            }
+            if (typeof value === 'function' && value.length === 1) {
+                animation.isAnimationClass = false;
+            }
+            else if (value instanceof canvideo.Animation) {
+                animation.isAnimationClass = true;
+                if (animation.doLast) {
+                    this.setAt(endTime, animation.endValue);
+                }
+            }
+            else {
+                throw new TypeError("value must be a function or Animation class instance.");
+            }
+            this.currentAnimations.push(animation);
+        }
+        else {
+            throw new TypeError("Start and end times must be numbers. value function must take one number parameter.");
+        }
+
+        return this;
+    }
+    setAt(startTime, value) {
+        if (typeof startTime === 'number' && typeof value === 'object') {
+            this.changesToAdd.push({
+                startTime: startTime,
+                value: value
+            });
+        }
+        else {
+            throw new TypeError("Invalid arguements.");
+        }
+        return this;
+    }
+    valueAt(frameNumber) {
+        if (this.changes.has(frameNumber)) {
+            this.defaultValue = helper.recursiveAssign(this.defaultValue, this.changes.get(frameNumber).value);
+        }
+        if (this.animations.has(frameNumber)) {
+            this.currentAnimations = this.currentAnimations.concat(this.animations.get(frameNumber));
+        }
+
+        var nextFrameAnimations = [];
+        var calculatedValue = this.defaultValue;
+        
+        for (var i = 0; i < this.currentAnimations.length; i++) {
+            var { startFrame, endFrame, value, isAnimationClass } = this.currentAnimations[i];
+            var percentage = (frameNumber - startFrame) / (endFrame - startFrame);
+            if (frameNumber <= endFrame) {
+                nextFrameAnimations.push(this.currentAnimations[i]);
+            }
+            if (isAnimationClass) {
+                calculatedValue = helper.recursiveAssign(calculatedValue, value.calculate(percentage));
+            }
+            else {
+                calculatedValue = helper.recursiveAssign(calculatedValue, value(percentage));
+            }
+        }
+        this.currentAnimations = nextFrameAnimations;
+        return calculatedValue;
+    }
 }
 
 //Shape
-canvideo.Shape = class {
-    constructor(color) {
-        if (color instanceof canvideo.Color) {
-            this.color = color;
+canvideo.Shape = class extends canvideo.Animanager {
+    constructor(color, defaultValue, layer = 0) {
+        if (!(typeof layer === 'number' && Number.isSafeInteger(layer) && layer >= 0)) {
+            throw new TypeError("layer must be a non negative integer.");
+        }
+        super(helper.recursiveAssign({ layer: layer }, defaultValue), function (value) {
+            this.deleteFrame = this.video.frameAtTime(this.deleteTime);
+        });
+        this.color = color;
+        this.deleteFrame = Infinity;
+        this.deleteTime = Infinity;
+    };
+
+    set color(value) {
+        if (typeof value === 'object') {
+            this._color = helper.recursiveAssign(this.color, value);
         }
         else {
-            this.color = new canvideo.Color(color);
+            this._color = new canvideo.Color(value);
         }
-    };
+        this.defaultValue.color = this._color;
+    }
+    get color() {
+        return this._color;
+    }
+
+    setDeleteTime(time) {
+        if (typeof time === 'number') {
+            this.deleteTime = time;
+        }
+        else {
+            throw new TypeError("time must be a number (number of seconds).");
+        }
+
+        return this;
+    }
 }
 
 //Control Point
@@ -166,41 +439,37 @@ canvideo.ControlPoint = class {
 
 //Rectangle
 canvideo.Rectangle = class extends canvideo.Shape {
-    constructor(x = 0, y = 0, width = 100, height = 100, color) {
-        super(color);
-        if (typeof x == 'number') {
-            this.x = x;
-        }
-        else {
+    constructor(x = 0, y = 0, width = 100, height = 100, color, layer) {
+        if (!typeof x == 'number') {
             throw new TypeError(`x: ${x} is not a number.`);
         }
-        if (typeof y == 'number') {
-            this.y = y;
-        }
-        else {
+        if (!typeof y == 'number') {
             throw new TypeError(`y: ${y} is not a number.`);
         }
-        if (typeof width == 'number') {
-            this.width = width;
-        }
-        else {
+        if (!typeof width == 'number') {
             throw new TypeError(`width: ${width} is not a number.`);
         }
-        if (typeof height == 'number') {
-            this.height = height;
-        }
-        else {
+        if (!typeof height == 'number') {
             throw new TypeError(`height: ${height} is not a number.`);
         }
+        super(color, {
+            x: x,
+            y: y,
+            width: width,
+            height: height
+        }, layer);
     }
 
-    draw(ctx) {
-        ctx.fillStyle = this.color.value;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+    draw(ctx, frameNumber) {
+        var value = this.valueAt(frameNumber);
+        ctx.fillStyle = this.color.toString();
+        ctx.fillRect(value.x, value.y, value.width, value.height);
+
+        return this;
     }
 }
 
-//Frame Class
+//Keyframe Class
 canvideo.Keyframe = class {
     constructor(startTime) {
         if (typeof startTime == 'number') {
@@ -211,16 +480,19 @@ canvideo.Keyframe = class {
         }
         this.shapes = [];
     }
-    set animation(value) {
-        if (value instanceof canvideo.Animation) {
-            this._animation = value;
+    set video(value) {
+        if (value instanceof canvideo.Video) {
+            this._video = value;
+            for (var i = 0; i < this.shapes.length; i++) {
+                this.shapes[i].video = this.video;
+            }
         }
         else {
-            throw new TypeError("Animation is not of type Animation.");
+            throw new TypeError("Video is not of type Video.");
         }
     }
-    get animation() {
-        return this._animation;
+    get video() {
+        return this._video;
     }
     set frameNumber(value) {
         if (typeof value == 'number') {
@@ -236,6 +508,7 @@ canvideo.Keyframe = class {
 
     addShape(shape) {
         if (shape instanceof canvideo.Shape) {
+            shape.shapeIndex = this.shapes.length;
             this.shapes.push(shape);
         }
         else {
@@ -245,9 +518,26 @@ canvideo.Keyframe = class {
     }
     render(shapes = []) {
         if (typeof this.frameNumber == 'number') {
+            function sorter(a, b) {
+                if (a.valueAt(this.frameNumber).layer === b.valueAt(this.frameNumber).layer) {
+                    return a.shapeIndex - b.shapeIndex;
+                }
+                else {
+                    return a.valueAt(this.frameNumber).layer - b.valueAt(this.frameNumber).layer;
+                }
+            };
+
+            var shapesToRender = [];
+
             if (shapes instanceof Array) {
                 for (var i = 0; i < shapes.length; i++) {
-                    if (!(shapes[i] instanceof canvideo.Shape)) {
+                    if (shapes[i] instanceof canvideo.Shape) {
+                        if (shapes[i].deleteFrame > this.frameNumber) {
+                            shapesToRender.push(shapes[i]);
+                        }
+                    }
+                    else {
+                        console.log(shapes, this.frameNumber)
                         throw new TypeError(`shapes[${i}] is not a Shape.`);
                     }
                 }
@@ -256,28 +546,28 @@ canvideo.Keyframe = class {
                 throw new TypeError("Shapes must be an array of shapes.");
             }
 
-            var shapesToRender = shapes.concat(this.shapes);
-            this.animation.loop.goal += 1;
+            shapesToRender = shapesToRender.concat(this.shapes).sort(sorter.bind(this));
+            this.video.loop.goal++;
 
             //Render frame 0
-            var canvas = createCanvas(this.animation.width, this.animation.height);
+            var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
             for (var i = 0; i < shapesToRender.length; i++) {
-                shapesToRender[i].draw(ctx);
+                shapesToRender[i].draw(ctx, this.frameNumber);
             }
-            var framePath = this.animation.tempPath + "/frame" + this.frameNumber + ".jpg";
+            var framePath = this.video.tempPath + "/frame" + this.frameNumber + ".jpg";
             canvas.createJPEGStream()
                 .on("end", () => {
-                    this.animation.loop.emit("result", false);
+                    this.video.loop.emit("result", false);
                 })
                 .on("error", err => {
-                    this.animation.loop.emit("result", err, this.frameNumber);
+                    this.video.loop.emit("result", err, this.frameNumber);
                 })
                 .pipe(fs.createWriteStream(framePath));
 
             //Render next keyframe
-            if (this.frameNumber + 1 < this.animation.keyframes.length) {
-                this.animation.keyframes[this.frameNumber + 1].render(shapesToRender);
+            if (this.frameNumber + 1 < this.video.keyframes.length) {
+                this.video.keyframes[this.frameNumber + 1].render(shapesToRender);
             }
             else {
                 //This is the last frame
@@ -291,8 +581,8 @@ canvideo.Keyframe = class {
     }
 }
 
-//Animation class
-canvideo.Animation = class extends EventEmitter {
+//Video class
+canvideo.Video = class extends EventEmitter {
     constructor(arg1 = { width: 200, height: 200 }, arg2, arg3) {
         //Constructor: width: number, height: number, fps
         //Constructor: { width: number, height: number }, fps
@@ -407,7 +697,7 @@ canvideo.Animation = class extends EventEmitter {
         }
         if (keyframe instanceof canvideo.Keyframe) {
             var frameNumber = Math.round(keyframe.startTime * this.fps);
-            keyframe.animation = this;
+            keyframe.video = this;
             keyframe.frameNumber = frameNumber;
             this.keyframes[frameNumber] = keyframe;
         }
@@ -416,6 +706,14 @@ canvideo.Animation = class extends EventEmitter {
         }
 
         return this;
+    }
+    frameAtTime(time) {
+        if (typeof time === 'number') {
+            return Math.round(time * this.fps);
+        }
+        else {
+            throw new TypeError("time must be a number.");
+        }
     }
     export(filePath) {
         if (this.exported) {

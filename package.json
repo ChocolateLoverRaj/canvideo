@@ -1,6 +1,6 @@
 {
   "name": "canvideo",
-  "version": "2.1.1",
+  "version": "3.1.0",
   "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "canvas": "^2.6.1",
-    "fluent-ffmpeg": "^2.1.2"
+    "fluent-ffmpeg": "^2.1.2",
+    "tinycolor2": "^1.4.1"
   }
 }
