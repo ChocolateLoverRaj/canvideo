@@ -33,15 +33,20 @@ declare namespace canvideo {
     interface VideoOptionsAll extends VideoSize {
         fps: number;
     }
-    interface ShapeAttributes{
-        color: Color,
-        layer: nonNegativeInteger
+    interface ShapeAttributes {
+        color: Color;
+        layer: nonNegativeInteger;
     }
-    interface RectangleAttributes extends ShapeAttributes{
-        x: number,
-        y: number,
-        width: number,
-        height: number
+    interface RectangleAttributes extends ShapeAttributes {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+    interface SquareAttributes extends ShapeAttributes {
+        x: number;
+        y: number;
+        size: number;
     }
 
     export function setTempPath(path: fs.PathLike): void;
@@ -103,6 +108,10 @@ declare namespace canvideo {
 
     export class Rectangle extends Shape<RectangleAttributes> {
         constructor(x: number, y: number, width: number, height: number, layer?: nonNegativeInteger);
+    }
+
+    export class Square extends Shape<SquareAttributes>{
+        constructor(x: number, y: number, width: number, layer?: nonNegativeNumber);
     }
 
     export class Keyframe {

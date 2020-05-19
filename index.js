@@ -114,52 +114,52 @@ canvideo.Color = class {
     set r(value) {
         this.setIntensity('r', value);
     }
-    get r(){
+    get r() {
         return this.tinyColor.toRgb().r;
     }
-    set red(value){
+    set red(value) {
         this.r = value;
     }
-    get red(){
+    get red() {
         return this.r;
     }
 
     set g(value) {
         this.setIntensity('g', value);
     }
-    get g(){
+    get g() {
         return this.tinyColor.toRgb().g;
     }
-    set green(value){
+    set green(value) {
         this.g = value;
     }
-    get green(){
+    get green() {
         return this.g;
     }
 
     set b(value) {
         this.setIntensity('b', value);
     }
-    get b(){
+    get b() {
         return this.tinyColor.toRgb().b;
     }
-    set blue(value){
+    set blue(value) {
         this.b = value;
     }
-    get blue(){
+    get blue() {
         return this.b;
     }
 
-    set a(value){
+    set a(value) {
         this.setAlpha(value);
     }
-    get a(){
+    get a() {
         return this.tinyColor.toRgb().a;
     }
-    set alpha(value){
+    set alpha(value) {
         this.a = value;
     }
-    get alpha(){
+    get alpha() {
         return this.a;
     }
 
@@ -167,7 +167,7 @@ canvideo.Color = class {
         return this.tinyColor.toString();
     }
 
-    setIntensity(color, intensity){
+    setIntensity(color, intensity) {
         if (intensity >= 0 && intensity <= 255) {
             var rgba = this.tinyColor.toRgb();
             rgba[color] = intensity;
@@ -177,11 +177,11 @@ canvideo.Color = class {
             throw new TypeError(`${color} must be between 0 and 255.`);
         }
     }
-    setAlpha(opacity){
-        if(opacity >= 0 && opacity <= 1){
+    setAlpha(opacity) {
+        if (opacity >= 0 && opacity <= 1) {
             this.tinyColor.setAlpha(opacity);
         }
-        else{
+        else {
             throw new TypeError("Alpha must be between 0 and 1.");
         }
     }
@@ -345,7 +345,7 @@ canvideo.Animanager = class {
 
         var nextFrameAnimations = [];
         var calculatedValue = this.defaultValue;
-        
+
         for (var i = 0; i < this.currentAnimations.length; i++) {
             var { startFrame, endFrame, value, isAnimationClass } = this.currentAnimations[i];
             var percentage = (frameNumber - startFrame) / (endFrame - startFrame);
@@ -379,7 +379,7 @@ canvideo.Shape = class extends canvideo.Animanager {
         this.deleteFrame = Infinity;
         this.deleteTime = Infinity;
         this._draw = new helper.ExtendibleFunction();
-        this.draw = function(ctx, frameNumber){
+        this.draw = function (ctx, frameNumber) {
             var value = this.valueAt(frameNumber);
             ctx.fillStyle = this.fillColor.toString();
             ctx.strokeStyle = this.strokeColor.toString();
@@ -387,10 +387,10 @@ canvideo.Shape = class extends canvideo.Animanager {
         }
     };
 
-    set draw(value){
+    set draw(value) {
         this._draw.action = value.bind(this);
     }
-    get draw(){
+    get draw() {
         return this._draw.action;
     }
     set fillColor(value) {
@@ -417,15 +417,15 @@ canvideo.Shape = class extends canvideo.Animanager {
     get strokeColor() {
         return this._strokeColor;
     }
-    set strokeWidth(value = 0){
-        if(typeof value === 'number' && value >= 0){
+    set strokeWidth(value = 0) {
+        if (typeof value === 'number' && value >= 0) {
             this._strokeWidth = value;
         }
-        else{
+        else {
             throw new TypeError("strokeWidth must be a non negative number.");
         }
     }
-    get strokeWidth(){
+    get strokeWidth() {
         return this._strokeWidth;
     }
 
@@ -439,11 +439,11 @@ canvideo.Shape = class extends canvideo.Animanager {
 
         return this;
     }
-    fill(color){
+    fill(color) {
         this.fillColor = color;
         return this;
     }
-    stroke(color, width){
+    stroke(color, width) {
         this.strokeColor = color;
         this.strokeWidth = width;
         return this;
@@ -506,11 +506,41 @@ canvideo.Rectangle = class extends canvideo.Shape {
             height: height
         }, layer);
 
-        this.draw = function(ctx, frameNumber) {
+        this.draw = function (ctx, frameNumber) {
             var value = this.valueAt(frameNumber);
             ctx.fillRect(value.x, value.y, value.width, value.height);
-            if(this.strokeWidth > 0){
+            if (this.strokeWidth > 0) {
                 ctx.strokeRect(value.x, value.y, value.width, value.height);
+            }
+
+            return this;
+        };
+    }
+}
+
+//Square
+canvideo.Square = class extends canvideo.Shape {
+    constructor(x = 0, y = 0, size = 100, layer) {
+        if (!typeof x == 'number') {
+            throw new TypeError(`x: ${x} is not a number.`);
+        }
+        if (!typeof y == 'number') {
+            throw new TypeError(`y: ${y} is not a number.`);
+        }
+        if (!typeof size == 'number') {
+            throw new TypeError(`size: ${size} is not a number.`);
+        }
+        super({
+            x: x,
+            y: y,
+            size: size
+        }, layer);
+
+        this.draw = function (ctx, frameNumber) {
+            var value = this.valueAt(frameNumber);
+            ctx.fillRect(value.x, value.y, value.size, value.size);
+            if (this.strokeWidth > 0) {
+                ctx.strokeRect(value.x, value.y, value.size, value.size);
             }
 
             return this;
