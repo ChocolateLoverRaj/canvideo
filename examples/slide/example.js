@@ -22,7 +22,9 @@ var horizontal = {
 
 video
     .addKeyframe(new canvideo.Keyframe(0)
-        .addShape(new canvideo.Rectangle(0, 0, 100, 100, "white")
+        .addShape(new canvideo.Rectangle(0, 0, 100, 100)
+            .fill("orange")
+            .stroke("purple", 10)
             .animate(0, 2, new canvideo.Animation({ x: 0, color: { alpha: 1 } }, { x: 300, color: { alpha: 0 } })
                 .reverse()
             )

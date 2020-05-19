@@ -16,6 +16,7 @@ declare namespace canvideo {
     type videoSize = VideoSize | VideoSizeShort;
     type evenNumber = number;
     type nonNegativeInteger = number;
+    type nonNegativeNumber = number;
 
     interface VideoSize {
         width: evenNumber;
@@ -87,17 +88,21 @@ declare namespace canvideo {
     export abstract class Shape<Attributes extends ShapeAttributes> extends Animanager<Attributes> {
         constructor(color: color, defaultValue: Attributes, layer?: nonNegativeInteger);
 
-        color: Color;
+        fillColor: Color;
+        strokeColor: Color;
+        strokeWidth: nonNegativeNumber;
         deleteTime: number;
         deleteFrame: number;
 
         setDeleteTime(time: number): this;
 
+        fill(color: color): this;
+        stroke(color: color, width: nonNegativeNumber): this;
         draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
     export class Rectangle extends Shape<RectangleAttributes> {
-        constructor(x: number, y: number, width: number, height: number, color?: color, layer?: nonNegativeInteger);
+        constructor(x: number, y: number, width: number, height: number, layer?: nonNegativeInteger);
     }
 
     export class Keyframe {

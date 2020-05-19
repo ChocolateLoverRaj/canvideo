@@ -50,7 +50,7 @@ canvideo.Color = class {
     //Constructor: [r: number, g: number, b: number, a: number]
     //Constructor: r: number, g: number, b: number
     //Constructor: r: number, g: number, b: number, a: number
-    constructor(arg1, arg2, arg3, arg4) {
+    constructor(arg1 = "white", arg2, arg3, arg4) {
         function validValue(color) {
             var color = tinyColor(color);
             return color.isValid();
@@ -366,29 +366,67 @@ canvideo.Animanager = class {
 
 //Shape
 canvideo.Shape = class extends canvideo.Animanager {
-    constructor(color, defaultValue, layer = 0) {
+    constructor(defaultValue, layer = 0) {
         if (!(typeof layer === 'number' && Number.isSafeInteger(layer) && layer >= 0)) {
             throw new TypeError("layer must be a non negative integer.");
         }
         super(helper.recursiveAssign({ layer: layer }, defaultValue), function (value) {
             this.deleteFrame = this.video.frameAtTime(this.deleteTime);
         });
-        this.color = color;
+        this.fillColor = undefined;
+        this.strokeColor = undefined;
+        this.strokeWidth = undefined;
         this.deleteFrame = Infinity;
         this.deleteTime = Infinity;
+        this._draw = new helper.ExtendibleFunction();
+        this.draw = function(ctx, frameNumber){
+            var value = this.valueAt(frameNumber);
+            ctx.fillStyle = this.fillColor.toString();
+            ctx.strokeStyle = this.strokeColor.toString();
+            ctx.strokeWidth = this.strokeWidth;
+        }
     };
 
-    set color(value) {
+    set draw(value){
+        this._draw.action = value.bind(this);
+    }
+    get draw(){
+        return this._draw.action;
+    }
+    set fillColor(value) {
         if (typeof value === 'object') {
-            this._color = helper.recursiveAssign(this.color, value);
+            this._fillColor = helper.recursiveAssign(this.fillColor, value);
         }
         else {
-            this._color = new canvideo.Color(value);
+            this._fillColor = new canvideo.Color(value);
         }
-        this.defaultValue.color = this._color;
+        this.defaultValue.color = this.fillColor;
     }
-    get color() {
-        return this._color;
+    get fillColor() {
+        return this._fillColor;
+    }
+    set strokeColor(value) {
+        if (typeof value === 'object') {
+            this._strokeColor = helper.recursiveAssign(this.strokeColor, value);
+        }
+        else {
+            this._strokeColor = new canvideo.Color(value);
+        }
+        this.defaultValue.strokeColor = this.strokeColor;
+    }
+    get strokeColor() {
+        return this._strokeColor;
+    }
+    set strokeWidth(value = 0){
+        if(typeof value === 'number' && value >= 0){
+            this._strokeWidth = value;
+        }
+        else{
+            throw new TypeError("strokeWidth must be a non negative number.");
+        }
+    }
+    get strokeWidth(){
+        return this._strokeWidth;
     }
 
     setDeleteTime(time) {
@@ -399,6 +437,15 @@ canvideo.Shape = class extends canvideo.Animanager {
             throw new TypeError("time must be a number (number of seconds).");
         }
 
+        return this;
+    }
+    fill(color){
+        this.fillColor = color;
+        return this;
+    }
+    stroke(color, width){
+        this.strokeColor = color;
+        this.strokeWidth = width;
         return this;
     }
 }
@@ -439,7 +486,7 @@ canvideo.ControlPoint = class {
 
 //Rectangle
 canvideo.Rectangle = class extends canvideo.Shape {
-    constructor(x = 0, y = 0, width = 100, height = 100, color, layer) {
+    constructor(x = 0, y = 0, width = 100, height = 100, layer) {
         if (!typeof x == 'number') {
             throw new TypeError(`x: ${x} is not a number.`);
         }
@@ -452,20 +499,22 @@ canvideo.Rectangle = class extends canvideo.Shape {
         if (!typeof height == 'number') {
             throw new TypeError(`height: ${height} is not a number.`);
         }
-        super(color, {
+        super({
             x: x,
             y: y,
             width: width,
             height: height
         }, layer);
-    }
 
-    draw(ctx, frameNumber) {
-        var value = this.valueAt(frameNumber);
-        ctx.fillStyle = this.color.toString();
-        ctx.fillRect(value.x, value.y, value.width, value.height);
+        this.draw = function(ctx, frameNumber) {
+            var value = this.valueAt(frameNumber);
+            ctx.fillRect(value.x, value.y, value.width, value.height);
+            if(this.strokeWidth > 0){
+                ctx.strokeRect(value.x, value.y, value.width, value.height);
+            }
 
-        return this;
+            return this;
+        };
     }
 }
 
@@ -549,7 +598,6 @@ canvideo.Keyframe = class {
             shapesToRender = shapesToRender.concat(this.shapes).sort(sorter.bind(this));
             this.video.loop.goal++;
 
-            //Render frame 0
             var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
             for (var i = 0; i < shapesToRender.length; i++) {
