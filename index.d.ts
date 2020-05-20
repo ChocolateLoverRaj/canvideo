@@ -17,6 +17,7 @@ declare namespace canvideo {
     type evenNumber = number;
     type nonNegativeInteger = number;
     type nonNegativeNumber = number;
+    type coordinate = [ number, number ];
 
     interface VideoSize {
         width: evenNumber;
@@ -34,7 +35,8 @@ declare namespace canvideo {
         fps: number;
     }
     interface ShapeAttributes {
-        color: Color;
+        fillColor: Color;
+        strokeColor: Color;
         layer: nonNegativeInteger;
     }
     interface RectangleAttributes extends ShapeAttributes {
@@ -47,6 +49,13 @@ declare namespace canvideo {
         x: number;
         y: number;
         size: number;
+    }
+    interface Coordinate{
+        x: number,
+        y: number
+    }
+    interface PolygonAttributes extends ShapeAttributes {
+        points: Array<Point>
     }
 
     export function setTempPath(path: fs.PathLike): void;
@@ -112,6 +121,21 @@ declare namespace canvideo {
 
     export class Square extends Shape<SquareAttributes>{
         constructor(x: number, y: number, width: number, layer?: nonNegativeNumber);
+    }
+
+    export class Point {
+        constructor(x: number, y: number);
+        constructor(coordinate: coordinate);
+        constructor(coordinate: Coordinate);
+
+        x: number;
+        y: number;
+    }
+
+    export class Polygon extends Shape<PolygonAttributes>{
+        constructor(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, ...coordinates: Array<number>, layer?: number);
+        constructor(point1: coordinate, point2: coordinate, point3: coordinate, ...points: Array<coordinate>, layer?: number);
+        constructor(point1: Coordinate, point2: Coordinate, point3: Coordinate, ...points: Array<Coordinate>, layer?: number);
     }
 
     export class Keyframe {

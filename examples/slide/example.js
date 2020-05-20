@@ -7,19 +7,6 @@ canvideo.setTempPath(path.join(__dirname, "./res"));
 
 var video = new canvideo.Video({ width: 400, height: 400 }, 24);
 
-var vertical = {
-    x: 200,
-    y: 0,
-    width: 0,
-    height: 400
-};
-var horizontal = {
-    x: 0,
-    y: 200,
-    width: 400,
-    height: 0
-}
-
 video
     .addKeyframe(new canvideo.Keyframe(0)
         .addShape(new canvideo.Square(0, 0, 200, 1)
@@ -37,7 +24,7 @@ video
         )
     )
     .addKeyframe(new canvideo.Keyframe((24 * 1 + 23) / 24))
-    .export(path.join(__dirname, "./res/output.mp4"));
+    //.export(path.join(__dirname, "./res/output.mp4"));
 
 video.on("done", () => {
     console.log("done")

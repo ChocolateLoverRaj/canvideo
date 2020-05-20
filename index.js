@@ -400,7 +400,7 @@ canvideo.Shape = class extends canvideo.Animanager {
         else {
             this._fillColor = new canvideo.Color(value);
         }
-        this.defaultValue.color = this.fillColor;
+        this.defaultValue.fillColor = this.fillColor;
     }
     get fillColor() {
         return this._fillColor;
@@ -447,40 +447,6 @@ canvideo.Shape = class extends canvideo.Animanager {
         this.strokeColor = color;
         this.strokeWidth = width;
         return this;
-    }
-}
-
-//Control Point
-canvideo.ControlPoint = class {
-    static defaultSetterX(value) {
-        this._x = value;
-    }
-    static defaultSetterY(value) {
-        this._y = value;
-    }
-    constructor(shape, setterX = defaultSetterX, setterY = defaultSetterY) {
-        if (shape instanceof canvideo.Shape) {
-            this.shape = shape;
-            this.setterX = setterX;
-            this.setterY = setterY;
-            this._x = 0;
-            this._y = 0;
-        }
-        else {
-            throw new TypeError(`Shape: ${shape} is not of type Shape`);
-        }
-    }
-    set x(value) {
-        return this.setterX(value);
-    }
-    get x() {
-        return this._x;
-    }
-    set y(value) {
-        return this.setterY(value);
-    }
-    get y() {
-        return this._y;
     }
 }
 
@@ -545,6 +511,131 @@ canvideo.Square = class extends canvideo.Shape {
 
             return this;
         };
+    }
+}
+
+//Point
+canvideo.Point = class {
+    constructor(arg1, arg2) {
+        //Constructor: x: number, y: number
+        //Constructor: [ x: number, y: number ]
+        //Constructor: { x: number, y: number }
+        if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+            this.x = arg1, this.y = arg2;
+        }
+        else if (arg1 instanceof Array && arg1.length === 2 && typeof arg1[0] === 'number' && typeof arg1[1] === 'number') {
+            this.x = arg1[0], this.y = arg1[1];
+        }
+        else if (typeof arg1 === 'object' && typeof arg1.x === 'number' && typeof arg1.y === 'number') {
+            this.x = arg1.x, this.y = arg1.y;
+        }
+        else {
+            throw new TypeError("Invalid Constructor.");
+        }
+    }
+
+    set x(value) {
+        if (typeof value === 'number') {
+            this._x = value;
+        }
+        else {
+            throw new TypeError("x must be a number");
+        }
+    }
+    get x() {
+        return this._x;
+    }
+    set y(value) {
+        if (typeof value === 'number') {
+            this._y = value;
+        }
+        else {
+            throw new TypeError("y must be a number");
+        }
+    }
+    get y() {
+        return this._y;
+    }
+}
+
+//Polygon
+canvideo.Polygon = class extends canvideo.Shape {
+    constructor() {
+        //Constructor: x1, y1, x2, y2, x3, y3, ...
+        //Constructor: [ x1, y1 ], [ x2, y2 ], [ x3, y3 ], ...
+        //Constructor: { x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }, ...
+
+        var points = [];
+        //Find out what type of constructor they are using
+        var argTypes = [];
+        for (var i = 0; i < 6; i++) {
+            argTypes.push(typeof arguments[i]);
+        }
+        if (argTypes[0] === 'number' && argTypes[1] === 'number' && argTypes[2] === 'number' && argTypes[3] === 'number' && argTypes[4] === 'number' && argTypes[5] === 'number') {
+            var i = 0, layer;
+            while (i < arguments.length) {
+                if (typeof arguments[i] === 'number' && typeof arguments[i + 1] === 'number') {
+                    points.push(new canvideo.Point({
+                        x: arguments[i],
+                        y: arguments[i + 1]
+                    }));
+                }
+                else if (typeof arguments[i] === 'number' && arguments.length === i + 1) {
+                    layer = arguments[i];
+                }
+                else {
+                    throw new TypeError("Invalid list arguements.");
+                }
+                i += 2;
+            }
+        }
+        else if (argTypes[0] === 'object' && argTypes[1] === 'object' && argTypes[2] === 'object') {
+            if (arguments[0] instanceof Array) {
+                var i = 0;
+                while (i < arguments.length) {
+                    if (arguments[i] instanceof Array && typeof arguments[i][0] === 'number' && typeof arguments[i][1] === 'number') {
+                        points.push(new canvideo.Polygon(arguments[i]));
+                    }
+                    else if (typeof arguments[i] === 'number' && arguments.length === i + 1) {
+                        layer = arguments[i];
+                    }
+                    else {
+                        throw new TypeError("Invalid array arguements.");
+                    }
+                    i++;
+                }
+            }
+            else {
+                var i = 0;
+                while (i < arguments.length) {
+                    if (typeof arguments[i] === 'object' && typeof arguments[i].x === 'number' && typeof arguments[i].y === 'number') {
+                        points.push(new canvideo.Polygon(arguments[i]));
+                    }
+                    else if (typeof arguments[i] === 'number' && arguments.length === i + 1) {
+                        layer = arguments[i];
+                    }
+                    else {
+                        throw new TypeError("Invalid object arguements.");
+                    }
+                    i++;
+                }
+            }
+        }
+        else {
+            throw new TypeError("Invalid constructor.");
+        }
+        super({ points }, layer);
+        this.draw = function(ctx, frameNumber){
+            var value = this.valueAt(frameNumber);
+            ctx.beginPath();
+            ctx.moveTo(value.points[0].x, value.points[0].y);
+            for(var i = 1; i < value.points.length; i++){
+                ctx.lineTo(value.points[i].x, value.points[i].y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
     }
 }
 
