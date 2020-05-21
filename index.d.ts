@@ -37,6 +37,7 @@ declare namespace canvideo {
     interface ShapeAttributes {
         fillColor: Color;
         strokeColor: Color;
+        strokeWidth: nonNegativeNumber;
         layer: nonNegativeInteger;
     }
     interface RectangleAttributes extends ShapeAttributes {
@@ -112,15 +113,25 @@ declare namespace canvideo {
 
         fill(color: color): this;
         stroke(color: color, width: nonNegativeNumber): this;
+        inLayer(layer: nonNegativeInteger): this;
         draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
     export class Rectangle extends Shape<RectangleAttributes> {
         constructor(x: number, y: number, width: number, height: number, layer?: nonNegativeInteger);
+
+        x: number;
+        y: number;
+        width: number;
+        height: number;
     }
 
     export class Square extends Shape<SquareAttributes>{
         constructor(x: number, y: number, width: number, layer?: nonNegativeNumber);
+
+        x: number;
+        y: number;
+        size: number;
     }
 
     export class Point {
@@ -136,6 +147,8 @@ declare namespace canvideo {
         constructor(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, ...coordinates: Array<number>);
         constructor(point1: coordinate, point2: coordinate, point3: coordinate, ...points: Array<coordinate>);
         constructor(point1: Coordinate, point2: Coordinate, point3: Coordinate, ...points: Array<Coordinate>);
+
+        points: Array<Point>;
     }
 
     export class Keyframe {

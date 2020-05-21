@@ -367,12 +367,60 @@ canvideo.Animanager = class {
 //Shape
 canvideo.Shape = class extends canvideo.Animanager {
     constructor(defaultValue, layer = 0) {
-        if (!(typeof layer === 'number' && Number.isSafeInteger(layer) && layer >= 0)) {
-            throw new TypeError("layer must be a non negative integer.");
-        }
-        super(helper.recursiveAssign({ layer: layer }, defaultValue), function (value) {
-            this.deleteFrame = this.video.frameAtTime(this.deleteTime);
-        });
+        super(helper.recursiveAssign(
+            {
+                _layer: layer,
+                set layer(value) {
+                    if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) {
+                        this._layer = value;
+                    }
+                    else {
+                        throw new TypeError("layer must be a non negative integer.");
+                    }
+                },
+                get layer() {
+                    return this._layer;
+                },
+                _fillColor: undefined,
+                set fillColor(value) {
+                    if (typeof value === 'object') {
+                        this._fillColor = helper.recursiveAssign(this.fillColor, value);
+                    }
+                    else {
+                        this._fillColor = new canvideo.Color(value);
+                    }
+                },
+                get fillColor() {
+                    return this._fillColor;
+                },
+                _strokeColor: undefined,
+                set strokeColor(value) {
+                    if (typeof value === 'object') {
+                        this.stroke_Color = helper.recursiveAssign(this.strokeColor, value);
+                    }
+                    else {
+                        this._strokeColor = new canvideo.Color(value);
+                    }
+                },
+                get strokeColor() {
+                    return this._strokeColor;
+                },
+                _strokeWidth: undefined,
+                set strokeWidth(value = 0) {
+                    if (typeof value === 'number' && value >= 0) {
+                        this._strokeWidth = value;
+                    }
+                    else {
+                        throw new TypeError("strokeWidth must be a non negative number.");
+                    }
+                },
+                get strokeWidth() {
+                    return this._strokeWidth;
+                }
+            }, defaultValue), function (value) {
+                this.deleteFrame = this.video.frameAtTime(this.deleteTime);
+            });
+        this.layer = layer;
         this.fillColor = undefined;
         this.strokeColor = undefined;
         this.strokeWidth = undefined;
@@ -381,12 +429,18 @@ canvideo.Shape = class extends canvideo.Animanager {
         this._draw = new helper.ExtendibleFunction();
         this.draw = function (ctx, frameNumber) {
             var value = this.valueAt(frameNumber);
-            ctx.fillStyle = this.fillColor.toString();
-            ctx.strokeStyle = this.strokeColor.toString();
-            ctx.strokeWidth = this.strokeWidth;
+            ctx.fillStyle = value.fillColor.toString();
+            ctx.strokeStyle = value.strokeColor.toString();
+            ctx.strokeWidth = value.strokeWidth;
         }
     };
 
+    set layer(value) {
+        this.defaultValue.layer = value;
+    }
+    get layer() {
+        return this.defaultValue.layer;
+    }
     set draw(value) {
         this._draw.action = value.bind(this);
     }
@@ -394,39 +448,22 @@ canvideo.Shape = class extends canvideo.Animanager {
         return this._draw.action;
     }
     set fillColor(value) {
-        if (typeof value === 'object') {
-            this._fillColor = helper.recursiveAssign(this.fillColor, value);
-        }
-        else {
-            this._fillColor = new canvideo.Color(value);
-        }
-        this.defaultValue.fillColor = this.fillColor;
+        this.defaultValue.fillColor = value;
     }
     get fillColor() {
-        return this._fillColor;
+        return this.defaultValue.fillColor;
     }
     set strokeColor(value) {
-        if (typeof value === 'object') {
-            this._strokeColor = helper.recursiveAssign(this.strokeColor, value);
-        }
-        else {
-            this._strokeColor = new canvideo.Color(value);
-        }
-        this.defaultValue.strokeColor = this.strokeColor;
+        this.defaultValue.strokeColor = value;
     }
     get strokeColor() {
-        return this._strokeColor;
+        return this.defaultValue.strokeColor;
     }
     set strokeWidth(value = 0) {
-        if (typeof value === 'number' && value >= 0) {
-            this._strokeWidth = value;
-        }
-        else {
-            throw new TypeError("strokeWidth must be a non negative number.");
-        }
+        this.defaultValue.strokeWidth = value;
     }
     get strokeWidth() {
-        return this._strokeWidth;
+        return this.defaultValue.strokeWidth;
     }
 
     setDeleteTime(time) {
@@ -437,6 +474,10 @@ canvideo.Shape = class extends canvideo.Animanager {
             throw new TypeError("time must be a number (number of seconds).");
         }
 
+        return this;
+    }
+    inLayer(layer) {
+        this.layer = layer;
         return this;
     }
     fill(color) {
@@ -453,64 +494,167 @@ canvideo.Shape = class extends canvideo.Animanager {
 //Rectangle
 canvideo.Rectangle = class extends canvideo.Shape {
     constructor(x = 0, y = 0, width = 100, height = 100, layer) {
-        if (!typeof x == 'number') {
-            throw new TypeError(`x: ${x} is not a number.`);
-        }
-        if (!typeof y == 'number') {
-            throw new TypeError(`y: ${y} is not a number.`);
-        }
-        if (!typeof width == 'number') {
-            throw new TypeError(`width: ${width} is not a number.`);
-        }
-        if (!typeof height == 'number') {
-            throw new TypeError(`height: ${height} is not a number.`);
-        }
         super({
-            x: x,
-            y: y,
-            width: width,
-            height: height
+            _x: undefined,
+            set x(value) {
+                if (typeof value === 'number') {
+                    this._x = value;
+                }
+                else {
+                    throw new TypeError("x must be a number.");
+                }
+            },
+            get x() {
+                return this._x;
+            },
+            _y: undefined,
+            set y(value) {
+                if (typeof value === 'number') {
+                    this._y = value;
+                }
+                else {
+                    throw new TypeError("y must be a number.");
+                }
+            },
+            get y() {
+                return this._y;
+            },
+            _width: undefined,
+            set width(value) {
+                if (typeof value === 'number') {
+                    this._width = value;
+                }
+                else {
+                    throw new TypeError("width must be a number.");
+                }
+            },
+            get width() {
+                return this._width;
+            },
+            _height: undefined,
+            set height(value) {
+                if (typeof value === 'number') {
+                    this._height = value;
+                }
+                else {
+                    throw new TypeError("height must be a number.");
+                }
+            },
+            get height() {
+                return this._height;
+            }
         }, layer);
-
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
         this.draw = function (ctx, frameNumber) {
             var value = this.valueAt(frameNumber);
             ctx.fillRect(value.x, value.y, value.width, value.height);
             if (this.strokeWidth > 0) {
                 ctx.strokeRect(value.x, value.y, value.width, value.height);
             }
-
             return this;
         };
+    }
+
+    set x(value) {
+        this.defaultValue.x = value;
+    }
+    get x() {
+        return this.defaultValue.x;
+    }
+    set y(value) {
+        this.defaultValue.y = value;
+    }
+    get y() {
+        return this.defaultValue.y;
+    }
+    set width(value) {
+        this.defaultValue.width = value;
+    }
+    get width() {
+        return this.defaultValue.width;
+    }
+    set height(value) {
+        this.defaultValue.height = value;
+    }
+    get height() {
+        return this.defaultValue.height;
     }
 }
 
 //Square
 canvideo.Square = class extends canvideo.Shape {
     constructor(x = 0, y = 0, size = 100, layer) {
-        if (!typeof x == 'number') {
-            throw new TypeError(`x: ${x} is not a number.`);
-        }
-        if (!typeof y == 'number') {
-            throw new TypeError(`y: ${y} is not a number.`);
-        }
-        if (!typeof size == 'number') {
-            throw new TypeError(`size: ${size} is not a number.`);
-        }
         super({
-            x: x,
-            y: y,
-            size: size
+            _x: undefined,
+            set x(value) {
+                if (typeof value === 'number') {
+                    this._x = value;
+                }
+                else {
+                    throw new TypeError("x must be a number.");
+                }
+            },
+            get x() {
+                return this._x;
+            },
+            _y: undefined,
+            set y(value) {
+                if (typeof value === 'number') {
+                    this._y = value;
+                }
+                else {
+                    throw new TypeError("y must be a number.");
+                }
+            },
+            get y() {
+                return this._y;
+            },
+            size: undefined,
+            set size(value) {
+                if (typeof value === 'number') {
+                    this._size = value;
+                }
+                else {
+                    throw new TypeError("size must be a number.");
+                }
+            },
+            get size() {
+                return this._size;
+            }
         }, layer);
-
+        this.x = x;
+        this.y = y;
+        this.size = size;
         this.draw = function (ctx, frameNumber) {
             var value = this.valueAt(frameNumber);
             ctx.fillRect(value.x, value.y, value.size, value.size);
             if (this.strokeWidth > 0) {
                 ctx.strokeRect(value.x, value.y, value.size, value.size);
             }
-
             return this;
         };
+    }
+
+    set x(value) {
+        this.defaultValue.x = value;
+    }
+    get x() {
+        return this.defaultValue.x;
+    }
+    set y(value) {
+        this.defaultValue.y = value;
+    }
+    get y() {
+        return this.defaultValue.y;
+    }
+    set size(value) {
+        this.defaultValue.size = value;
+    }
+    get size() {
+        return this.defaultValue.size;
     }
 }
 
@@ -615,18 +759,50 @@ canvideo.Polygon = class extends canvideo.Shape {
         else {
             throw new TypeError("Invalid constructor.");
         }
-        super({ points }, layer);
-        this.draw = function(ctx, frameNumber){
+        super(
+            {
+                _points: points,
+                set points(value) {
+                    if (value instanceof Array) {
+                        var newPoints = []
+                        for(var i = 0; i < value.length; i++){
+                            if(value[i] instanceof canvideo.Point){
+                                newPoints.push(value[i]);
+                            }
+                            else{
+                                newPoints.push(new canvideo.Point(value[i]));
+                            }
+                        }
+                        this._points = newPoints;
+                    }
+                    else{
+                        throw new TypeError("points must be an array of points.");
+                    }
+                },
+                get points(){
+                    return this._points;
+                }
+            }
+        );
+        this.points = points;
+        this.draw = function (ctx, frameNumber) {
             var value = this.valueAt(frameNumber);
             ctx.beginPath();
             ctx.moveTo(value.points[0].x, value.points[0].y);
-            for(var i = 1; i < value.points.length; i++){
+            for (var i = 1; i < value.points.length; i++) {
                 ctx.lineTo(value.points[i].x, value.points[i].y);
             }
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
         }
+    }
+
+    set points(value){
+        this.defaultValue.points = value;
+    }
+    get points(){
+        return this.defaultValue.points;
     }
 }
 
