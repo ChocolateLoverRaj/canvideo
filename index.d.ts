@@ -94,9 +94,10 @@ declare namespace canvideo {
 
         video: Video;
         defaultValue: Attributes;
+        extendUntil: nonNegativeNumber;
 
-        animate(startTime: number, endTime: number, value: (percentage: number) => Attributes | Animation): this;
-        setAt(startTime: number, value: Attributes): this;
+        animate(startTime: nonNegativeNumber, endTime: nonNegativeNumber, value: (percentage: nonNegativeNumber) => Attributes | Animation): this;
+        setAt(startTime: nonNegativeNumber, value: Attributes): this;
         valueAt(frameNumber: number): Attributes;
     }
 
@@ -193,6 +194,7 @@ declare namespace canvideo {
         width: evenNumber;
         height: evenNumber;
         fps: number;
+        lastUntil: nonNegativeNumber;
 
         get spf(): number;
 
