@@ -572,16 +572,13 @@ canvideo.Polygon = class extends canvideo.Shape {
             argTypes.push(typeof arguments[i]);
         }
         if (argTypes[0] === 'number' && argTypes[1] === 'number' && argTypes[2] === 'number' && argTypes[3] === 'number' && argTypes[4] === 'number' && argTypes[5] === 'number') {
-            var i = 0, layer;
+            var i = 0;
             while (i < arguments.length) {
                 if (typeof arguments[i] === 'number' && typeof arguments[i + 1] === 'number') {
                     points.push(new canvideo.Point({
                         x: arguments[i],
                         y: arguments[i + 1]
                     }));
-                }
-                else if (typeof arguments[i] === 'number' && arguments.length === i + 1) {
-                    layer = arguments[i];
                 }
                 else {
                     throw new TypeError("Invalid list arguements.");
@@ -596,9 +593,6 @@ canvideo.Polygon = class extends canvideo.Shape {
                     if (arguments[i] instanceof Array && typeof arguments[i][0] === 'number' && typeof arguments[i][1] === 'number') {
                         points.push(new canvideo.Polygon(arguments[i]));
                     }
-                    else if (typeof arguments[i] === 'number' && arguments.length === i + 1) {
-                        layer = arguments[i];
-                    }
                     else {
                         throw new TypeError("Invalid array arguements.");
                     }
@@ -610,9 +604,6 @@ canvideo.Polygon = class extends canvideo.Shape {
                 while (i < arguments.length) {
                     if (typeof arguments[i] === 'object' && typeof arguments[i].x === 'number' && typeof arguments[i].y === 'number') {
                         points.push(new canvideo.Polygon(arguments[i]));
-                    }
-                    else if (typeof arguments[i] === 'number' && arguments.length === i + 1) {
-                        layer = arguments[i];
                     }
                     else {
                         throw new TypeError("Invalid object arguements.");

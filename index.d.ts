@@ -133,9 +133,9 @@ declare namespace canvideo {
     }
 
     export class Polygon extends Shape<PolygonAttributes>{
-        constructor(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, ...coordinates: Array<number>, layer?: number);
-        constructor(point1: coordinate, point2: coordinate, point3: coordinate, ...points: Array<coordinate>, layer?: number);
-        constructor(point1: Coordinate, point2: Coordinate, point3: Coordinate, ...points: Array<Coordinate>, layer?: number);
+        constructor(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, ...coordinates: Array<number>);
+        constructor(point1: coordinate, point2: coordinate, point3: coordinate, ...points: Array<coordinate>);
+        constructor(point1: Coordinate, point2: Coordinate, point3: Coordinate, ...points: Array<Coordinate>);
     }
 
     export class Keyframe {
