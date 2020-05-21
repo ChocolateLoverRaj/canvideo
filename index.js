@@ -241,6 +241,7 @@ canvideo.Animanager = class {
             this.animations = new Map();
             this.currentAnimations = [];
             this.setVideo = setVideo;
+            this._extendUntil = 0;
         }
         else {
             throw new TypeError("Bad constructor");
@@ -252,6 +253,7 @@ canvideo.Animanager = class {
             this._video = value;
             for (var i = 0; i < this.currentAnimations.length; i++) {
                 var { startTime, endTime, value, isAnimationClass } = this.currentAnimations[i];
+                this.video.extendUntil = endTime;
                 var startFrame = this.video.frameAtTime(startTime), endFrame = this.video.frameAtTime(endTime);
                 var animation = {
                     startTime: startTime,
@@ -294,6 +296,17 @@ canvideo.Animanager = class {
     }
     get video() {
         return this._video;
+    }
+    set extendUntil(value){
+        if(typeof value === 'number'){
+            this._extendUntil = Math.max(this._extendUntil, value);
+        }
+        else{
+            throw new TypeError("extendUntil time must be a number (in seconds).");
+        }
+    }
+    get extendUntil(){
+        return this._extendUntil;
     }
 
     animate(startTime, endTime, value) {
@@ -816,6 +829,7 @@ canvideo.Keyframe = class {
             throw new TypeError("startTime must be a number.");
         }
         this.shapes = [];
+        this._extendUntil = 0;
     }
     set video(value) {
         if (value instanceof canvideo.Video) {
@@ -841,6 +855,17 @@ canvideo.Keyframe = class {
     }
     get frameNumber() {
         return this._frameNumber;
+    }
+    set extendUntil(value){
+        if(typeof value === 'number'){
+            this._extendUntil = Math.max(this._extendUntil, value);
+        }
+        else{
+            throw new TypeError("extendUntil time must be a number (in seconds).");
+        }
+    }
+    get extendUntil(){
+        return this._extendUntil;
     }
 
     addShape(shape) {
@@ -993,6 +1018,7 @@ canvideo.Video = class extends EventEmitter {
         this.height = height;
         this.fps = fps;
         this.exported = false;
+        this._extendUntil = 0;
 
         this.command = ffmpeg();
         this.command.on('end', () => {
@@ -1025,6 +1051,17 @@ canvideo.Video = class extends EventEmitter {
     }
     get spf() {
         return 1 / this.fps;
+    }
+    set extendUntil(value){
+        if(typeof value === 'number'){
+            this._extendUntil = Math.max(this._extendUntil, value);
+        }
+        else{
+            throw new TypeError("extendUntil time must be a number (in seconds).");
+        }
+    }
+    get extendUntil(){
+        return this._extendUntil;
     }
 
     addKeyframe(keyframe) {
@@ -1074,6 +1111,11 @@ canvideo.Video = class extends EventEmitter {
             if (!(this.keyframes[i] instanceof canvideo.Keyframe)) {
                 this.addKeyframe(new canvideo.Keyframe(i * this.spf));
             }
+        }
+
+        //Extend video further than last keyframe to render animations
+        while(this.keyframes.length < this.extendUntil * this.fps){
+            this.addKeyframe(new canvideo.Keyframe(this.keyframes.length * this.spf));
         }
 
         //Render the first frame
