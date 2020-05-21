@@ -16,6 +16,8 @@ declare namespace canvideo {
     type videoSize = VideoSize | VideoSizeShort;
     type evenNumber = number;
     type nonNegativeInteger = number;
+    type nonNegativeNumber = number;
+    type coordinate = [ number, number ];
 
     interface VideoSize {
         width: evenNumber;
@@ -32,15 +34,29 @@ declare namespace canvideo {
     interface VideoOptionsAll extends VideoSize {
         fps: number;
     }
-    interface ShapeAttributes{
-        color: Color,
-        layer: nonNegativeInteger
+    interface ShapeAttributes {
+        fillColor: Color;
+        strokeColor: Color;
+        strokeWidth: nonNegativeNumber;
+        layer: nonNegativeInteger;
     }
-    interface RectangleAttributes extends ShapeAttributes{
+    interface RectangleAttributes extends ShapeAttributes {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+    interface SquareAttributes extends ShapeAttributes {
+        x: number;
+        y: number;
+        size: number;
+    }
+    interface Coordinate{
         x: number,
-        y: number,
-        width: number,
-        height: number
+        y: number
+    }
+    interface PolygonAttributes extends ShapeAttributes {
+        points: Array<Point>
     }
 
     export function setTempPath(path: fs.PathLike): void;
@@ -87,17 +103,52 @@ declare namespace canvideo {
     export abstract class Shape<Attributes extends ShapeAttributes> extends Animanager<Attributes> {
         constructor(color: color, defaultValue: Attributes, layer?: nonNegativeInteger);
 
-        color: Color;
+        fillColor: Color;
+        strokeColor: Color;
+        strokeWidth: nonNegativeNumber;
         deleteTime: number;
         deleteFrame: number;
 
         setDeleteTime(time: number): this;
 
+        fill(color: color): this;
+        stroke(color: color, width: nonNegativeNumber): this;
+        inLayer(layer: nonNegativeInteger): this;
         draw(ctx: canvas.CanvasRenderingContext2D): this;
     }
 
     export class Rectangle extends Shape<RectangleAttributes> {
-        constructor(x: number, y: number, width: number, height: number, color?: color, layer?: nonNegativeInteger);
+        constructor(x: number, y: number, width: number, height: number, layer?: nonNegativeInteger);
+
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+
+    export class Square extends Shape<SquareAttributes>{
+        constructor(x: number, y: number, width: number, layer?: nonNegativeNumber);
+
+        x: number;
+        y: number;
+        size: number;
+    }
+
+    export class Point {
+        constructor(x: number, y: number);
+        constructor(coordinate: coordinate);
+        constructor(coordinate: Coordinate);
+
+        x: number;
+        y: number;
+    }
+
+    export class Polygon extends Shape<PolygonAttributes>{
+        constructor(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, ...coordinates: Array<number>);
+        constructor(point1: coordinate, point2: coordinate, point3: coordinate, ...points: Array<coordinate>);
+        constructor(point1: Coordinate, point2: Coordinate, point3: Coordinate, ...points: Array<Coordinate>);
+
+        points: Array<Point>;
     }
 
     export class Keyframe {

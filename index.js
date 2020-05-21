@@ -50,7 +50,7 @@ canvideo.Color = class {
     //Constructor: [r: number, g: number, b: number, a: number]
     //Constructor: r: number, g: number, b: number
     //Constructor: r: number, g: number, b: number, a: number
-    constructor(arg1, arg2, arg3, arg4) {
+    constructor(arg1 = "white", arg2, arg3, arg4) {
         function validValue(color) {
             var color = tinyColor(color);
             return color.isValid();
@@ -114,52 +114,52 @@ canvideo.Color = class {
     set r(value) {
         this.setIntensity('r', value);
     }
-    get r(){
+    get r() {
         return this.tinyColor.toRgb().r;
     }
-    set red(value){
+    set red(value) {
         this.r = value;
     }
-    get red(){
+    get red() {
         return this.r;
     }
 
     set g(value) {
         this.setIntensity('g', value);
     }
-    get g(){
+    get g() {
         return this.tinyColor.toRgb().g;
     }
-    set green(value){
+    set green(value) {
         this.g = value;
     }
-    get green(){
+    get green() {
         return this.g;
     }
 
     set b(value) {
         this.setIntensity('b', value);
     }
-    get b(){
+    get b() {
         return this.tinyColor.toRgb().b;
     }
-    set blue(value){
+    set blue(value) {
         this.b = value;
     }
-    get blue(){
+    get blue() {
         return this.b;
     }
 
-    set a(value){
+    set a(value) {
         this.setAlpha(value);
     }
-    get a(){
+    get a() {
         return this.tinyColor.toRgb().a;
     }
-    set alpha(value){
+    set alpha(value) {
         this.a = value;
     }
-    get alpha(){
+    get alpha() {
         return this.a;
     }
 
@@ -167,7 +167,7 @@ canvideo.Color = class {
         return this.tinyColor.toString();
     }
 
-    setIntensity(color, intensity){
+    setIntensity(color, intensity) {
         if (intensity >= 0 && intensity <= 255) {
             var rgba = this.tinyColor.toRgb();
             rgba[color] = intensity;
@@ -177,11 +177,11 @@ canvideo.Color = class {
             throw new TypeError(`${color} must be between 0 and 255.`);
         }
     }
-    setAlpha(opacity){
-        if(opacity >= 0 && opacity <= 1){
+    setAlpha(opacity) {
+        if (opacity >= 0 && opacity <= 1) {
             this.tinyColor.setAlpha(opacity);
         }
-        else{
+        else {
             throw new TypeError("Alpha must be between 0 and 1.");
         }
     }
@@ -345,7 +345,7 @@ canvideo.Animanager = class {
 
         var nextFrameAnimations = [];
         var calculatedValue = this.defaultValue;
-        
+
         for (var i = 0; i < this.currentAnimations.length; i++) {
             var { startFrame, endFrame, value, isAnimationClass } = this.currentAnimations[i];
             var percentage = (frameNumber - startFrame) / (endFrame - startFrame);
@@ -366,29 +366,104 @@ canvideo.Animanager = class {
 
 //Shape
 canvideo.Shape = class extends canvideo.Animanager {
-    constructor(color, defaultValue, layer = 0) {
-        if (!(typeof layer === 'number' && Number.isSafeInteger(layer) && layer >= 0)) {
-            throw new TypeError("layer must be a non negative integer.");
-        }
-        super(helper.recursiveAssign({ layer: layer }, defaultValue), function (value) {
-            this.deleteFrame = this.video.frameAtTime(this.deleteTime);
-        });
-        this.color = color;
+    constructor(defaultValue, layer = 0) {
+        super(helper.recursiveAssign(
+            {
+                _layer: layer,
+                set layer(value) {
+                    if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) {
+                        this._layer = value;
+                    }
+                    else {
+                        throw new TypeError("layer must be a non negative integer.");
+                    }
+                },
+                get layer() {
+                    return this._layer;
+                },
+                _fillColor: undefined,
+                set fillColor(value) {
+                    if (typeof value === 'object') {
+                        this._fillColor = helper.recursiveAssign(this.fillColor, value);
+                    }
+                    else {
+                        this._fillColor = new canvideo.Color(value);
+                    }
+                },
+                get fillColor() {
+                    return this._fillColor;
+                },
+                _strokeColor: undefined,
+                set strokeColor(value) {
+                    if (typeof value === 'object') {
+                        this.stroke_Color = helper.recursiveAssign(this.strokeColor, value);
+                    }
+                    else {
+                        this._strokeColor = new canvideo.Color(value);
+                    }
+                },
+                get strokeColor() {
+                    return this._strokeColor;
+                },
+                _strokeWidth: undefined,
+                set strokeWidth(value = 0) {
+                    if (typeof value === 'number' && value >= 0) {
+                        this._strokeWidth = value;
+                    }
+                    else {
+                        throw new TypeError("strokeWidth must be a non negative number.");
+                    }
+                },
+                get strokeWidth() {
+                    return this._strokeWidth;
+                }
+            }, defaultValue), function (value) {
+                this.deleteFrame = this.video.frameAtTime(this.deleteTime);
+            });
+        this.layer = layer;
+        this.fillColor = undefined;
+        this.strokeColor = undefined;
+        this.strokeWidth = undefined;
         this.deleteFrame = Infinity;
         this.deleteTime = Infinity;
+        this._draw = new helper.ExtendibleFunction();
+        this.draw = function (ctx, frameNumber) {
+            var value = this.valueAt(frameNumber);
+            ctx.fillStyle = value.fillColor.toString();
+            ctx.strokeStyle = value.strokeColor.toString();
+            ctx.strokeWidth = value.strokeWidth;
+        }
     };
 
-    set color(value) {
-        if (typeof value === 'object') {
-            this._color = helper.recursiveAssign(this.color, value);
-        }
-        else {
-            this._color = new canvideo.Color(value);
-        }
-        this.defaultValue.color = this._color;
+    set layer(value) {
+        this.defaultValue.layer = value;
     }
-    get color() {
-        return this._color;
+    get layer() {
+        return this.defaultValue.layer;
+    }
+    set draw(value) {
+        this._draw.action = value.bind(this);
+    }
+    get draw() {
+        return this._draw.action;
+    }
+    set fillColor(value) {
+        this.defaultValue.fillColor = value;
+    }
+    get fillColor() {
+        return this.defaultValue.fillColor;
+    }
+    set strokeColor(value) {
+        this.defaultValue.strokeColor = value;
+    }
+    get strokeColor() {
+        return this.defaultValue.strokeColor;
+    }
+    set strokeWidth(value = 0) {
+        this.defaultValue.strokeWidth = value;
+    }
+    get strokeWidth() {
+        return this.defaultValue.strokeWidth;
     }
 
     setDeleteTime(time) {
@@ -401,71 +476,333 @@ canvideo.Shape = class extends canvideo.Animanager {
 
         return this;
     }
+    inLayer(layer) {
+        this.layer = layer;
+        return this;
+    }
+    fill(color) {
+        this.fillColor = color;
+        return this;
+    }
+    stroke(color, width) {
+        this.strokeColor = color;
+        this.strokeWidth = width;
+        return this;
+    }
 }
 
-//Control Point
-canvideo.ControlPoint = class {
-    static defaultSetterX(value) {
-        this._x = value;
+//Rectangle
+canvideo.Rectangle = class extends canvideo.Shape {
+    constructor(x = 0, y = 0, width = 100, height = 100, layer) {
+        super({
+            _x: undefined,
+            set x(value) {
+                if (typeof value === 'number') {
+                    this._x = value;
+                }
+                else {
+                    throw new TypeError("x must be a number.");
+                }
+            },
+            get x() {
+                return this._x;
+            },
+            _y: undefined,
+            set y(value) {
+                if (typeof value === 'number') {
+                    this._y = value;
+                }
+                else {
+                    throw new TypeError("y must be a number.");
+                }
+            },
+            get y() {
+                return this._y;
+            },
+            _width: undefined,
+            set width(value) {
+                if (typeof value === 'number') {
+                    this._width = value;
+                }
+                else {
+                    throw new TypeError("width must be a number.");
+                }
+            },
+            get width() {
+                return this._width;
+            },
+            _height: undefined,
+            set height(value) {
+                if (typeof value === 'number') {
+                    this._height = value;
+                }
+                else {
+                    throw new TypeError("height must be a number.");
+                }
+            },
+            get height() {
+                return this._height;
+            }
+        }, layer);
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.draw = function (ctx, frameNumber) {
+            var value = this.valueAt(frameNumber);
+            ctx.fillRect(value.x, value.y, value.width, value.height);
+            if (this.strokeWidth > 0) {
+                ctx.strokeRect(value.x, value.y, value.width, value.height);
+            }
+            return this;
+        };
     }
-    static defaultSetterY(value) {
-        this._y = value;
+
+    set x(value) {
+        this.defaultValue.x = value;
     }
-    constructor(shape, setterX = defaultSetterX, setterY = defaultSetterY) {
-        if (shape instanceof canvideo.Shape) {
-            this.shape = shape;
-            this.setterX = setterX;
-            this.setterY = setterY;
-            this._x = 0;
-            this._y = 0;
+    get x() {
+        return this.defaultValue.x;
+    }
+    set y(value) {
+        this.defaultValue.y = value;
+    }
+    get y() {
+        return this.defaultValue.y;
+    }
+    set width(value) {
+        this.defaultValue.width = value;
+    }
+    get width() {
+        return this.defaultValue.width;
+    }
+    set height(value) {
+        this.defaultValue.height = value;
+    }
+    get height() {
+        return this.defaultValue.height;
+    }
+}
+
+//Square
+canvideo.Square = class extends canvideo.Shape {
+    constructor(x = 0, y = 0, size = 100, layer) {
+        super({
+            _x: undefined,
+            set x(value) {
+                if (typeof value === 'number') {
+                    this._x = value;
+                }
+                else {
+                    throw new TypeError("x must be a number.");
+                }
+            },
+            get x() {
+                return this._x;
+            },
+            _y: undefined,
+            set y(value) {
+                if (typeof value === 'number') {
+                    this._y = value;
+                }
+                else {
+                    throw new TypeError("y must be a number.");
+                }
+            },
+            get y() {
+                return this._y;
+            },
+            size: undefined,
+            set size(value) {
+                if (typeof value === 'number') {
+                    this._size = value;
+                }
+                else {
+                    throw new TypeError("size must be a number.");
+                }
+            },
+            get size() {
+                return this._size;
+            }
+        }, layer);
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.draw = function (ctx, frameNumber) {
+            var value = this.valueAt(frameNumber);
+            ctx.fillRect(value.x, value.y, value.size, value.size);
+            if (this.strokeWidth > 0) {
+                ctx.strokeRect(value.x, value.y, value.size, value.size);
+            }
+            return this;
+        };
+    }
+
+    set x(value) {
+        this.defaultValue.x = value;
+    }
+    get x() {
+        return this.defaultValue.x;
+    }
+    set y(value) {
+        this.defaultValue.y = value;
+    }
+    get y() {
+        return this.defaultValue.y;
+    }
+    set size(value) {
+        this.defaultValue.size = value;
+    }
+    get size() {
+        return this.defaultValue.size;
+    }
+}
+
+//Point
+canvideo.Point = class {
+    constructor(arg1, arg2) {
+        //Constructor: x: number, y: number
+        //Constructor: [ x: number, y: number ]
+        //Constructor: { x: number, y: number }
+        if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+            this.x = arg1, this.y = arg2;
+        }
+        else if (arg1 instanceof Array && arg1.length === 2 && typeof arg1[0] === 'number' && typeof arg1[1] === 'number') {
+            this.x = arg1[0], this.y = arg1[1];
+        }
+        else if (typeof arg1 === 'object' && typeof arg1.x === 'number' && typeof arg1.y === 'number') {
+            this.x = arg1.x, this.y = arg1.y;
         }
         else {
-            throw new TypeError(`Shape: ${shape} is not of type Shape`);
+            throw new TypeError("Invalid Constructor.");
         }
     }
+
     set x(value) {
-        return this.setterX(value);
+        if (typeof value === 'number') {
+            this._x = value;
+        }
+        else {
+            throw new TypeError("x must be a number");
+        }
     }
     get x() {
         return this._x;
     }
     set y(value) {
-        return this.setterY(value);
+        if (typeof value === 'number') {
+            this._y = value;
+        }
+        else {
+            throw new TypeError("y must be a number");
+        }
     }
     get y() {
         return this._y;
     }
 }
 
-//Rectangle
-canvideo.Rectangle = class extends canvideo.Shape {
-    constructor(x = 0, y = 0, width = 100, height = 100, color, layer) {
-        if (!typeof x == 'number') {
-            throw new TypeError(`x: ${x} is not a number.`);
+//Polygon
+canvideo.Polygon = class extends canvideo.Shape {
+    constructor() {
+        //Constructor: x1, y1, x2, y2, x3, y3, ...
+        //Constructor: [ x1, y1 ], [ x2, y2 ], [ x3, y3 ], ...
+        //Constructor: { x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }, ...
+
+        var points = [];
+        //Find out what type of constructor they are using
+        var argTypes = [];
+        for (var i = 0; i < 6; i++) {
+            argTypes.push(typeof arguments[i]);
         }
-        if (!typeof y == 'number') {
-            throw new TypeError(`y: ${y} is not a number.`);
+        if (argTypes[0] === 'number' && argTypes[1] === 'number' && argTypes[2] === 'number' && argTypes[3] === 'number' && argTypes[4] === 'number' && argTypes[5] === 'number') {
+            var i = 0;
+            while (i < arguments.length) {
+                if (typeof arguments[i] === 'number' && typeof arguments[i + 1] === 'number') {
+                    points.push(new canvideo.Point({
+                        x: arguments[i],
+                        y: arguments[i + 1]
+                    }));
+                }
+                else {
+                    throw new TypeError("Invalid list arguements.");
+                }
+                i += 2;
+            }
         }
-        if (!typeof width == 'number') {
-            throw new TypeError(`width: ${width} is not a number.`);
+        else if (argTypes[0] === 'object' && argTypes[1] === 'object' && argTypes[2] === 'object') {
+            if (arguments[0] instanceof Array) {
+                var i = 0;
+                while (i < arguments.length) {
+                    if (arguments[i] instanceof Array && typeof arguments[i][0] === 'number' && typeof arguments[i][1] === 'number') {
+                        points.push(new canvideo.Polygon(arguments[i]));
+                    }
+                    else {
+                        throw new TypeError("Invalid array arguements.");
+                    }
+                    i++;
+                }
+            }
+            else {
+                var i = 0;
+                while (i < arguments.length) {
+                    if (typeof arguments[i] === 'object' && typeof arguments[i].x === 'number' && typeof arguments[i].y === 'number') {
+                        points.push(new canvideo.Polygon(arguments[i]));
+                    }
+                    else {
+                        throw new TypeError("Invalid object arguements.");
+                    }
+                    i++;
+                }
+            }
         }
-        if (!typeof height == 'number') {
-            throw new TypeError(`height: ${height} is not a number.`);
+        else {
+            throw new TypeError("Invalid constructor.");
         }
-        super(color, {
-            x: x,
-            y: y,
-            width: width,
-            height: height
-        }, layer);
+        super(
+            {
+                _points: points,
+                set points(value) {
+                    if (value instanceof Array) {
+                        var newPoints = []
+                        for(var i = 0; i < value.length; i++){
+                            if(value[i] instanceof canvideo.Point){
+                                newPoints.push(value[i]);
+                            }
+                            else{
+                                newPoints.push(new canvideo.Point(value[i]));
+                            }
+                        }
+                        this._points = newPoints;
+                    }
+                    else{
+                        throw new TypeError("points must be an array of points.");
+                    }
+                },
+                get points(){
+                    return this._points;
+                }
+            }
+        );
+        this.points = points;
+        this.draw = function (ctx, frameNumber) {
+            var value = this.valueAt(frameNumber);
+            ctx.beginPath();
+            ctx.moveTo(value.points[0].x, value.points[0].y);
+            for (var i = 1; i < value.points.length; i++) {
+                ctx.lineTo(value.points[i].x, value.points[i].y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
     }
 
-    draw(ctx, frameNumber) {
-        var value = this.valueAt(frameNumber);
-        ctx.fillStyle = this.color.toString();
-        ctx.fillRect(value.x, value.y, value.width, value.height);
-
-        return this;
+    set points(value){
+        this.defaultValue.points = value;
+    }
+    get points(){
+        return this.defaultValue.points;
     }
 }
 
@@ -549,7 +886,6 @@ canvideo.Keyframe = class {
             shapesToRender = shapesToRender.concat(this.shapes).sort(sorter.bind(this));
             this.video.loop.goal++;
 
-            //Render frame 0
             var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
             for (var i = 0; i < shapesToRender.length; i++) {
