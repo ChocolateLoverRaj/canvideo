@@ -17,6 +17,7 @@ declare namespace canvideo {
     type evenNumber = number;
     type nonNegativeInteger = number;
     type nonNegativeNumber = number;
+    type positiveNumber = number;
     type coordinate = [ number, number ];
 
     interface VideoSize {
@@ -33,6 +34,11 @@ declare namespace canvideo {
     }
     interface VideoOptionsAll extends VideoSize {
         fps: number;
+    }
+    interface CameraAttributes {
+        x: number;
+        y: number;
+        zoom: positiveNumber;
     }
     interface ShapeAttributes {
         fillColor: Color;
@@ -81,22 +87,22 @@ declare namespace canvideo {
         toString(): string;
     }
 
-    export class Animation {
-        constructor(startValue: number, endValue: number);
+    export class Animation<Attributes> {
+        constructor(startValue: Attributes, endValue: Attributes);
 
         reverse(): this;
-        calculate(percentage: number): void;
+        calculate(percentage: number): Attributes;
         last(): this;
     }
 
-    export class Animanager<Attributes>{
-        constructor(defaultValue: object, setVideo: (video: Video) => void);
+    export class Animanager<Attributes extends Object>{
+        constructor(defaultValue: object, setVideo?: (video: Video) => void);
 
         video: Video;
         defaultValue: Attributes;
         extendUntil: nonNegativeNumber;
 
-        animate(startTime: nonNegativeNumber, endTime: nonNegativeNumber, value: (percentage: nonNegativeNumber) => Attributes | Animation): this;
+        animate(startTime: nonNegativeNumber, endTime: nonNegativeNumber, value: (percentage: nonNegativeNumber) => Attributes | Animation<Attributes>): this;
         setAt(startTime: nonNegativeNumber, value: Attributes): this;
         valueAt(frameNumber: number): Attributes;
     }
@@ -115,7 +121,7 @@ declare namespace canvideo {
         fill(color: color): this;
         stroke(color: color, width: nonNegativeNumber): this;
         inLayer(layer: nonNegativeInteger): this;
-        draw(ctx: canvas.CanvasRenderingContext2D): this;
+        draw(ctx: canvas.CanvasRenderingContext2D, value: Attributes): this;
     }
 
     export class Rectangle extends Shape<RectangleAttributes> {
@@ -125,6 +131,8 @@ declare namespace canvideo {
         y: number;
         width: number;
         height: number;
+
+        draw(ctx: canvas.CanvasRenderingContext2D, value: RectangleAttributes): this;
     }
 
     export class Square extends Shape<SquareAttributes>{
@@ -133,6 +141,8 @@ declare namespace canvideo {
         x: number;
         y: number;
         size: number;
+
+        draw(ctx: canvas.CanvasRenderingContext2D, value: RectangleAttributes): this;
     }
 
     export class Point {
@@ -150,6 +160,8 @@ declare namespace canvideo {
         constructor(point1: Coordinate, point2: Coordinate, point3: Coordinate, ...points: Array<Coordinate>);
 
         points: Array<Point>;
+
+        draw(ctx: canvas.CanvasRenderingContext2D, value: RectangleAttributes): this;
     }
 
     export class Keyframe {
@@ -195,6 +207,7 @@ declare namespace canvideo {
         height: evenNumber;
         fps: number;
         lastUntil: nonNegativeNumber;
+        camera: Animanager<CameraAttributes>;
 
         get spf(): number;
 
