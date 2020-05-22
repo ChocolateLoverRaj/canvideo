@@ -234,13 +234,21 @@ canvideo.Animation = class {
 //Animanager
 canvideo.Animanager = class {
     constructor(defaultValue, setVideo) {
-        if (typeof defaultValue === 'object' && typeof setVideo === 'function') {
+        if (typeof defaultValue === 'object') {
             this.defaultValue = defaultValue;
             this.changes = new Map();
             this.changesToAdd = [];
             this.animations = new Map();
             this.currentAnimations = [];
+            if(typeof setVideo === 'function'){
             this.setVideo = setVideo;
+            }
+            else if(typeof setVideo === 'undefined'){
+                this.setVideo = function(value){};
+            }
+            else{
+                throw new TypeError("Invalid constructor.");
+            }
             this._extendUntil = 0;
         }
         else {
@@ -439,13 +447,6 @@ canvideo.Shape = class extends canvideo.Animanager {
         this.strokeWidth = undefined;
         this.deleteFrame = Infinity;
         this.deleteTime = Infinity;
-        this._draw = new helper.ExtendibleFunction();
-        this.draw = function (ctx, frameNumber) {
-            var value = this.valueAt(frameNumber);
-            ctx.fillStyle = value.fillColor.toString();
-            ctx.strokeStyle = value.strokeColor.toString();
-            ctx.strokeWidth = value.strokeWidth;
-        }
     };
 
     set layer(value) {
@@ -453,12 +454,6 @@ canvideo.Shape = class extends canvideo.Animanager {
     }
     get layer() {
         return this.defaultValue.layer;
-    }
-    set draw(value) {
-        this._draw.action = value.bind(this);
-    }
-    get draw() {
-        return this._draw.action;
     }
     set fillColor(value) {
         this.defaultValue.fillColor = value;
@@ -479,6 +474,11 @@ canvideo.Shape = class extends canvideo.Animanager {
         return this.defaultValue.strokeWidth;
     }
 
+    draw(ctx, value) {
+        ctx.fillStyle = value.fillColor.toString();
+        ctx.strokeStyle = value.strokeColor.toString();
+        ctx.strokeWidth = value.strokeWidth;
+    }
     setDeleteTime(time) {
         if (typeof time === 'number') {
             this.deleteTime = time;
@@ -561,14 +561,6 @@ canvideo.Rectangle = class extends canvideo.Shape {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.draw = function (ctx, frameNumber) {
-            var value = this.valueAt(frameNumber);
-            ctx.fillRect(value.x, value.y, value.width, value.height);
-            if (this.strokeWidth > 0) {
-                ctx.strokeRect(value.x, value.y, value.width, value.height);
-            }
-            return this;
-        };
     }
 
     set x(value) {
@@ -595,6 +587,15 @@ canvideo.Rectangle = class extends canvideo.Shape {
     get height() {
         return this.defaultValue.height;
     }
+
+    draw(ctx, value) {
+        super.draw(ctx, value)
+        ctx.fillRect(value.x, value.y, value.width, value.height);
+        if (this.strokeWidth > 0) {
+            ctx.strokeRect(value.x, value.y, value.width, value.height);
+        }
+        return this;
+    };
 }
 
 //Square
@@ -641,14 +642,6 @@ canvideo.Square = class extends canvideo.Shape {
         this.x = x;
         this.y = y;
         this.size = size;
-        this.draw = function (ctx, frameNumber) {
-            var value = this.valueAt(frameNumber);
-            ctx.fillRect(value.x, value.y, value.size, value.size);
-            if (this.strokeWidth > 0) {
-                ctx.strokeRect(value.x, value.y, value.size, value.size);
-            }
-            return this;
-        };
     }
 
     set x(value) {
@@ -669,6 +662,15 @@ canvideo.Square = class extends canvideo.Shape {
     get size() {
         return this.defaultValue.size;
     }
+
+    draw(ctx, value) {
+        super.draw(ctx, value);
+        ctx.fillRect(value.x, value.y, value.size, value.size);
+        if (this.strokeWidth > 0) {
+            ctx.strokeRect(value.x, value.y, value.size, value.size);
+        }
+        return this;
+    };
 }
 
 //Point
@@ -798,17 +800,6 @@ canvideo.Polygon = class extends canvideo.Shape {
             }
         );
         this.points = points;
-        this.draw = function (ctx, frameNumber) {
-            var value = this.valueAt(frameNumber);
-            ctx.beginPath();
-            ctx.moveTo(value.points[0].x, value.points[0].y);
-            for (var i = 1; i < value.points.length; i++) {
-                ctx.lineTo(value.points[i].x, value.points[i].y);
-            }
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-        }
     }
 
     set points(value){
@@ -816,6 +807,18 @@ canvideo.Polygon = class extends canvideo.Shape {
     }
     get points(){
         return this.defaultValue.points;
+    }
+
+    draw(ctx, value) {
+        super.draw(ctx, value);
+        ctx.beginPath();
+        ctx.moveTo(value.points[0].x, value.points[0].y);
+        for (var i = 1; i < value.points.length; i++) {
+            ctx.lineTo(value.points[i].x, value.points[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
     }
 }
 
@@ -899,7 +902,6 @@ canvideo.Keyframe = class {
                         }
                     }
                     else {
-                        console.log(shapes, this.frameNumber)
                         throw new TypeError(`shapes[${i}] is not a Shape.`);
                     }
                 }
@@ -913,8 +915,12 @@ canvideo.Keyframe = class {
 
             var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
+            //Set stuff based on camera
+            var camera = this.video.camera.valueAt(this.frameNumber);
+            ctx.translate(-camera.x, -camera.y);
+            ctx.scale(camera.zoom, camera.zoom);
             for (var i = 0; i < shapesToRender.length; i++) {
-                shapesToRender[i].draw(ctx, this.frameNumber);
+                shapesToRender[i].draw(ctx, shapesToRender[i].valueAt(this.frameNumber), camera);
             }
             var framePath = this.video.tempPath + "/frame" + this.frameNumber + ".jpg";
             canvas.createJPEGStream()
@@ -995,7 +1001,6 @@ canvideo.Video = class extends EventEmitter {
                 }
             }
             else {
-                console.log("none")
                 return false;
             }
         }
@@ -1019,6 +1024,44 @@ canvideo.Video = class extends EventEmitter {
         this.fps = fps;
         this.exported = false;
         this._extendUntil = 0;
+        this.camera = new canvideo.Animanager({
+            _x: 0,
+            set x(value){
+                if(typeof value === 'number'){
+                    this._x = value;
+                }
+                else{
+                    throw new TypeError("x must be a numbe");
+                }
+            },
+            get x(){
+                return this._x;
+            },
+            _y: 0,
+            set y(value){
+                if(typeof value === 'number'){
+                    this._y = value;
+                }
+                else{
+                    throw new TypeError("y must be a numbe");
+                }
+            },
+            get y(){
+                return this._y;
+            },
+            _zoom: 1,
+            set zoom(value){
+                if(typeof value === 'number' && value > 0){
+                    this._zoom = value;
+                }
+                else{
+                    throw new TypeError("zoom must be a number greater than 0.");
+                }
+            },
+            get zoom(){
+                return this._zoom;
+            }
+        });
 
         this.command = ffmpeg();
         this.command.on('end', () => {
@@ -1100,6 +1143,9 @@ canvideo.Video = class extends EventEmitter {
         else {
             throw new TypeError(`File path: ${filePath} is not a valid path type.`);
         }
+
+        //Set camera's video
+        this.camera.video = this;
 
         //Make sure there is a keyframe at 0 seconds
         if (!(this.keyframes[0] instanceof canvideo.Keyframe)) {
