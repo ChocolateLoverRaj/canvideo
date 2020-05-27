@@ -183,23 +183,6 @@ declare namespace canvideo {
         frameNumber: number;
 
         addShape(shape: Shape<any>): this;
-        render(shapes: Array<Shape<any>>): void;
-    }
-
-    export interface VideoAfterExport {
-        on(event: "done", handler: () => void): this;
-        on(event: "error", handler: () => void): this;
-    }
-    export abstract class VideoAfterExport {
-        keyframes: Array<Keyframe>;
-        tempPath: fs.PathLike;
-        width: evenNumber;
-        height: evenNumber;
-        fps: number;
-
-        get spf(): number;
-
-        frameAtTime(time: number): number;
     }
 
     export interface Video {
@@ -224,7 +207,7 @@ declare namespace canvideo {
 
         addKeyFrame(keyframe: Keyframe): this;
         frameAtTime(time: number): number;
-        export(filePath: fs.PathLike): VideoAfterExport;
+        export(filePath: fs.PathLike, callback?: () => void): Promise<undefined>;
     }
 }
 

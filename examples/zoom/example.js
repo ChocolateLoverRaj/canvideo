@@ -26,13 +26,12 @@ video
         )
     );
 
-video.camera.animate(0, 2, new canvideo.ZoomAnimation({ scaleX: 1, scaleY: 1}, { scaleX: 2, scaleY: 2}, 200, 200).reverse());
+video.camera.animate(0, 2, new canvideo.ZoomAnimation({ scaleX: 1, scaleY: 1 }, { scaleX: 2, scaleY: 2 }, 200, 200).reverse());
 
-video.on("done", () => {
-    console.log("done")
-});
-video.on("error", () => {
-    console.log("error!");
-});
-
-video.export(path.join(__dirname, "./res/output.mp4"));
+video.export(path.join(__dirname, "./res/output.mp4"))
+    .then(() => {
+        console.log("done");
+    })
+    .catch(err => {
+        console.log("Couldn't generate video.");
+    });

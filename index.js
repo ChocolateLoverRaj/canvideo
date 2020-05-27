@@ -913,7 +913,6 @@ canvideo.Keyframe = class {
             };
 
             var shapesToRender = shapes.concat(this.shapes).sort(sorter.bind(this));
-            this.video.loop.goal++;
 
             var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
@@ -930,24 +929,20 @@ canvideo.Keyframe = class {
                 shapesToRender[i].draw(ctx, shapesToRender[i].valueAt(this.frameNumber), camera);
             }
             var framePath = this.video.tempPath + "/frame" + this.frameNumber + ".jpg";
-            canvas.createJPEGStream()
-                .on("end", () => {
-                    this.video.loop.emit("result", false);
-                })
-                .on("error", err => {
-                    this.video.loop.emit("result", err, this.frameNumber);
-                })
-                .pipe(fs.createWriteStream(framePath));
 
-            //Render next keyframe
-            if (this.frameNumber + 1 < this.video.keyframes.length) {
-                this.video.keyframes[this.frameNumber + 1].render(shapesToRender);
-            }
-            else {
-                //This is the last frame
-            }
-
-            return this;
+            return {
+                promise: new Promise((resolve, reject) => {
+                    canvas.createJPEGStream()
+                        .on("end", () => {
+                            resolve();
+                        })
+                        .on("error", err => {
+                            reject(err);
+                        })
+                        .pipe(fs.createWriteStream(framePath));
+                }),
+                shapes: shapesToRender
+            };
         }
         else {
             throw new TypeError("this.frameNumber is not a number");
@@ -956,20 +951,20 @@ canvideo.Keyframe = class {
 }
 
 //Zoom Linear Animation
-canvideo.ZoomAnimation = class extends canvideo.Animation{
-    constructor(startZoom, endZoom, arg1, arg2){
-        if(typeof startZoom === 'object' && typeof startZoom.scaleX === 'number' && typeof startZoom.scaleY === 'number' && typeof endZoom === 'object' && typeof endZoom.scaleX === 'number' && typeof endZoom.scaleY === 'number'){
+canvideo.ZoomAnimation = class extends canvideo.Animation {
+    constructor(startZoom, endZoom, arg1, arg2) {
+        if (typeof startZoom === 'object' && typeof startZoom.scaleX === 'number' && typeof startZoom.scaleY === 'number' && typeof endZoom === 'object' && typeof endZoom.scaleX === 'number' && typeof endZoom.scaleY === 'number') {
             var refX, refY;
-            if(typeof arg1 === 'number' && typeof arg2 === 'number'){
+            if (typeof arg1 === 'number' && typeof arg2 === 'number') {
                 refX = arg1, refY = arg2;
             }
-            else if(typeof arg1 === 'object' && typeof arg1.x === 'number' && typeof arg1.y === 'number' && typeof arg2 === 'undefined'){
+            else if (typeof arg1 === 'object' && typeof arg1.x === 'number' && typeof arg1.y === 'number' && typeof arg2 === 'undefined') {
                 refX = arg1.x, refY = arg1.y;
             }
-            else if(arg1 instanceof Array && typeof arg1[0] === 'number' && typeof arg1[1] === 'number' && typeof arg2 === 'undefined'){
+            else if (arg1 instanceof Array && typeof arg1[0] === 'number' && typeof arg1[1] === 'number' && typeof arg2 === 'undefined') {
                 [refX, refY] = arg1;
             }
-            else{
+            else {
                 throw new TypeError("Invalid syntax for reference point.");
             }
             var startValue = {
@@ -986,7 +981,7 @@ canvideo.ZoomAnimation = class extends canvideo.Animation{
             };
             super(startValue, endValue);
         }
-        else{
+        else {
             throw new TypeError("Invalid startZoom or endZoom.");
         }
     };
@@ -1062,7 +1057,6 @@ canvideo.Video = class extends EventEmitter {
 
         this.keyframes = [];
         this.tempPath = config.tempPath;
-        this.loop = new AsyncLoop();
         this.width = width;
         this.height = height;
         this.fps = fps;
@@ -1211,7 +1205,7 @@ canvideo.Video = class extends EventEmitter {
             throw new TypeError("time must be a number.");
         }
     }
-    export(filePath) {
+    export(filePath, callback) {
         if (this.exported) {
             throw new SyntaxError("Cannot export twice.");
         }
@@ -1222,6 +1216,9 @@ canvideo.Video = class extends EventEmitter {
         }
         else {
             throw new TypeError(`File path: ${filePath} is not a valid path type.`);
+        }
+        if(!((typeof callback === 'function' && callback.length === 0) || (typeof callback === 'undefined'))){
+            throw new TypeError("If callback is specified it must be a function which takes 0 args.");
         }
 
         //Set camera's video
@@ -1244,24 +1241,25 @@ canvideo.Video = class extends EventEmitter {
             this.addKeyframe(new canvideo.Keyframe(this.keyframes.length * this.spf));
         }
 
-        //Render the first frame
-        this.keyframes[0].render();
-
-        this.loop.on("done", errors => {
-            if (!errors) {
-                this.command
-                    .input(config.tempPath + "/frame%1d.jpg")
-                    .inputFPS(this.fps)
-                    .save(filePath)
-                    .outputFPS(this.fps);
-            }
-            else {
-                this.emit("error");
-            }
-        });
+        //Render a keyframe
         this.exported = true;
-
-        return this;
+        var promises = [];
+        var previousShapes = [];
+        for (var i = 0; i < this.keyframes.length; i++) {
+            var { shapes, promise } = this.keyframes[i].render(shapes);
+            previousShapes = shapes;
+            promises.push(promise);
+        }
+        return Promise.all(promises)
+            .then(() => {
+                this.emit("done");
+                if(callback){
+                    callback();
+                }
+            })
+            .catch(err => {
+                this.emit("error", err);
+            });
     }
 }
 
