@@ -240,13 +240,13 @@ canvideo.Animanager = class {
             this.changesToAdd = [];
             this.animations = new Map();
             this.currentAnimations = [];
-            if(typeof setVideo === 'function'){
-            this.setVideo = setVideo;
+            if (typeof setVideo === 'function') {
+                this.setVideo = setVideo;
             }
-            else if(typeof setVideo === 'undefined'){
-                this.setVideo = function(value){};
+            else if (typeof setVideo === 'undefined') {
+                this.setVideo = function (value) { };
             }
-            else{
+            else {
                 throw new TypeError("Invalid constructor.");
             }
             this._extendUntil = 0;
@@ -305,15 +305,15 @@ canvideo.Animanager = class {
     get video() {
         return this._video;
     }
-    set extendUntil(value){
-        if(typeof value === 'number'){
+    set extendUntil(value) {
+        if (typeof value === 'number') {
             this._extendUntil = Math.max(this._extendUntil, value);
         }
-        else{
+        else {
             throw new TypeError("extendUntil time must be a number (in seconds).");
         }
     }
-    get extendUntil(){
+    get extendUntil() {
         return this._extendUntil;
     }
 
@@ -472,6 +472,17 @@ canvideo.Shape = class extends canvideo.Animanager {
     }
     get strokeWidth() {
         return this.defaultValue.strokeWidth;
+    }
+    set frameNumber(value) {
+        if (Number.isSafeInteger(value) && value >= 0) {
+            this._frameNumber = value;
+        }
+        else {
+            throw new TypeError("frameNumber must be non negative integer.");
+        }
+    }
+    get frameNumber() {
+        return this._frameNumber;
     }
 
     draw(ctx, value) {
@@ -780,21 +791,21 @@ canvideo.Polygon = class extends canvideo.Shape {
                 set points(value) {
                     if (value instanceof Array) {
                         var newPoints = []
-                        for(var i = 0; i < value.length; i++){
-                            if(value[i] instanceof canvideo.Point){
+                        for (var i = 0; i < value.length; i++) {
+                            if (value[i] instanceof canvideo.Point) {
                                 newPoints.push(value[i]);
                             }
-                            else{
+                            else {
                                 newPoints.push(new canvideo.Point(value[i]));
                             }
                         }
                         this._points = newPoints;
                     }
-                    else{
+                    else {
                         throw new TypeError("points must be an array of points.");
                     }
                 },
-                get points(){
+                get points() {
                     return this._points;
                 }
             }
@@ -802,10 +813,10 @@ canvideo.Polygon = class extends canvideo.Shape {
         this.points = points;
     }
 
-    set points(value){
+    set points(value) {
         this.defaultValue.points = value;
     }
-    get points(){
+    get points() {
         return this.defaultValue.points;
     }
 
@@ -851,6 +862,9 @@ canvideo.Keyframe = class {
     set frameNumber(value) {
         if (typeof value == 'number') {
             this._frameNumber = value;
+            for (var i = 0; i < this.shapes.length; i++) {
+                this.shapes.frameNumber = this.frameNumber;
+            }
         }
         else {
             throw new TypeError("frameNumber must be a number.");
@@ -859,15 +873,15 @@ canvideo.Keyframe = class {
     get frameNumber() {
         return this._frameNumber;
     }
-    set extendUntil(value){
-        if(typeof value === 'number'){
+    set extendUntil(value) {
+        if (typeof value === 'number') {
             this._extendUntil = Math.max(this._extendUntil, value);
         }
-        else{
+        else {
             throw new TypeError("extendUntil time must be a number (in seconds).");
         }
     }
-    get extendUntil(){
+    get extendUntil() {
         return this._extendUntil;
     }
 
@@ -884,41 +898,34 @@ canvideo.Keyframe = class {
     render(shapes = []) {
         if (typeof this.frameNumber == 'number') {
             function sorter(a, b) {
-                if (a.valueAt(this.frameNumber).layer === b.valueAt(this.frameNumber).layer) {
-                    return a.shapeIndex - b.shapeIndex;
+                var aLayer = a.valueAt(this.frameNumber).layer, bLayer = b.valueAt(this.frameNumber).layer;
+                if (aLayer === bLayer) {
+                    if (a.frameNumber === b.frameNumber) {
+                        return a.shapeIndex - b.shapeIndex;
+                    }
+                    else {
+                        return a.frameNumber - b.frameNumber;
+                    }
                 }
                 else {
                     return a.valueAt(this.frameNumber).layer - b.valueAt(this.frameNumber).layer;
                 }
             };
 
-            var shapesToRender = [];
-
-            if (shapes instanceof Array) {
-                for (var i = 0; i < shapes.length; i++) {
-                    if (shapes[i] instanceof canvideo.Shape) {
-                        if (shapes[i].deleteFrame > this.frameNumber) {
-                            shapesToRender.push(shapes[i]);
-                        }
-                    }
-                    else {
-                        throw new TypeError(`shapes[${i}] is not a Shape.`);
-                    }
-                }
-            }
-            else {
-                throw new TypeError("Shapes must be an array of shapes.");
-            }
-
-            shapesToRender = shapesToRender.concat(this.shapes).sort(sorter.bind(this));
+            var shapesToRender = shapes.concat(this.shapes).sort(sorter.bind(this));
             this.video.loop.goal++;
 
             var canvas = createCanvas(this.video.width, this.video.height);
             var ctx = canvas.getContext('2d');
             //Set stuff based on camera
             var camera = this.video.camera.valueAt(this.frameNumber);
+            var csx = camera.scaleX, csy = camera.scaleY;
+            var crx = camera.refX, cry = camera.refY;
+
             ctx.translate(-camera.x, -camera.y);
-            ctx.scale(camera.zoom, camera.zoom);
+            ctx.translate(-(crx * csx - crx), -(cry * csy - cry));
+            ctx.scale(csx, csy);
+            //Loop through and draw all the shapes
             for (var i = 0; i < shapesToRender.length; i++) {
                 shapesToRender[i].draw(ctx, shapesToRender[i].valueAt(this.frameNumber), camera);
             }
@@ -946,6 +953,43 @@ canvideo.Keyframe = class {
             throw new TypeError("this.frameNumber is not a number");
         }
     }
+}
+
+//Zoom Linear Animation
+canvideo.ZoomAnimation = class extends canvideo.Animation{
+    constructor(startZoom, endZoom, arg1, arg2){
+        if(typeof startZoom === 'object' && typeof startZoom.scaleX === 'number' && typeof startZoom.scaleY === 'number' && typeof endZoom === 'object' && typeof endZoom.scaleX === 'number' && typeof endZoom.scaleY === 'number'){
+            var refX, refY;
+            if(typeof arg1 === 'number' && typeof arg2 === 'number'){
+                refX = arg1, refY = arg2;
+            }
+            else if(typeof arg1 === 'object' && typeof arg1.x === 'number' && typeof arg1.y === 'number' && typeof arg2 === 'undefined'){
+                refX = arg1.x, refY = arg1.y;
+            }
+            else if(arg1 instanceof Array && typeof arg1[0] === 'number' && typeof arg1[1] === 'number' && typeof arg2 === 'undefined'){
+                [refX, refY] = arg1;
+            }
+            else{
+                throw new TypeError("Invalid syntax for reference point.");
+            }
+            var startValue = {
+                scaleX: startZoom.scaleX,
+                scaleY: startZoom.scaleY,
+                refX: refX,
+                refY: refY
+            };
+            var endValue = {
+                scaleX: endZoom.scaleX,
+                scaleY: endZoom.scaleY,
+                refX: refX,
+                refY: refY
+            };
+            super(startValue, endValue);
+        }
+        else{
+            throw new TypeError("Invalid startZoom or endZoom.");
+        }
+    };
 }
 
 //Video class
@@ -1026,41 +1070,77 @@ canvideo.Video = class extends EventEmitter {
         this._extendUntil = 0;
         this.camera = new canvideo.Animanager({
             _x: 0,
-            set x(value){
-                if(typeof value === 'number'){
+            set x(value) {
+                if (typeof value === 'number') {
                     this._x = value;
                 }
-                else{
+                else {
                     throw new TypeError("x must be a numbe");
                 }
             },
-            get x(){
+            get x() {
                 return this._x;
             },
             _y: 0,
-            set y(value){
-                if(typeof value === 'number'){
+            set y(value) {
+                if (typeof value === 'number') {
                     this._y = value;
                 }
-                else{
+                else {
                     throw new TypeError("y must be a numbe");
                 }
             },
-            get y(){
+            get y() {
                 return this._y;
             },
-            _zoom: 1,
-            set zoom(value){
-                if(typeof value === 'number' && value > 0){
-                    this._zoom = value;
+            _scaleX: 0,
+            set scaleX(value) {
+                if (typeof value === 'number') {
+                    this._scaleX = value;
                 }
-                else{
-                    throw new TypeError("zoom must be a number greater than 0.");
+                else {
+                    throw new TypeError("scaleX must be a numbe");
                 }
             },
-            get zoom(){
-                return this._zoom;
-            }
+            get scaleX() {
+                return this._scaleX;
+            },
+            _scaleY: 0,
+            set scaleY(value) {
+                if (typeof value === 'number') {
+                    this._scaleY = value;
+                }
+                else {
+                    throw new TypeError("scaleY must be a numbe");
+                }
+            },
+            get scaleY() {
+                return this._scaleY;
+            },
+            _refX: 0,
+            set refX(value) {
+                if (typeof value === 'number') {
+                    this._refX = value;
+                }
+                else {
+                    throw new TypeError("refX must be a numbe");
+                }
+            },
+            get refX() {
+                return this._refX;
+            },
+            _refY: 0,
+            set refY(value) {
+                if (typeof value === 'number') {
+                    this._refY = value;
+                }
+                else {
+                    throw new TypeError("refY must be a numbe");
+                }
+            },
+            get refY() {
+                return this._refY;
+            },
         });
 
         this.command = ffmpeg();
@@ -1095,15 +1175,15 @@ canvideo.Video = class extends EventEmitter {
     get spf() {
         return 1 / this.fps;
     }
-    set extendUntil(value){
-        if(typeof value === 'number'){
+    set extendUntil(value) {
+        if (typeof value === 'number') {
             this._extendUntil = Math.max(this._extendUntil, value);
         }
-        else{
+        else {
             throw new TypeError("extendUntil time must be a number (in seconds).");
         }
     }
-    get extendUntil(){
+    get extendUntil() {
         return this._extendUntil;
     }
 
@@ -1160,7 +1240,7 @@ canvideo.Video = class extends EventEmitter {
         }
 
         //Extend video further than last keyframe to render animations
-        while(this.keyframes.length < this.extendUntil * this.fps){
+        while (this.keyframes.length < this.extendUntil * this.fps) {
             this.addKeyframe(new canvideo.Keyframe(this.keyframes.length * this.spf));
         }
 

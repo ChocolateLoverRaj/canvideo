@@ -36,9 +36,10 @@ declare namespace canvideo {
         fps: number;
     }
     interface CameraAttributes {
-        x: number;
-        y: number;
-        zoom: positiveNumber;
+        scaleX: number;
+        scaleY: number;
+        refX: number;
+        refY: number;
     }
     interface ShapeAttributes {
         fillColor: Color;
@@ -63,6 +64,10 @@ declare namespace canvideo {
     }
     interface PolygonAttributes extends ShapeAttributes {
         points: Array<Point>
+    }
+    interface ZoomValue{
+        scaleX: number;
+        scaleY: number;
     }
 
     export function setTempPath(path: fs.PathLike): void;
@@ -93,6 +98,12 @@ declare namespace canvideo {
         reverse(): this;
         calculate(percentage: number): Attributes;
         last(): this;
+    }
+
+    export class ZoomAnimation<Attributes> extends Animation<Attributes>{
+        constructor(startZoom: ZoomValue, endZoom: ZoomValue, refX: number, refY: number);
+        constructor(startZoom: ZoomValue, endZoom: ZoomValue, ref: Coordinate);
+        constructor(startZoom: ZoomValue, endZoom: ZoomValue, ref: coordinate);
     }
 
     export class Animanager<Attributes extends Object>{
