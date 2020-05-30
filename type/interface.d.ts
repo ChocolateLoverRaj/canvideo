@@ -16,5 +16,5 @@ export class Interface {
     key(key: string, type: type, requierd?: boolean): this;
     required(key: string, type: type): this;
     optional(key: string, type: type): this;
-    totype(): type;
+    toType(): type;
 }
