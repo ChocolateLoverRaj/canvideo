@@ -3,10 +3,11 @@
 
 //Dependencies
 const Types = require("./type/types");
-const {interface, Interface} = require("./type/interface");
+const { interface, Interface } = require("./type/interface");
 const arrayOf = require("./type/array-of");
 const keyValueObject = require("./type/key-value-object");
 const Overloader = require("./type/overloader");
+const typedFunction = require("./type/typed-function");
 
 //Export the module
 module.exports = {
@@ -15,5 +16,6 @@ module.exports = {
     Interface,
     arrayOf,
     keyValueObject,
-    Overloader
+    Overloader,
+    typedFunction
 };
