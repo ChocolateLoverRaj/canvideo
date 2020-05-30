@@ -3,6 +3,40 @@
 //Dependencies
 const Types = require("./types");
 
+//Generate type function from given map
+function returnInterface(keys, extendible) {
+    return a => {
+        var err = Types.OBJECT(a);
+        if (!err) {
+            for (let [k, { type, required }] of keys.entries()) {
+                if (a.hasOwnProperty(k)) {
+                    let v = a[k];
+                    let err = type(v);
+                    if (err) {
+                        return `invalid type for property: ${k}, ${v} ${err}`;
+                    }
+                }
+                else if (required) {
+                    return `property: ${k}, is required but not present.`;
+                }
+            }
+            if (!extendible) {
+                let aKeys = Object.keys(a);
+                for (var i = 0; i < aKeys.length; i++) {
+                    let k = aKeys[i];
+                    if (!keys.has(k)) {
+                        return `extra property: ${k} is not allowed.`;
+                    }
+                }
+            }
+            return false;
+        }
+        else {
+            return `${err}`;
+        }
+    };
+}
+
 //Interface function
 function interface(o, extendible = true) {
     let err = Types.OBJECT(o);
