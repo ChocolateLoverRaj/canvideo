@@ -4,6 +4,7 @@ import arrayOf = require("./type/array-of");
 import keyValueObject = require("./type/key-value-object");
 import Overloader = require("./type/overloader");
 import typedFunction = require("./type/typed-function");
+import either = require("./type/either");
 
 export = {
     Types,
@@ -12,5 +13,6 @@ export = {
     arrayOf,
     keyValueObject,
     Overloader,
-    typedFunction
+    typedFunction,
+    either
 }
