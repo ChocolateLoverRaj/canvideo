@@ -238,7 +238,6 @@ class Overloader {
         }
         //If there are 1 possible overloads, that's great
         if (possibleOverloads.length === 1) {
-            console.log(this.boundTo instanceof Strict)
             possibleOverloads[0].f.apply(this.boundTo, arguments);
         }
         //If there are 0 possible overloads, it's the caller's fault
@@ -314,38 +313,18 @@ class Overloader {
         }
         return this;
     }
-    bind(a){
+    bind(a) {
         this.boundTo = a;
         return this;
     }
-    getOverloader() {
-        return this.overloader;
-    }
 }
-
-var stonk = new Overloader()
-    .overload([{ type: Types.STRING }], s => {
-        this.r = "you give me a string: " + s;
-        console.log(this)
-    })
-    .overload([{ type: Types.NUMBER }], function(n) {
-        this.r = "you give me a number: " + n;
-    });
-
-class Strict{
-    constructor(){
-        stonk.bind(this).overloader(...arguments);
-    }
-}
-
-var s = new Strict(1);
-
-console.log(s)
 
 //Export the module
 module.exports = {
     Types,
     interface,
     Interface,
-    arrayOf
+    arrayOf,
+    keyValueObject,
+    Overloader
 };
