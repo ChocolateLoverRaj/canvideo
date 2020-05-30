@@ -32,6 +32,7 @@ const params = [
 ]
 const animanage = typedFunction(params, function (o, properties) {
     //Add properties, getters/setters, and hidden properties.
+    var typedAt = {};
     for (let k in properties) {
         let p = properties[k];
         let type = p.type || p;
@@ -57,62 +58,52 @@ const animanage = typedFunction(params, function (o, properties) {
             setterAfterFilter;
         let getter = p.getter || function () {
             return o[hiddenKey];
-        }
-        Object.defineProperty(o, k, {
+        };
+        let property = {
             configurable: false,
             enumerable: true,
             set: setter,
             get: getter
-        });
+        };
+        Object.defineProperty(o, k, property);
+        Object.defineProperty(typedAt, k, property);
     }
     //Add the animate function
+    var animations = [];
     Object.defineProperty(o, "animate", {
         enumerable: true,
         configurable: false,
-        value: typedFunction([{ name: "f", type: Types.FUNCTION }], function (f) {
-
-        })
+        value: typedFunction([
+            { name: "startTime", type: Types.NON_NEGATIVE_NUMBER },
+            { name: "duration", type: Types.NON_NEGATIVE_NUMBER },
+            { name: "f", type: Types.FUNCTION }], function (startTime, duration, f) {
+                animations.push({ startTime, duration, f });
+            })
     });
     //Add the at function.
     Object.defineProperty(o, "at", {
         enumerable: true,
         configurable: false,
-        value: function () {
-            //console.log(this)
-        }
+        value: typedFunction([{ name: "time", type: Types.NON_NEGATIVE_NUMBER }], function (time) {
+            //Loop through animations
+            for (let k in this) {
+                if (!["animate", "at"].includes(k)) {
+                    typedAt[k] = this[k];
+                }
+            }
+            var at = {};
+            for (var i = 0; i < animations.length; i++) {
+                let a = animations[i];
+                if (time => a.startTime && time < a.startTime + a.duration) {
+                    let progress = (time - a.startTime) / a.duration;
+                    at = Object.assign(at, a.f(progress));
+                }
+            }
+            typedAt = Object.assign(typedAt, at);
+            return typedAt;
+        })
     });
 });
 
-class Rectangle {
-    constructor() {
-        typedFunction([
-            {
-                name: "x",
-                type: Types.NUMBER
-            },
-            {
-                name: "y",
-                type: Types.NUMBER
-            },
-            {
-                name: "width",
-                type: Types.NUMBER
-            },
-            {
-                name: "height",
-                type: Types.NUMBER
-            }
-        ], function (x, y, width, height) {
-            animanage(this, {
-                x: Types.NUMBER,
-                y: Types.NUMBER,
-                width: Types.NUMBER,
-                height: Types.NUMBER
-            });
-        }).apply(this, arguments);
-    }
-}
-
-var rect = new Rectangle(0, 0, 400, 400);
-rect.animate();
-console.log(rect.at())
+//Export the module
+module.exports = animanage;
