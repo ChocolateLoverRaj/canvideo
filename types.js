@@ -176,23 +176,171 @@ function arrayOf(type) {
     }
 }
 
-//Easily force types in functions, as well as overload functions
-class Overloader {
-    constructor() {
-        this.overloads = [];
-        this.function = function () {
-
-        };
+//Key value object
+function keyValueObject(valueType) {
+    let err = Types.TYPE(valueType);
+    if (!err) {
+        return a => {
+            let err = Types.OBJECT(a);
+            if (!err) {
+                for (let k in a) {
+                    let v = a[k];
+                    let err = valueType(v);
+                    if (err) {
+                        return `object: ${a} is invalid. key: ${k}, does fit type: ${valueType}, because ${v} ${err}`;
+                    }
+                }
+                return false;
+            }
+            else {
+                return `object: ${a}, ${err}`;
+            }
+        }
     }
-
-    overload(){
-        
+    else {
+        throw new TypeError(`valueType: ${valueType}, ${err}`);
     }
 }
 
-var stonk = new Overloader();
+//Easily force types in functions, as well as overload functions
+const paramType = new Interface(false)
+    .required("type", Types.TYPE)
+    .optional("optional", Types.BOOLEAN)
+    .toType();
+const paramsType = arrayOf(paramType);
+class Overloader {
+    constructor() {
+        this.overloads = [];
+    }
 
-console.log(stonk)
+    overloader() {
+        //Go through all the possible overloads
+        //We can quickly figure out what overloads won't work based on the minLength and maxLength
+        var possibleOverloads = [];
+        if (this.overloads.length === 0) {
+            throw new TypeError("Cannot call an overloader with 0 overloads.");
+        }
+        for (var i = 0; i < this.overloads.length; i++) {
+            let overload = this.overloads[i];
+            if (arguments.length >= overload.minLength && arguments.length <= overload.maxLength) {
+                possibleOverloads.push(overload);
+            }
+        }
+        for (var i = 0; i < arguments.length; i++) {
+            let arg = arguments[i];
+            for (var j = 0; j < possibleOverloads.length; j++) {
+                let argType = possibleOverloads[j].args[i].type;
+                if (argType(arg)) {
+                    //Eliminate this as a possible overload
+                    possibleOverloads.splice(j, 1);
+                }
+            }
+        }
+        //If there are 1 possible overloads, that's great
+        if (possibleOverloads.length === 1) {
+            console.log(this.boundTo instanceof Strict)
+            possibleOverloads[0].f.apply(this.boundTo, arguments);
+        }
+        //If there are 0 possible overloads, it's the caller's fault
+        else if (possibleOverloads.length === 0) {
+            throw new TypeError("Invalid arguments.");
+        }
+        //If there are more than two, then the overloader has conflicted overloads
+        else {
+            throw new TypeError("Bad overloader. Overloads have conflicts.");
+        }
+    }
+    overload(args, f) {
+        let err = paramsType(args);
+        if (!err) {
+            let err = Types.FUNCTION(f);
+            if (!err) {
+                //Calculate the minimum length
+                var optionalsStarted = false, minLength;
+                for (var i = 0; i < args.length; i++) {
+                    let arg = args[i];
+                    if (arg.optional) {
+                        if (!optionalsStarted) {
+                            optionalsStarted = true, minLength = i;
+                        }
+                    }
+                    else if (optionalsStarted) {
+                        throw new TypeError("Arguements are invalid because required parameters cannot come after an optional parameter.");
+                    }
+                }
+                if (!optionalsStarted) {
+                    minLength = args.length;
+                }
+                //Make sure that ther arguements are different types
+                for (var i = 0; i < this.overloads.length; i++) {
+                    let overload = this.overloads[i];
+                    //No problem unless they have the same minLength
+                    let noWayConflicts = [
+                        args.length < overload.minLength,
+                        args.minLength > overload.length
+                    ];
+                    if (!noWayConflicts.includes(true)) {
+                        var exactSame = true;
+                        for (var j = 0; j < minLength; j++) {
+                            let existingArg = overload.args[j];
+                            let arg = args[j];
+                            //If they are the same type, keep searching making sure that all their types aren't the same
+                            //Otherwise, stop searching
+                            if (arg.type !== existingArg.type) {
+                                exactSame = false;
+                                break;
+                            }
+                        }
+                        if (exactSame) {
+                            throw new TypeError("Arguements are invalid because they conflict with another overload.");
+                        }
+                    }
+                }
+
+                //Add the overload
+                this.overloads.push({
+                    minLength: minLength,
+                    maxLength: args.length,
+                    args: args,
+                    f: f
+                });
+            }
+            else {
+                throw new TypeError(`f: ${f}, ${err}`);
+            }
+        }
+        else {
+            throw new TypeError(`arguements: ${arguments}, ${err}`);
+        }
+        return this;
+    }
+    bind(a){
+        this.boundTo = a;
+        return this;
+    }
+    getOverloader() {
+        return this.overloader;
+    }
+}
+
+var stonk = new Overloader()
+    .overload([{ type: Types.STRING }], s => {
+        this.r = "you give me a string: " + s;
+        console.log(this)
+    })
+    .overload([{ type: Types.NUMBER }], function(n) {
+        this.r = "you give me a number: " + n;
+    });
+
+class Strict{
+    constructor(){
+        stonk.bind(this).overloader(...arguments);
+    }
+}
+
+var s = new Strict(1);
+
+console.log(s)
 
 //Export the module
 module.exports = {
