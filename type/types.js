@@ -10,6 +10,7 @@ const Types = {
     NON_NEGATIVE_NUMBER: a => typeof a === 'number' && a >= 0 ? false : "is not a non negative number.",
     INTEGER: a => Number.isSafeInteger(a) ? false : "is not a safe integer.",
     NON_NEGATIVE_INTEGER: a => Number.isSafeInteger(a) && a >= 0 ? false : "is not a non negative integer.",
+    UNIT_INTERVAL: a => typeof a === 'number' && a >= 0 && a <= 1 ? false : "is not a unit interval (number between 0 and 1)",
 
     STRING: a => typeof a === 'string' ? false : "is not a string.",
 

@@ -1,10 +1,11 @@
 //Manage animatable properties
 
 //Dependencies
-const { Types, typedFunction, keyValueObject, interface, either } = require("./type");
+const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("./type");
+const Animation = require("./animation");
 
-const propertiesType1 = keyValueObject(Types.TYPE);
-const propertiesType2 = keyValueObject(interface({
+const propertiesType1 = Types.TYPE;
+const propertiesType2 = interface({
     type: {
         type: Types.TYPE,
         required: false
@@ -17,8 +18,8 @@ const propertiesType2 = keyValueObject(interface({
         type: Types.GETTER,
         required: false
     }
-}, false));
-const propertiesType = either(propertiesType1, propertiesType2);
+}, false);
+const propertiesType = keyValueObject(either(propertiesType1, propertiesType2));
 
 const params = [
     {
@@ -28,11 +29,14 @@ const params = [
     {
         name: "properties",
         type: propertiesType
+    },
+    {
+        name: "methodsToBind", type: arrayOf(Types.STRING)
     }
 ]
-const animanage = typedFunction(params, function (o, properties) {
+const animanage = typedFunction(params, function (o, properties, methodsToBind) {
     //Add properties, getters/setters, and hidden properties.
-    var typedAt = {};
+    var oInterface = new Interface(false);
     for (let k in properties) {
         let p = properties[k];
         let type = p.type || p;
@@ -66,8 +70,9 @@ const animanage = typedFunction(params, function (o, properties) {
             get: getter
         };
         Object.defineProperty(o, k, property);
-        Object.defineProperty(typedAt, k, property);
+        oInterface.optional(k, type || Types.ANY);
     }
+    oInterface = oInterface.toType();
     //Add the animate function
     var animations = [];
     Object.defineProperty(o, "animate", {
@@ -76,8 +81,9 @@ const animanage = typedFunction(params, function (o, properties) {
         value: typedFunction([
             { name: "startTime", type: Types.NON_NEGATIVE_NUMBER },
             { name: "duration", type: Types.NON_NEGATIVE_NUMBER },
-            { name: "f", type: Types.FUNCTION }], function (startTime, duration, f) {
-                animations.push({ startTime, duration, f });
+            { name: "calculator", type: Types.FUNCTION }], function (startTime, duration, calculator) {
+                animations.push({ startTime, duration, calculator });
+                return this;
             })
     });
     //Add the at function.
@@ -85,25 +91,79 @@ const animanage = typedFunction(params, function (o, properties) {
         enumerable: true,
         configurable: false,
         value: typedFunction([{ name: "time", type: Types.NON_NEGATIVE_NUMBER }], function (time) {
+            var at = {};
             //Loop through animations
             for (let k in this) {
                 if (!["animate", "at"].includes(k)) {
-                    typedAt[k] = this[k];
+                    let v = this[k];
+                    if (typeof v === 'function') {
+                        v = v.bind(at);
+                    }
+                    at[k] = v;
                 }
             }
-            var at = {};
+            //Bind all methods
+            for (var i = 0; i < methodsToBind.length; i++) {
+                let method = methodsToBind[i];
+                let thisMethod = this.__proto__[method];
+                if (thisMethod) {
+                    at.__proto__[method] = thisMethod.bind(at);
+                }
+                else {
+                    throw new TypeError(`Couldn't bind method: ${method}`);
+                }
+            }
             for (var i = 0; i < animations.length; i++) {
                 let a = animations[i];
                 if (time => a.startTime && time < a.startTime + a.duration) {
                     let progress = (time - a.startTime) / a.duration;
-                    at = Object.assign(at, a.f(progress));
+                    let value = a.f(progress);
+                    let err = oInterface(value);
+                    if (!err) {
+                        at = Object.assign(at, a.f(progress));
+                    }
+                    else {
+                        throw new TypeError(`Problem with animate function: ${err}`);
+                    }
                 }
             }
-            typedAt = Object.assign(typedAt, at);
-            return typedAt;
+            return at;
         })
     });
 });
+
+class Rectangle {
+    constructor(x, y, width, height) {
+        animanage(this, {
+            x: Types.NUMBER,
+            y: Types.NUMBER,
+            width: Types.NUMBER,
+            height: Types.NUMBER,
+        }, ["draw"]);
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    draw() {
+        console.log(this.x, this.y, this.width, this.height);
+    }
+}
+
+var rect = new Rectangle(0, 0, 400, 400);
+rect.animate(0, 10, new Animation(
+    {
+        x: 0,
+        y: 200
+    },
+    {
+        x: 100,
+        y: 0
+    }
+).calculate);
+
+rect.at(1).draw();
 
 //Export the module
 module.exports = animanage;

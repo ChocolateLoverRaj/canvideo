@@ -7,6 +7,7 @@ declare abstract class Types {
     static NON_NEGATIVE_NUMBER: type;
     static INTEGER: type;
     static NON_NEGATIVE_INTEGER: type;
+    static UNIT_INTERVAL: type;
 
     static STRING: type;
 
