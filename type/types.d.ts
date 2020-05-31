@@ -8,6 +8,7 @@ declare abstract class Types {
     static INTEGER: type;
     static NON_NEGATIVE_INTEGER: type;
     static UNIT_INTERVAL: type;
+    static RGB_INTENSITY: type;
 
     static STRING: type;
 
