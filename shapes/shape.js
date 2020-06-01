@@ -7,8 +7,7 @@ const tinyColor = require('tinycolor2');
 const canvas = require('canvas');
 
 //My Modules
-const animanage = require("../animanage");
-const Animation = require("../animation");
+const { propertiesType, methodsToBindType, animanage } = require("../animanage");
 const { Types, Interface, either, typedFunction } = require("../type");
 
 //Color interface
@@ -28,45 +27,66 @@ const ctxType = a => a instanceof canvas.CanvasRenderingContext2D ? false : "is 
 //Shape class
 class Shape {
     constructor() {
-        animanage(this, {
-            fillColor: {
-                type: colorType,
-                initial: new tinyColor(),
-                setter: function (v, set) {
-                    if (typeof v === 'object') {
-                        set(new tinyColor(Object.assign(this.fillColor, v)));
-                    }
-                    else {
-                        set(new tinyColor(v));
+        typedFunction([
+            {
+                name: "properties",
+                type: propertiesType,
+                optional: true,
+                default: {}
+            },
+            {
+                name: "methodsToBind",
+                type: methodsToBindType,
+                optional: true,
+                default: []
+            }
+        ], function (properties, methodsToBind) {
+            const shapeProperties = {
+                fillColor: {
+                    type: colorType,
+                    initial: new tinyColor(),
+                    setter: function (v, set) {
+                        if (typeof v === 'object') {
+                            set(new tinyColor(Object.assign(this.fillColor, v)));
+                        }
+                        else {
+                            set(new tinyColor(v));
+                        }
+                    },
+                    getter: function () {
+                        let colors = this._fillColor.toRgb();
+                        colors.hexString = this._fillColor.toHexString();
+                        return colors;
                     }
                 },
-                getter: function () {
-                    let colors = this._fillColor.toRgb();
-                    colors.hexString = this._fillColor.toHexString();
-                    return colors;
-                }
-            },
-            strokeColor: {
-                type: colorType,
-                initial: new tinyColor(),
-                setter: function (v, set) {
-                    if (typeof v === 'object') {
-                        set(new tinyColor(Object.assign(this.strokeColor, v)));
-                    }
-                    else {
-                        set(new tinyColor(v));
+                strokeColor: {
+                    type: colorType,
+                    initial: new tinyColor(),
+                    setter: function (v, set) {
+                        if (typeof v === 'object') {
+                            set(new tinyColor(Object.assign(this.strokeColor, v)));
+                        }
+                        else {
+                            set(new tinyColor(v));
+                        }
+                    },
+                    getter: function () {
+                        let colors = this._strokeColor.toRgb();
+                        colors.hexString = this._strokeColor.toHexString();
+                        return colors;
                     }
                 },
-                getter: function () {
-                    let colors = this._strokeColor.toRgb();
-                    colors.hexString = this._strokeColor.toHexString();
-                    return colors;
-                }
-            },
-            strokeWidth: Types.NON_NEGATIVE_NUMBER
-        }, ["draw"]);
+                strokeWidth: Types.NON_NEGATIVE_NUMBER
+            }
+            properties = Object.assign(properties, shapeProperties);
+            
+            const shapeMethodsToBind = ["draw"];
+            methodsToBind = shapeMethodsToBind.concat(methodsToBind);
+            
+            animanage(this, properties, methodsToBind);
 
-        this.strokeWidth = 1;
+            this.strokeWidth = 1;
+        }).apply(this, arguments);
     }
 
     fill(color) {

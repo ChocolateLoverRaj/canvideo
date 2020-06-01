@@ -1,21 +1,14 @@
 import type = require("./type/type");
+import params = require("./animanage/params");
 
-declare interface Property{
-    type?: type;
-    setter?: (v?: any, set?: (v: any) => void) => void;
-    getter?: () => any;
-    initial?: any;
-}
-declare type property = type | Property;
-declare interface Properties{
-    [key: string | number]: property;
-}
+const propertiesType: type;
+const methodsToBindType: type;
 
-declare interface Animanaged<T extends Object> extends T{
+declare interface Animanaged<T extends Object> extends T {
     animate: (startTime: number, duration: number, calculator: (progress: number) => Animanaged<T>) => this;
     at: (progress: number) => T;
 }
 
-declare function animanage<T extends Object>(o: T, properties: Properties, methodsToBind: Array<string>): Animanaged<T>;
+declare function animanage<T extends Object>(o: T, properties: params.Properties, methodsToBind: params.methods): Animanaged<T>;
 
-export = animanage;
+export = { propertiesType, methodsToBindType, animanage };

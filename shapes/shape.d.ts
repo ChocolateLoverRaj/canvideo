@@ -1,6 +1,7 @@
 import canvas = require('canvas');
 
-import Animanaged = require("../animanaged");
+import Animanaged = require("../animanage/animanaged");
+import params = require("../animanage/params");
 
 declare interface SetColor{
     r?: number;
@@ -18,8 +19,8 @@ declare interface GetColor{
     hexString: string;
 }
 
-declare class Shape extends Animanaged<Shape>{
-    constructor();
+declare class Shape<T extends Shape> extends Animanaged<T>{
+    constructor(properties: params.Properties, methodsToBind: params.methods);
 
     set fillColor(color: setColor): this;
     get fillColor(): GetColor;

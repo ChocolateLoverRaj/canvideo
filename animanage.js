@@ -18,12 +18,13 @@ const propertiesType2 = interface({
         type: Types.GETTER,
         required: false
     },
-    initial:{
+    initial: {
         type: Types.ANY,
         required: false
     }
 }, false);
 const propertiesType = keyValueObject(either(propertiesType1, propertiesType2));
+const methodsToBindType = arrayOf(Types.STRING);
 
 const params = [
     {
@@ -35,7 +36,7 @@ const params = [
         type: propertiesType
     },
     {
-        name: "methodsToBind", type: arrayOf(Types.STRING)
+        name: "methodsToBind", type: methodsToBindType
     }
 ]
 const animanage = typedFunction(params, function (o, properties, methodsToBind) {
@@ -45,7 +46,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         let p = properties[k];
         let type = p.type || p;
         let hiddenKey = '_' + k;
-        if(p.initial){
+        if (p.initial) {
             Object.defineProperty(o, hiddenKey, {
                 configurable: true,
                 enumerable: false,
@@ -145,4 +146,4 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
 });
 
 //Export the module
-module.exports = animanage;
+module.exports = { propertiesType, methodsToBindType, animanage };
