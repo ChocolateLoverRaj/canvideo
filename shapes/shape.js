@@ -79,10 +79,11 @@ class Shape {
                 strokeWidth: Types.NON_NEGATIVE_NUMBER
             }
             properties = Object.assign(properties, shapeProperties);
-            
+
             const shapeMethodsToBind = ["draw"];
-            methodsToBind = shapeMethodsToBind.concat(methodsToBind);
-            
+            methodsToBind = [...new Set([...shapeMethodsToBind, ...methodsToBind])];
+            console.log(methodsToBind)
+
             animanage(this, properties, methodsToBind);
 
             this.strokeWidth = 1;
