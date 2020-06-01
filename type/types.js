@@ -2,6 +2,9 @@
 //My concept of types are function that check the type of anything.
 //They return a string error, which is false if there is no error.
 
+//Dependencies
+const tinyColor = require('tinycolor2');
+
 //Types Enum.
 const Types = {
     ANY: a => false,
@@ -14,6 +17,7 @@ const Types = {
     RGB_INTENSITY: a => typeof a === 'number' && a >= 0 && a <= 255 ? false : "is not a valid rgb intensity (number between 0 and 255)",
 
     STRING: a => typeof a === 'string' ? false : "is not a string.",
+    COLOR: a => new tinyColor(a).isValid() ? false : "is not a valid color string representation",
 
     BOOLEAN: a => typeof a === 'boolean' ? false : "is not a boolean.",
     TRUTHY: a => a ? false : "is not truthy.",

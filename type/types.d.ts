@@ -11,6 +11,7 @@ declare abstract class Types {
     static RGB_INTENSITY: type;
 
     static STRING: type;
+    static COLOR: type;
 
     static BOOLEAN: type;
     static TRUTHY: type;

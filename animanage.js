@@ -17,6 +17,10 @@ const propertiesType2 = interface({
     getter: {
         type: Types.GETTER,
         required: false
+    },
+    initial:{
+        type: Types.ANY,
+        required: false
     }
 }, false);
 const propertiesType = keyValueObject(either(propertiesType1, propertiesType2));
@@ -41,6 +45,13 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         let p = properties[k];
         let type = p.type || p;
         let hiddenKey = '_' + k;
+        if(p.initial){
+            Object.defineProperty(o, hiddenKey, {
+                configurable: true,
+                enumerable: false,
+                value: p.initial
+            });
+        }
         let setFunction = function (v) {
             Object.defineProperty(o, hiddenKey, {
                 configurable: true,
@@ -48,7 +59,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 value: v
             });
         };
-        let setterAfterFilter = p.setter || setFunction;
+        let setterAfterFilter = (p.setter || setFunction).bind(o);
         let setter = type ?
             function (v) {
                 let err = type(v);
@@ -117,10 +128,11 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 let a = animations[i];
                 if (time => a.startTime && time < a.startTime + a.duration) {
                     let progress = (time - a.startTime) / a.duration;
-                    let value = a.f(progress);
+                    console.log()
+                    let value = a.calculator(progress);
                     let err = oInterface(value);
                     if (!err) {
-                        at = Object.assign(at, a.f(progress));
+                        at = Object.assign(at, value);
                     }
                     else {
                         throw new TypeError(`Problem with animate function: ${err}`);
@@ -131,39 +143,6 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         })
     });
 });
-
-class Rectangle {
-    constructor(x, y, width, height) {
-        animanage(this, {
-            x: Types.NUMBER,
-            y: Types.NUMBER,
-            width: Types.NUMBER,
-            height: Types.NUMBER,
-        }, ["draw"]);
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
-
-    draw() {
-        console.log(this.x, this.y, this.width, this.height);
-    }
-}
-
-var rect = new Rectangle(0, 0, 400, 400);
-rect.animate(0, 10, new Animation(
-    {
-        x: 0,
-        y: 200
-    },
-    {
-        x: 100,
-        y: 0
-    }
-).calculate);
-
-rect.at(1).draw();
 
 //Export the module
 module.exports = animanage;

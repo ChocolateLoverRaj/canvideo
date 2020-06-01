@@ -2,8 +2,9 @@ import type = require("./type/type");
 
 declare interface Property{
     type?: type;
-    setter?: Function;
-    getter?: Function;
+    setter?: (v?: any, set?: (v: any) => void) => void;
+    getter?: () => any;
+    initial?: any;
 }
 declare type property = type | Property;
 declare interface Properties{
@@ -11,7 +12,7 @@ declare interface Properties{
 }
 
 declare interface Animanaged<T extends Object> extends T{
-    animate: (startTime: number, duration: number, calculator: number) => Animanaged<T>;
+    animate: (startTime: number, duration: number, calculator: (progress: number) => Animanaged<T>) => this;
     at: (progress: number) => T;
 }
 
