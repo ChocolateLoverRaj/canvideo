@@ -98,13 +98,25 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 return this;
             })
     });
+    //Add the set function
+    var sets = [];
+    Object.defineProperty(o, "set", {
+        enumerable: true,
+        configurable: false,
+        value: typedFunction([
+            { name: "at", type: Types.NON_NEGATIVE_NUMBER },
+            { name: "value", type: oInterface }], function (at, value) {
+                sets.push({ at, value });
+                return this;
+            })
+    });
     //Add the at function.
     Object.defineProperty(o, "at", {
         enumerable: true,
         configurable: false,
         value: typedFunction([{ name: "time", type: Types.NON_NEGATIVE_NUMBER }], function (time) {
             var at = {};
-            //Loop through animations
+            //Copy all values
             for (let k in this) {
                 if (!["animate", "at"].includes(k)) {
                     let v = this[k];
@@ -125,19 +137,35 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     throw new TypeError(`Couldn't bind method: ${method}`);
                 }
             }
+            //Loop through all sets
+            for (var i = 0; i < sets.length; i++) {
+                let set = sets[i];
+                if (time >= set.at) {
+                    at = Object.assign(at, set.value);
+                }
+            }
+            //Loop through all animations
             for (var i = 0; i < animations.length; i++) {
                 let a = animations[i];
-                if (time => a.startTime && time < a.startTime + a.duration) {
+                if (time >= a.startTime && time < a.startTime + a.duration) {
                     let progress = (time - a.startTime) / a.duration;
-                    console.log()
-                    let value = a.calculator(progress);
-                    let err = oInterface(value);
-                    if (!err) {
-                        at = Object.assign(at, value);
-                    }
-                    else {
-                        throw new TypeError(`Problem with animate function: ${err}`);
-                    }
+                    runCalculator(a.calculator, progress);
+                }
+                else if (time > a.startTime + a.duration && a.calculator.lasts) {
+                    runCalculator(a.calculator, 1);
+                }
+                else {
+                    console.log(time > a.startTime + a.duration, a.calculator.lasts)
+                }
+            }
+            function runCalculator(calculator, progress) {
+                let value = calculator(progress);
+                let err = oInterface(value);
+                if (!err) {
+                    at = Object.assign(at, value);
+                }
+                else {
+                    throw new TypeError(`Problem with animate function: ${err}`);
                 }
             }
             return at;

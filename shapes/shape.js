@@ -82,7 +82,6 @@ class Shape {
 
             const shapeMethodsToBind = ["draw"];
             methodsToBind = [...new Set([...shapeMethodsToBind, ...methodsToBind])];
-            console.log(methodsToBind)
 
             animanage(this, properties, methodsToBind);
 
