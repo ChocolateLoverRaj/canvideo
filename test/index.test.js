@@ -9,7 +9,7 @@ const chai = require('chai');
 const asserttype = require('chai-asserttype');
 
 //My Modules
-const { Types, interface, Interface } = require("../type");
+const { Types, interface, Interface, arrayOf } = require("../type");
 
 chai.use(asserttype);
 const expect = chai.expect;
@@ -461,6 +461,30 @@ describe("type.js", () => {
             expect(interfaceType({ z: true, a: false, b: true, c: "orange" })).to.be.string();
             expect(interfaceType({ a: false, b: true, c: "orange" })).to.be.false;
             expect(interfaceType({ a: false, c: "orange" })).to.be.false;
+        });
+    });
+    describe("arrayOf", () => {
+        it("good call", () => {
+            var arrayOfNumbers = arrayOf(Types.NUMBER);
+            expect(arrayOfNumbers([])).to.be.false;
+            expect(arrayOfNumbers([234, 2342])).to.be.false;
+            expect(arrayOfNumbers([0, 30, Math.PI, 343, 1])).to.be.false;
+            expect(arrayOfNumbers([3423, "hi", 34])).to.be.string();
+            expect(arrayOfNumbers([1, 1, 1, "1", 1])).to.be.string();
+        });
+        it("bad call", () => {
+            try{
+                var arrayOfNumbers = arrayOf(Types.NUMBER);
+            }
+            catch(err){
+                expect(err).to.be.instanceOf(Error);
+            }
+            try{
+                var arrayOfNumbers = arrayOf(Types.NUMBER);
+            }
+            catch(err){
+                expect(err).to.be.instanceOf(Error);
+            }
         });
     });
 });
