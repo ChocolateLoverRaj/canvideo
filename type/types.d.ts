@@ -18,8 +18,6 @@ declare abstract class Types {
     static FALSY: type;
 
     static FUNCTION: type;
-    static SETTER: type;
-    static GETTER: type;
 
     static OBJECT: type;
     static ARRAY: type;

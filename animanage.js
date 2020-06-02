@@ -11,11 +11,11 @@ const propertiesType2 = interface({
         required: false
     },
     setter: {
-        type: Types.SETTER,
+        type: Types.FUNCTION,
         required: false
     },
     getter: {
-        type: Types.GETTER,
+        type: Types.FUNCTION,
         required: false
     },
     initial: {

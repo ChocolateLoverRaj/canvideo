@@ -24,8 +24,6 @@ const Types = {
     FALSY: a => a ? "is not falsy." : false,
 
     FUNCTION: a => typeof a === 'function' ? false : "is not a function.",
-    SETTER: a => typeof a === 'function' ? false : "is not a valid setter.",
-    GETTER: a => typeof a === 'function' ? false : "is not a valid getter.",
 
     OBJECT: a => typeof a === 'object' ? false : "is not an object.",
     ARRAY: a => Array.isArray(a) ? false : "is not an Array.",
