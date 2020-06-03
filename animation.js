@@ -26,39 +26,41 @@ class Animation {
                         return `${key} is included in endValue but not in startValue.`;
                     }
                 }
-                for (var k in s) {
-                    let v = s[k];
-                    function checkProperty() {
-                        switch (typeof v) {
-                            case 'object':
-                                let err = checkProperties(v, e[k]);
-                                if (!err) {
-                                    return false;
-                                }
-                                else {
-                                    return `${k}.${err}`;
-                                }
-                            case 'number':
-                                if (e.hasOwnProperty(k)) {
-                                    let sType = typeof v;
-                                    let eType = typeof e[k];
-                                    if (sType === eType) {
-                                        return false
+                for (let k in s) {
+                    if (s.hasOwnProperty(k)) {
+                        let v = s[k];
+                        function checkProperty() {
+                            switch (typeof v) {
+                                case 'object':
+                                    let err = checkProperties(v, e[k]);
+                                    if (!err) {
+                                        return false;
                                     }
                                     else {
-                                        return `${k} is a ${sType} in startValue but a ${eType} in endValue.`;
+                                        return `${k}.${err}`;
                                     }
-                                }
-                                else {
-                                    return `${k} is in startValue but not in endValue.`;
-                                }
-                            default:
-                                return `${k} is not a number.`;
+                                case 'number':
+                                    if (e.hasOwnProperty(k)) {
+                                        let sType = typeof v;
+                                        let eType = typeof e[k];
+                                        if (sType === eType) {
+                                            return false
+                                        }
+                                        else {
+                                            return `${k} is a ${sType} in startValue but a ${eType} in endValue.`;
+                                        }
+                                    }
+                                    else {
+                                        return `${k} is in startValue but not in endValue.`;
+                                    }
+                                default:
+                                    return `${k} is not a number.`;
+                            }
                         }
-                    }
-                    let err = checkProperty();
-                    if (err) {
-                        return err;
+                        let err = checkProperty();
+                        if (err) {
+                            return err;
+                        }
                     }
                 }
             };
@@ -75,7 +77,7 @@ class Animation {
 
     calculator = typedFunction([{ name: "progress", type: Types.UNIT_INTERVAL }], function (progress) {
         //If the reverse effect is enabled, then alter the progress.
-        if(this.reversed){
+        if (this.reversed) {
             progress = 1 - Math.abs(progress * 2 - 1);
         }
         const calcNumber = (s, e) => s + progress * (e - s);
