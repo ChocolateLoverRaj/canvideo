@@ -1,18 +1,41 @@
 //All testing
 
-//Dependencies
-//Node.js Modules
-const assert = require('assert');
-
-//Npm Modules
+//Dependencies//Npm Modules
 const chai = require('chai');
 const asserttype = require('chai-asserttype');
 
 //My Modules
-const { Types, interface, Interface, arrayOf } = require("../type");
+const {
+    Types,
+    interface,
+    Interface,
+    arrayOf,
+    keyValueObject,
+    Overloader,
+    typedFunction,
+    either } = require("../type");
 
 chai.use(asserttype);
 const expect = chai.expect;
+
+//Expect an error to be thrown
+function expectError(action) {
+    if (typeof action === 'function') {
+        var threw = false;
+        try {
+            action();
+        }
+        catch (err) {
+            threw = true;
+        }
+        if (!threw) {
+            throw new Error("Expected error to be thrown, but no error was thrown.");
+        }
+    }
+    else {
+        throw new TypeError("action must be a function.");
+    }
+};
 
 describe("type.js", () => {
     describe("Types", () => {
@@ -40,10 +63,10 @@ describe("type.js", () => {
         describe("number", () => {
             describe("any number", () => {
                 it("94 is number", () => {
-                    assert.equal(Types.NUMBER(94), false);
+                    expect(Types.NUMBER(94)).to.be.false;
                 });
                 it("Math.PI is number", () => {
-                    assert.equal(Types.NUMBER(Math.PI), false);
+                    expect(Types.NUMBER(Math.PI)).to.be.false;
                 });
                 it("NaN is a number.", () => {
                     expect(Types.NUMBER(NaN)).to.be.false;
@@ -473,18 +496,139 @@ describe("type.js", () => {
             expect(arrayOfNumbers([1, 1, 1, "1", 1])).to.be.string();
         });
         it("bad call", () => {
-            try{
-                var arrayOfNumbers = arrayOf(Types.NUMBER);
-            }
-            catch(err){
-                expect(err).to.be.instanceOf(Error);
-            }
-            try{
-                var arrayOfNumbers = arrayOf(Types.NUMBER);
-            }
-            catch(err){
-                expect(err).to.be.instanceOf(Error);
-            }
+            expectError(() => {
+                var arrayOfNumbers = arrayOf(34);
+            });
+            expectError(() => {
+                var arrayOfTruthy = arrayOf(true);
+            });
         });
+    });
+    describe("keyValueObject", () => {
+        it("good call", () => {
+            var type = keyValueObject(Types.TRUTHY);
+            expect(type({})).to.be.false;
+            expect(type({ key: 3 })).to.be.false;
+            expect(type({ a: true, b: "yes" })).to.be.false;
+            expect(type({ good: true, bad: 0 })).to.be.string();
+            expect(type(34)).to.be.string();
+            expect(type("hi")).to.be.string();
+        });
+        it("bad call", () => {
+            var threw = false;
+            expectError(() => {
+                var type = keyValueObject("number");
+            });
+        });
+    });
+    describe("overloader", () => {
+        it("no overloads", () => {
+            var threw = false;
+            var f = new Overloader().overloader;
+            expectError(() => {
+                f();
+            });
+        });
+        it("optional parameter", () => {
+            var f = new Overloader()
+                .overload([{ type: Types.BOOLEAN }, { type: Types.STRING, optional: true }], function () {
+                    return true;
+                });
+
+            expect(f.overloader(false)).to.be.true;
+            expect(f.overloader(true, "hi")).to.be.true;
+            var threw = false;
+            expectError(() => {
+                f.overloader(true, 2);
+            });
+            expectError(() => {
+                f.overloader();
+            });
+        });
+        it("binding", () => {
+            var o = new Overloader()
+                .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (s, double) {
+                    return this.a + " " + s + (double ? " " + s : "");
+                })
+                .overload([{ type: Types.NUMBER }, { type: Types.BOOLEAN, optional: true }], function (n, double) {
+                    return this.a + n * (double ? 2 : 1);
+                });
+            o.bind({ a: "hi" });
+            expect(o.overloader("more", true)).to.be.string("a", "hi more more");
+            expect(o.overloader("more")).to.be.string("a", "hi more");
+            o.bind({ a: 5 });
+            expect(o.overloader(5, true)).to.equal(15);
+            expect(o.overloader(5)).to.equal(10);
+            var threw = false;
+            expectError(() => {
+                o.overloader();
+            });
+        });
+    });
+    describe("typedFunction", () => {
+        it("0 parameters", () => {
+            var f = typedFunction([], function () {
+                return true;
+            });
+            expect(f()).to.be.true;
+        });
+        it("optional and default parameters", () => {
+            var f = typedFunction([
+                {
+                    name: "a",
+                    type: Types.NUMBER,
+                    default: 10
+                },
+                {
+                    name: "b",
+                    type: Types.NUMBER,
+                    default: 1,
+                    optional: true
+                },
+                {
+                    name: "c",
+                    type: Types.STRING,
+                    optional: true
+                }
+            ], function (a, b, c = "") {
+                return a * b + c;
+            });
+            expect(f(5)).to.be.string("5");
+            expect(f(5, undefined, "hi")).to.be.string("5hi");
+            expect(f(5, 10)).to.be.string("50");
+        });
+    });
+    describe("either", () => {
+        it("0 types", () => {
+            expectError(() => {
+                var t = either();
+            });
+        });
+        it("1 type", () => {
+            var t = either(Types.BOOLEAN);
+            expect(t(true)).to.be.false;
+            expect(t("hi")).to.be.string();
+        });
+        it("2 types", () => {
+            var t = either(Types.INTEGER, Types.NON_NEGATIVE_NUMBER);
+            expect(t(-2)).to.be.false;
+            expect(t(-3.4)).to.be.string();
+            expect(t(50)).to.be.false;
+            expect(t(0.49)).to.be.false;
+            expect(t(0)).to.be.false;
+        });
+        it("4 types", () => {
+            var t = either(Types.NUMBER, Types.STRING, Types.ARRAY, Types.FALSY);
+            expect(t(2)).to.be.false;
+            expect(t("hi")).to.be.false;
+            expect(t(["this", "is", "a", "special", "object"])).to.be.false;
+            expect(t(NaN)).to.be.false;
+            expect(t()).to.be.false;
+            expect(t({})).to.be.string();
+            expect(t(new Date())).to.be.string();
+            expect(t(() => false)).to.be.string();
+            expect(t(true)).to.be.string();
+            expect(t(false)).to.be.false;
+        })
     });
 });
