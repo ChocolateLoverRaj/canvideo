@@ -66,6 +66,20 @@ function test() {
                         expect(Types.NUMBER({})).to.be.string();
                     });
                 });
+                describe("positive number", () => {
+                    it("24.5 is good", () => {
+                        expect(Types.POSITIVE_NUMBER(24.5)).to.be.false;
+                    });
+                    it("3 is good", () => {
+                        expect(Types.POSITIVE_NUMBER(3)).to.be.false;
+                    });
+                    it("-2.3 is not good", () => {
+                        expect(Types.POSITIVE_NUMBER(-2.3)).to.be.string();
+                    });
+                    it("0 is not good", () => {
+                        expect(Types.POSITIVE_NUMBER(0)).to.be.string();
+                    });
+                });
                 describe("non negative number", () => {
                     it("24.5 is good", () => {
                         expect(Types.NON_NEGATIVE_NUMBER(24.5)).to.be.false;
@@ -78,6 +92,23 @@ function test() {
                     });
                     it("-10 is not good", () => {
                         expect(Types.NON_NEGATIVE_NUMBER(-10)).to.be.string();
+                    });
+                });
+                describe("positive integer", () => {
+                    it("9 is good", () => {
+                        expect(Types.POSITIVE_INTEGER(9)).to.be.false;
+                    });
+                    it("-2 is not good", () => {
+                        expect(Types.POSITIVE_INTEGER(-2)).to.be.string();
+                    });
+                    it("0 is not good", () => {
+                        expect(Types.POSITIVE_INTEGER(0)).to.be.string();
+                    });
+                    it("0.3 is not good", () => {
+                        expect(Types.POSITIVE_INTEGER(0.3)).to.be.string();
+                    });
+                    it("-5.5 is not good", () => {
+                        expect(Types.POSITIVE_INTEGER(5.5)).to.be.string();
                     });
                 });
                 describe("integer", () => {

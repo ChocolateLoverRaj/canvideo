@@ -76,7 +76,10 @@ class Shape {
                         return colors;
                     }
                 },
-                strokeWidth: Types.NON_NEGATIVE_NUMBER
+                strokeWidth: {
+                    type: Types.NON_NEGATIVE_NUMBER,
+                    initial: 0
+                }
             }
             properties = Object.assign(properties, shapeProperties);
 
@@ -84,8 +87,6 @@ class Shape {
             methodsToBind = [...new Set([...shapeMethodsToBind, ...methodsToBind])];
 
             animanage(this, properties, methodsToBind);
-
-            this.strokeWidth = 1;
         }).apply(this, arguments);
     }
 
@@ -93,16 +94,19 @@ class Shape {
         this.fillColor = color;
         return this;
     }
-    stroke(color) {
+    stroke(color, width = this.strokeWidth) {
         this.strokeColor = color;
+        this.strokeWidth = width;
         return this;
     }
-    draw = typedFunction([{ name: "ctx", type: ctxType }], function (ctx) {
-        ctx.fillStyle = this.fillColor.hexString;
-        ctx.strokeStyle = this.strokeColor.hexString;
-        ctx.strokeWidth = this.strokeWidth;
-        return this;
-    });
+    draw() {
+        return typedFunction([{ name: "ctx", type: ctxType }], function (ctx) {
+            ctx.fillStyle = this.fillColor.hexString;
+            ctx.strokeStyle = this.strokeColor.hexString;
+            ctx.lineWidth = this.strokeWidth;
+            return this;
+        }).apply(this, arguments);
+    }
 }
 
 //Export the module

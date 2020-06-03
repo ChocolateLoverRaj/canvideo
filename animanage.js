@@ -2,7 +2,6 @@
 
 //Dependencies
 const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("./type");
-const Animation = require("./animation");
 
 const propertiesType1 = Types.TYPE;
 const propertiesType2 = interface({

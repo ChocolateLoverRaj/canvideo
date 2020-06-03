@@ -116,6 +116,20 @@ class Overloader {
         this.boundTo = a;
         return this;
     }
+    call(a, ...args) {
+        var boundToBefore = this.boundTo;
+        this.boundTo = a;
+        this.overloader.call(this, ...args);
+        this.boundTo = boundToBefore;
+    }
+    apply(a, args) {
+        typedFunction([{ name: "a", type: Types.ANY }, { name: "args", type: Types.ARRAY }], function () {
+            var boundToBefore = this.boundTo;
+            this.boundTo = a;
+            this.overloader.apply(this, args);
+            this.boundTo = boundToBefore;
+        })(a, args);
+    }
 }
 
 //Export the module

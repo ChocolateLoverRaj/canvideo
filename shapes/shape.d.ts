@@ -30,6 +30,8 @@ declare class Shape<T extends Shape> extends Animanaged<T>{
 
     strokeWidth: number;
 
+    fill(color: setColor): this;
+    stroke(color: setColor, width?: number): this;
     draw(ctx: canvas.CanvasRenderingContext2D): this;
 }
 
