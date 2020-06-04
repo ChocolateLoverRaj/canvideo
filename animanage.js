@@ -128,9 +128,9 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
             //Bind all methods
             for (var i = 0; i < methodsToBind.length; i++) {
                 let method = methodsToBind[i];
-                let thisMethod = this.__proto__[method];
+                let thisMethod = Object.getPrototypeOf(this)[method];
                 if (thisMethod) {
-                    at.__proto__[method] = thisMethod.bind(at);
+                    at[method] = thisMethod.bind(at);
                 }
                 else {
                     throw new TypeError(`Couldn't bind method: ${method}`);

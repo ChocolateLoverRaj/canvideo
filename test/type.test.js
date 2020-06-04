@@ -503,13 +503,21 @@ function test() {
             });
         });
         describe("arrayOf", () => {
-            it("good call", () => {
+            it("regular call", () => {
                 var arrayOfNumbers = arrayOf(Types.NUMBER);
                 expect(arrayOfNumbers([])).to.be.false;
                 expect(arrayOfNumbers([234, 2342])).to.be.false;
                 expect(arrayOfNumbers([0, 30, Math.PI, 343, 1])).to.be.false;
                 expect(arrayOfNumbers([3423, "hi", 34])).to.be.string();
                 expect(arrayOfNumbers([1, 1, 1, "1", 1])).to.be.string();
+            });
+            it("array size", () => {
+                var arrayOfStrings = arrayOf(Types.STRING, 2);
+                expect(arrayOfStrings(["hi", "hello"])).to.be.false;
+                expect(arrayOfStrings([])).to.be.string();
+                expect(arrayOfStrings("not even an array")).to.be.string();
+                expect(arrayOfStrings(["way", "too", "many", "elements"])).to.be.string();
+                expect(arrayOfStrings(["just one"])).to.be.string();
             });
             it("bad call", () => {
                 expectError(() => {

@@ -1,6 +1,6 @@
 //Main file
 
-//Dependancies
+//Dependencies
 
 //Node.js Modules
 const fs = require('fs');

@@ -1,7 +1,6 @@
 //Manage a scene and add shapes
 
 //Dependencies
-//Npm Modules
 const { createCanvas } = require('canvas');
 
 //My Modules
@@ -9,7 +8,8 @@ const {
     typedFunction,
     Types,
     Overloader,
-    Interface } = require("./type");
+    Interface } = require("../type");
+const { cameraInterface, Camera } = require("./camera");
 
 //Add interface
 const addInterface = new Interface(false)
@@ -29,7 +29,7 @@ const renderOptions = new Interface(false)
     .toType();
 
 //Shape interface
-const shapeInterface = new Interface()
+const shapeInterface = new Interface(true)
     .required("at", Types.FUNCTION)
     .toType();
 
@@ -37,6 +37,17 @@ const shapeInterface = new Interface()
 class Scene {
     constructor() {
         this.drawables = [];
+        this._camera = new Camera();
+    }
+
+    set camera(camera) {
+        return typedFunction([{ name: "camera", type: cameraInterface, optional: false }], function (camera) {
+            this._camera = camera;
+            return this;
+        }).call(this, camera);
+    }
+    get camera() {
+        return this._camera;
     }
 
     add() {
@@ -94,15 +105,31 @@ class Scene {
         return this;
     };
 
+    setCamera(camera) {
+        this.camera = camera;
+        return this;
+    }
+
     render() {
         return typedFunction([
             { name: "frameNumber", type: Types.NON_NEGATIVE_INTEGER },
             { name: "options", type: renderOptions }
         ], function (fn, { fps, width, height }) {
+            //Calculate time in seconds
+            var s = 1 / fps * fn;
 
             //Create a new canvas
             var canvas = createCanvas(width, height);
             var ctx = canvas.getContext('2d');
+
+            //Set the necessary transforms
+            var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(s);
+            //Translate relative to camera position
+            ctx.translate(-x, -y);
+            //Translate to make scale relative to ref
+            ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
+            //Scale
+            ctx.scale(scaleX, scaleY);
 
             //Filter only shapes to draw
             function shapeIsInFrame({ startTime, endTime }) {
@@ -116,7 +143,13 @@ class Scene {
 
             //Draw the drawables
             function draw({ shape }) {
-                shape.at(1 / fps * fn).draw(ctx);
+                var shape = shape.at(1 / fps * fn);
+                if (typeof shape.draw === 'function') {
+                    shape.draw(ctx);
+                }
+                else {
+                    throw new TypeError(`All drawables must have a draw method.`);
+                }
             };
 
             //Draw filtered and sorted drawables
@@ -125,22 +158,8 @@ class Scene {
             //Return dataUrl
             return canvas.toDataURL();
         }).apply(this, arguments);
-    }
+    };
 }
 
-const Rectangle = require("./shapes/rectangle");
-const Animation = require("./animation");
-const fs = require('fs');
-
-var s = new Scene();
-
-s
-    .add(new Rectangle(0, 0, 200, 200)
-        .fill("mediumSeaGreen")
-    )
-    .add(new Rectangle(100, 100, 200, 200)
-        .fill("dodgerBlue")
-        .stroke("yellow")
-    );
-
-fs.writeFileSync("./temp/0.png", Buffer.from(s.render(1, { fps: 2, width: 400, height: 400 }).split(',')[1], 'base64'));
+//Export the module
+module.exports = Scene;
