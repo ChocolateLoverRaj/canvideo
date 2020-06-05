@@ -22,41 +22,37 @@ class Overloader {
         this.overloads = [];
     }
 
-    overloader() {
-        //Go through all the possible overloads
-        //We can quickly figure out what overloads won't work based on the minLength and maxLength
-        var possibleOverloads = [];
-        if (this.overloads.length === 0) {
-            throw new TypeError("Cannot call an overloader with 0 overloads.");
-        }
-        for (var i = 0; i < this.overloads.length; i++) {
-            let overload = this.overloads[i];
-            if (arguments.length >= overload.minLength && arguments.length <= overload.maxLength) {
-                possibleOverloads.push(overload);
-            }
-        }
-        for (var i = 0; i < arguments.length; i++) {
-            let arg = arguments[i];
-            for (var j = 0; j < possibleOverloads.length; j++) {
-                let argType = possibleOverloads[j].args[i].type;
-                if (argType(arg)) {
-                    //Eliminate this as a possible overload
-                    possibleOverloads.splice(j, 1);
+    get overloader() {
+        var overloads = this.overloads;
+        return function (...args) {
+            var possibleOverloads = overloads.filter(function (overload) {
+                if (args.length >= overload.minLength && args.length <= overload.maxLength) {
+                    for (var i = 0; i < args.length; i++) {
+                        let arg = overload.args[i];
+                        if (arg.type(args[i])) {
+                            return false;
+                        }
+                    }
+                    return true;
                 }
+                else {
+                    return false;
+                }
+            });
+
+            //If there are 1 possible overloads, that's great
+            if (possibleOverloads.length === 1) {
+                return possibleOverloads[0].f.apply(this, arguments);
             }
-        }
-        //If there are 1 possible overloads, that's great
-        if (possibleOverloads.length === 1) {
-            return possibleOverloads[0].f.apply(this.boundTo, arguments);
-        }
-        //If there are 0 possible overloads, it's the caller's fault
-        else if (possibleOverloads.length === 0) {
-            throw new TypeError("Invalid arguments.");
-        }
-        //If there are more than two, then the overloader has conflicted overloads
-        else {
-            throw new TypeError("Bad overloader. Overloads have conflicts.");
-        }
+            //If there are 0 possible overloads, it's the caller's fault
+            else if (possibleOverloads.length === 0) {
+                throw new TypeError("Invalid arguments.");
+            }
+            //If there are more than two, then the overloader has conflicted overloads
+            else {
+                throw new TypeError("Bad overloader. Overloads have conflicts.");
+            }
+        };
     }
     overload() {
         return typedFunction([{ name: "args", type: paramsType }, { name: "f", type: Types.FUNCTION }], function (args, f) {
@@ -112,24 +108,6 @@ class Overloader {
             return this;
         }).apply(this, arguments);
     };
-    bind(a) {
-        this.boundTo = a;
-        return this;
-    }
-    call(a, ...args) {
-        var boundToBefore = this.boundTo;
-        this.boundTo = a;
-        this.overloader.call(this, ...args);
-        this.boundTo = boundToBefore;
-    }
-    apply(a, args) {
-        typedFunction([{ name: "a", type: Types.ANY }, { name: "args", type: Types.ARRAY }], function () {
-            var boundToBefore = this.boundTo;
-            this.boundTo = a;
-            this.overloader.apply(this, args);
-            this.boundTo = boundToBefore;
-        })(a, args);
-    }
 }
 
 //Export the module

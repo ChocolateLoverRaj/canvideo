@@ -1,6 +1,8 @@
 import canvas = require('canvas');
 
 import Camera = require("./camera-class");
+import setColor = require("./color/set");
+import GetColor = require("./color/get");
 
 declare interface AddOptions {
     startTime?: number;
@@ -15,7 +17,6 @@ declare interface Drawable {
 }
 
 declare interface RenderOptions {
-    fps: number;
     width: number;
     height: number;
 }
@@ -25,6 +26,8 @@ declare class Scene {
 
     drawables: Array<Drawable>;
     camera: Camera;
+    duration: number;
+    readonly autoDuration: number;
 
     add(drawable: Drawable): this;
     add(startTime: number, drawable: Drawable): this;
@@ -32,9 +35,16 @@ declare class Scene {
     add(startTime: number, duration: number, layer: number, drawable: Drawable): this;
     add(addOptions: AddOptions, drawable: Drawable): this;
 
+    set backgroundColor(color: setColor): this;
+    get backgroundColor(): GetColor;
+
+    setBackgroundColor(color: setColor): this;
+
     setCamera(camera: Camera): this;
 
-    render(frameNumber: number, options: RenderOptions): this;
+    render(at: number, options: RenderOptions): string;
+
+    setDuration(duration: number): this;
 }
 
 export = Scene;

@@ -30,7 +30,6 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-asserttype": "^1.0.5",
-    "mocha": "^7.2.0",
-    "requires-regex": "^1.0.4"
+    "mocha": "^7.2.0"
   }
 }

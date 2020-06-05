@@ -3,6 +3,9 @@
 //Dependencies
 const { createCanvas } = require('canvas');
 
+//Npm Modules
+const tinyColor = require('tinycolor2');
+
 //My Modules
 const {
     typedFunction,
@@ -10,22 +13,17 @@ const {
     Overloader,
     Interface } = require("../type");
 const { cameraInterface, Camera } = require("./camera");
+const { sizeInterface } = require("./size");
+const colorType = require("./color");
+
+//Config
+const defaultDuration = 5;
 
 //Add interface
 const addInterface = new Interface(false)
     .optional("startTime", Types.NON_NEGATIVE_NUMBER)
     .optional("duration", Types.POSITIVE_NUMBER)
     .optional("layer", Types.NON_NEGATIVE_INTEGER)
-    .toType();
-
-//Size type
-const sizeType = a => Number.isSafeInteger(a) && !(a & 1) ? false : "is not a valid size.";
-
-//Render options interface
-const renderOptions = new Interface(false)
-    .required("fps", Types.POSITIVE_NUMBER)
-    .required("width", sizeType)
-    .required("height", sizeType)
     .toType();
 
 //Shape interface
@@ -38,6 +36,8 @@ class Scene {
     constructor() {
         this.drawables = [];
         this._camera = new Camera();
+        this._duration = 0;
+        this.autoDuration = 0;
     }
 
     set camera(camera) {
@@ -48,6 +48,17 @@ class Scene {
     }
     get camera() {
         return this._camera;
+    }
+
+    set duration(duration) {
+        return typedFunction([{ name: "duration", type: Types.POSITIVE_NUMBER }], function (duration) {
+            this._duration = duration;
+            return this;
+        }).call(this, duration);
+    }
+    get duration() {
+        var duration = this._duration || this.autoDuration;
+        return duration !== Infinity ? duration : defaultDuration;
     }
 
     add() {
@@ -99,31 +110,70 @@ class Scene {
                 drawable.layer = layer || 0;
                 drawable.shape = shape;
             })
-            .call(this, ...arguments);
+            .overloader.call(this, ...arguments);
 
+        this.autoDuration = Math.max(this.autoDuration, drawable.endTime);
         this.drawables.push(drawable);
+        this._backgroundColor = tinyColor("white");
         return this;
     };
+
+    set backgroundColor(color){
+        typedFunction([{name: "color", type: colorType}], function(color){
+            if(typeof color === 'object'){
+                this._backgroundColor = tinyColor(Object.assign(this._backgroundColor.toRgb(), color));
+            }
+            else{
+                this._backgroundColor = tinyColor(color);
+            }
+        }).call(this, color);
+        return this;
+    }
+    get backgroundColor(){
+        var rgb = this._backgroundColor.toRgb();
+        rgb.hexString = this._backgroundColor.toHexString();
+        return rgb;
+    }
+
+    setBackgroundColor(color){
+        this.backgroundColor = color;
+        return this;
+    }
 
     setCamera(camera) {
         this.camera = camera;
         return this;
-    }
+    };
 
     render() {
+        const atType = a => {
+            let err = Types.NON_NEGATIVE_NUMBER(a);
+            if (!err) {
+                if (a < this.duration) {
+                    return false;
+                }
+                else {
+                    return `must be less than the scene duration: ${this.duration}.`;
+                }
+            }
+            else {
+                return err;
+            }
+        }
         return typedFunction([
-            { name: "frameNumber", type: Types.NON_NEGATIVE_INTEGER },
-            { name: "options", type: renderOptions }
-        ], function (fn, { fps, width, height }) {
-            //Calculate time in seconds
-            var s = 1 / fps * fn;
-
+            { name: "at", type: atType },
+            { name: "size", type: sizeInterface }
+        ], function (at, { width, height }) {
             //Create a new canvas
             var canvas = createCanvas(width, height);
             var ctx = canvas.getContext('2d');
 
+            //Draw the background
+            ctx.fillStyle = this.backgroundColor.hexString;
+            ctx.fillRect(0, 0, width, height);
+
             //Set the necessary transforms
-            var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(s);
+            var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(at);
             //Translate relative to camera position
             ctx.translate(-x, -y);
             //Translate to make scale relative to ref
@@ -133,7 +183,7 @@ class Scene {
 
             //Filter only shapes to draw
             function shapeIsInFrame({ startTime, endTime }) {
-                return fn >= startTime * fps && fn < endTime;
+                return at >= startTime && at < endTime;
             };
 
             //Sort by layer
@@ -143,7 +193,7 @@ class Scene {
 
             //Draw the drawables
             function draw({ shape }) {
-                var shape = shape.at(1 / fps * fn);
+                var shape = shape.at(at);
                 if (typeof shape.draw === 'function') {
                     shape.draw(ctx);
                 }
@@ -156,8 +206,13 @@ class Scene {
             this.drawables.filter(shapeIsInFrame).sort(sortLayer).map(draw);
 
             //Return dataUrl
-            return canvas.toDataURL();
+            return canvas;
         }).apply(this, arguments);
+    };
+
+    setDuration(duration) {
+        this.duration = duration;
+        return this;
     };
 }
 

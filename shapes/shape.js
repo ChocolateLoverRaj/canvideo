@@ -9,17 +9,7 @@ const canvas = require('canvas');
 //My Modules
 const { propertiesType, methodsToBindType, animanage } = require("../animanage");
 const { Types, Interface, either, typedFunction } = require("../type");
-
-//Color interface
-const colorInterface = new Interface(false)
-    .optional('r', Types.RGB_INTENSITY)
-    .optional('g', Types.RGB_INTENSITY)
-    .optional('b', Types.RGB_INTENSITY)
-    .optional('a', Types.UNIT_INTERVAL)
-    .toType();
-
-//Input either a color interface or a string representation of a color
-const colorType = either(colorInterface, Types.COLOR);
+const colorType = require("../render/color");
 
 //Figure out whether ctx given is actually ctx.
 const ctxType = a => a instanceof canvas.CanvasRenderingContext2D ? false : "is not canvasRenderingContext2D.";

@@ -19,7 +19,6 @@ declare class Overloader {
     overloader: Function;
 
     overload(args: Array<OverloadArg>, f: Function): this;
-    bind(a: any): this;
 }
 
 export = Overloader;

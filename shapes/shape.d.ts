@@ -2,22 +2,8 @@ import canvas = require('canvas');
 
 import Animanaged = require("../animanage/animanaged");
 import params = require("../animanage/params");
-
-declare interface SetColor{
-    r?: number;
-    g?: number;
-    b?: number;
-    a?: number;
-}
-declare type setColor = SetColor | string;
-
-declare interface GetColor{
-    r: number;
-    g: number;
-    b: number;
-    a: number;
-    hexString: string;
-}
+import setColor = require("../render/color/set");
+import GetColor = require("../render/color/get");
 
 declare class Shape<T extends Shape> extends Animanaged<T>{
     constructor(properties: params.Properties, methodsToBind: params.methods);
