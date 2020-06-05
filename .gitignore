@@ -1,3 +1,6 @@
+# Thumbnails
+**/Thumbs.db
+
 # Visual Studio
 .vs/
 .vscode/
