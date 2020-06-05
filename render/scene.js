@@ -206,7 +206,7 @@ class Scene {
             this.drawables.filter(shapeIsInFrame).sort(sortLayer).map(draw);
 
             //Return dataUrl
-            return canvas;
+            return canvas.createPNGStream();
         }).apply(this, arguments);
     };
 

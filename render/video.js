@@ -14,6 +14,10 @@ const { Overloader, Types, Interface, either, typedFunction } = require("../type
 const { sizeType, regularSizeInterface, shortSizeInterface, sizeInterface } = require("./size");
 const Scene = require("./scene");
 
+//Setup ffmpeg
+//TODO let the user choose the ffmpeg path.
+ffmpeg.setFfmpegPath("ffmpeg");
+
 //Video options
 const optionsInterface = new Interface(false)
     .required("width", sizeType)
@@ -35,6 +39,10 @@ const shortSquashedOptionsInterface = new Interface(false)
     .required("fps", Types.POSITIVE_NUMBER)
     .toType();
 
+//Export options interface
+const exportOptionsInterface = new Interface(false)
+    .required("keepImages", Types.BOOLEAN)
+    .toType();
 //Temp path
 var tempPath;
 
@@ -139,15 +147,14 @@ class Video extends EventEmitter {
         }
     }
 
+    static Stages = {
+        RENDER_FRAMES: 0,
+        GENERATE_VIDEO: 1,
+        DELETE_FRAMES: 2,
+        FINISHED: 3
+    };
     export() {
-        var start = function () {
-            var emitter = new EventEmitter()
-                .on("finish", () => {
-                    this.emit("finished", emitter);
-                })
-                .on('error', err => {
-                    this.emit('error', err, emitter);
-                });
+        var start = function (outputPath, keepImages) {
             if (this.tempPath) {
                 var uriFromFrameNumber = function (frame) {
                     var time = frame * this.spf;
@@ -164,33 +171,143 @@ class Video extends EventEmitter {
                 }.bind(this);
 
                 var numberOfFrames = Math.ceil(this.duration * this.fps);
+                var framesFinished = 0;
+                var framesAdded = 0;
+                var framesDeleted = 0;
+                var stagesFinished = 0;
+                var totalStages = 3;
+                var emitter = new EventEmitter()
+                    .on("frame_progress", progress => {
+                        this.emit("frame_progress", progress, emitter);
+                        this.emit("any_progress", progress, Video.Stages.RENDER_FRAMES);
+                    })
+                    .on("frame_finish", frameNumber => {
+                        this.emit("frame_finish", frameNumber, emitter);
+                        emitter.emit("frame_progress", {
+                            progress: ++framesFinished / numberOfFrames,
+                            count: framesFinished,
+                            total: numberOfFrames
+                        });
+                    })
+
+                    .on("generate_progress", progress => {
+                        this.emit("generate_progress", progress, emitter);
+                        this.emit("any_progress", progress, Video.Stages.GENERATE_VIDEO);
+                    })
+                    .on("generate_part", frames => {
+                        this.emit("generate_part", frames, emitter);
+                        emitter.emit("generate_progress", {
+                            progress: (framesAdded += frames) / numberOfFrames,
+                            count: framesAdded,
+                            total: numberOfFrames
+                        });
+                    })
+
+                    .on("delete_progress", progress => {
+                        this.emit("delete_progress", progress, emitter);
+                        this.emit("any_progress", progress, Video.Stages.DELETE_FRAMES);
+                    })
+                    .on("delete_finish", frameNumber => {
+                        this.emit("delete_finish", frameNumber, emitter);
+                        emitter.emit("delete_progress", {
+                            progress: ++framesDeleted / numberOfFrames,
+                            count: framesDeleted,
+                            total: numberOfFrames
+                        });
+                    })
+
+                    .on("stage_progress", progress => {
+                        emitter.currentStage++;
+                        this.emit("stage_progress", progress, emitter);
+                    })
+                    .on("stage_finish", stage => {
+                        this.emit("stage_finish", stage, emitter);
+                        emitter.emit("stage_progress", ++stagesFinished / totalStages);
+                    })
+
+                    .on("any_progress", (progress, stage) => {
+                        this.emit("any_progress", progress, stage, emitter);
+                    })
+                    .on("finish", () => {
+                        this.emit("finish", emitter);
+                    })
+                    .on('error', err => {
+                        this.emit('error', err, emitter);
+                    });
+                emitter.totalFrames = numberOfFrames;
+                emitter.currentStage = 0;
+                emitter.video = this;
                 this.tempPath.then(tempPath => {
                     var framePaths = [];
+
+                    function deleteFrames() {
+                        var deletePromises = [];
+                        for (var i = 0; i < framePaths.length; i++) {
+                            let frameNumber = i;
+                            deletePromises.push(new Promise((resolve, reject) => {
+                                fs.unlink(framePaths[i], () => {
+                                    emitter.emit("delete_finish", frameNumber);
+                                    resolve();
+                                });
+                            }));
+                        }
+                        return Promise.all(deletePromises);
+                    }
+
+                    var framePromises = [];
                     for (var i = 0; i < numberOfFrames; i++) {
                         var framePath = path.join(tempPath, `/${i}.png`);
                         framePaths.push(framePath);
 
-                        let frame = uriFromFrameNumber(i);
-                        let length = frame.toBuffer().byteLength;
-                        let written = 0;
-                        let frameStream = frame.createPNGStream();
-                        let outStream = fs.createWriteStream(framePath, {encoding: "base64"});
-                        let b = i;//TODO create progress stuff
-                        frameStream.on('data', data => {
-                            written += data.length;
-                            outStream.write(data);
-                            if(b === 0){
-                                console.log(`Written ${written} out of ${length} bytes.`);
-                            }
-                        });
+                        let frameNumber = i;
+
+                        let frameStream = uriFromFrameNumber(i);
+                        let outStream = fs.createWriteStream(framePath, { encoding: "base64" });
+                        framePromises.push(new Promise((resolve, reject) => {
+                            frameStream
+                                .on('end', () => {
+                                    emitter.emit("frame_finish", frameNumber);
+                                    resolve();
+                                })
+                                .on('error', err => {
+                                    emitter.emit('error', err, frameNumber);
+                                })
+                                .pipe(outStream);
+                        }));
                     }
-                    console.log(framePaths);
+                    Promise.all(framePromises)
+                        .then(() => {
+                            //First step done
+                            emitter.emit("stage_finish", Video.Stages.RENDER_FRAMES);
+
+                            //Generate video using ffmpeg
+                            ffmpeg()
+                                .input(path.join(tempPath, "/%01d.png"))
+                                .inputFPS(this.fps)
+                                .on('progress', progress => {
+                                    emitter.emit("generate_part", progress.frames - framesAdded);
+                                })
+                                .on('end', async () => {
+                                    //Done with second stage
+                                    emitter.emit("stage_finish", Video.Stages.GENERATE_VIDEO);
+
+                                    //Delete frames
+                                    if (!keepImages) {
+                                        await deleteFrames();
+                                    }
+                                    emitter.emit("stage_finish", Video.Stages.DELETE_FRAMES);
+                                    emitter.emit("finish");
+                                })
+                                .save(outputPath)
+                                .noAudio();
+                        })
+                        .catch(err => undefined);
                 });
+                return emitter;
             }
             else {
                 throw new ReferenceError("tempPath must be set before exporting.");
             }
-            return emitter;
         }.bind(this);
 
         function checkOutputPath(outputPath) {
@@ -199,26 +316,40 @@ class Video extends EventEmitter {
             }
         };
 
+        var handleReturning = function (outputPath, keepImages, returnPromise) {
+            checkOutputPath(outputPath);
+            if (returnPromise) {
+                return new Promise((resolve, reject) => {
+                    start(outputPath, keepImages)
+                        .on("finished", () => {
+                            resolve();
+                        })
+                        .on('error', reject);
+                });
+            }
+            else {
+                start(outputPath, keepImages);
+                return this;
+            }
+        }.bind(this);
+
+        function handleCallback(outputPath, keepImages, callback) {
+            checkOutputPath(outputPath);
+            callback(start(outputPath, keepImages));
+        }
+
         return new Overloader()
             .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
-                checkOutputPath(outputPath);
-                if (returnPromise) {
-                    return new Promise((resolve, reject) => {
-                        start()
-                            .on("finished", () => {
-                                resolve();
-                            })
-                            .on('error', reject);
-                    });
-                }
-                else {
-                    start();
-                    return this;
-                }
+                return handleReturning(outputPath, false, returnPromise);
+            })
+            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.BOOLEAN, optional: true }], function (outputPath, { keepImages }, returnPromise = false) {
+                return handleReturning(outputPath, keepImages, returnPromise);
             })
             .overload([{ type: Types.STRING }, { type: Types.FUNCTION }], function (outputPath, callback) {
-                checkOutputPath(outputPath);
-                callback(start());
+                handleCallback(outputPath, false, callback);
+            })
+            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, { keepImages }, callback) {
+                handleCallback(outputPath, keepImages, callback);
             })
             .overloader.apply(this, arguments);
     }
@@ -229,7 +360,7 @@ setTempPath("../temp/");
 
 const Rectangle = require("../shapes/rectangle");
 const Animation = require("../animation");
-var video = new Video({ size: { width: 400, height: 400 }, fps: 2 })
+var video = new Video({ size: { width: 400, height: 400 }, fps: 60 })
     .add(new Scene()
         .add(0, 4, new Rectangle(0, 0, 200, 200)
             .fill("blue")
@@ -238,8 +369,16 @@ var video = new Video({ size: { width: 400, height: 400 }, fps: 2 })
             )
         )
     )
-    .export("../temp/test.mp4", true);
+    .add(new Scene()
+        .add(1, 3, new Rectangle(200, 200, 0, 0)
+            .fill("green")
+            .animate(1, 3, new Animation({ x: 200, y: 200, width: 0, height: 0 }, { x: 0, y: 0, width: 400, height: 400 })
+                .getCalculator()
+            )
+        )
+    )
+    .export("../temp/test.mp4");
 
-console.log(video.then(() => {
-    console.log("done");
-}))
+video.on("finish", () => {
+    console.log("done")
+})
