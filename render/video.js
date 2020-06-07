@@ -143,8 +143,11 @@ class Video extends EventEmitter {
             .overload([{ type: sizeType }, { type: sizeType }, { type: Types.POSITIVE_NUMBER }], function (width, height, fps) {
                 this.width = width, this.height = height, this.fps = fps;
             })
-            .overload([{ type: sizeInterface }, { type: Types.POSITIVE_NUMBER }], function ({ width, height }, fps) {
+            .overload([{ type: regularSizeInterface }, { type: Types.POSITIVE_NUMBER }], function ({ width, height }, fps) {
                 this.width = width, this.height = height, this.fps = fps;
+            })
+            .overload([{ type: shortSizeInterface }, { type: Types.POSITIVE_NUMBER }], function ({ w, h }, fps) {
+                this.width = w, this.height = h, this.fps = fps;
             })
             .overload([{ type: optionsInterface }], function ({ width, height, fps }) {
                 this.width = width, this.height = height, this.fps = fps;
@@ -190,6 +193,9 @@ class Video extends EventEmitter {
     }
     setSize() {
         new Overloader()
+            .overload([{ type: sizeType }, { type: sizeType }], function (width, height) {
+                this.width = width, this.height = height;
+            })
             .overload([{ type: regularSizeInterface }], function ({ width, height }) {
                 this.width = width, this.height = height;
             })
@@ -282,7 +288,7 @@ class Video extends EventEmitter {
                     })
 
                     .on("step_progress", progress => {
-                        emitter.currentStage++;
+                        emitter.currentStep++;
                         this.emit("stage_progress", progress, emitter);
                     })
                     .on("step_finish", step => {
@@ -304,7 +310,7 @@ class Video extends EventEmitter {
                         this.emit('error', err, emitter);
                     });
                 emitter.totalFrames = frameCount;
-                emitter.currentStage = 0;
+                emitter.currentStep = 0;
                 emitter.video = this;
 
                 var tempPath;
@@ -452,10 +458,11 @@ class Video extends EventEmitter {
             }
         }.bind(this);
 
-        function handleCallback(outputPath, options, callback) {
+        var handleCallback = function(outputPath, options, callback) {
             checkOutputPath(outputPath);
             callback(start(outputPath, options));
-        }
+            return this;
+        }.bind(this);
 
         return new Overloader()
             .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
@@ -474,40 +481,5 @@ class Video extends EventEmitter {
     }
 }
 
-//Testing
-setTempPath("../temp/");
-
-const Rectangle = require("../shapes/rectangle");
-const Animation = require("../animation");
-var video = new Video({ size: { width: 400, height: 400 }, fps: 12 })
-    .add(new Scene()
-        .add(0, 4, new Rectangle(0, 0, 200, 200)
-            .fill("blue")
-            .animate(0, 4, new Animation({ x: 0, y: 0 }, { x: 200, y: 200 })
-                .getCalculator()
-            )
-        )
-    )
-    .add(new Scene()
-        .add(1, 3, new Rectangle(200, 200, 0, 0)
-            .fill("green")
-            .animate(1, 3, new Animation({ x: 200, y: 200, width: 0, height: 0 }, { x: 0, y: 0, width: 400, height: 400 })
-                .getCalculator()
-            )
-        )
-    )
-    .export("../temp/test.mp4");
-
-video
-    .on("finish", () => {
-        console.log("done")
-    })
-    .on("step_finish", s => {
-        console.log(s);
-    })
-    .on("error", err => {
-        console.log(err);
-    });
-
 //Export the module
-module.exports = { setTempPath, setFfmpegPath, Video };
+module.exports = { setTempPath, setFfmpegPath, Video, ExportSteps };

@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 
+import { PNGStream } from 'canvas';
+
 declare function setTempPath(path: string): Promise<string>;
 
 declare function setFfmpegPath(path: string): Promise<boolean>;
@@ -17,9 +19,43 @@ declare enum ExportSteps {
     FINISHED = 3
 }
 
+declare interface RegularSize {
+    width: number;
+    height: number;
+}
+declare interface ShortSize {
+    w: number;
+    h: number;
+}
+
+declare interface RegularOptions extends RegularSize {
+    fps: number;
+}
+declare interface ShortOptions extends ShortSize {
+    fps: number;
+}
+
+declare interface RegularSquashedOptions {
+    size: RegularSize;
+    fps: number;
+}
+declare interface ShortSquashedOptions {
+    size: ShortSize;
+    fps: number;
+}
+
+declare interface Scene {
+    render: (at: number, size: RegularSize) => PNGStream;
+}
+
+declare interface ExportOptions {
+    keepImages: boolean;
+}
+
 declare abstract class VideoExport extends EventEmitter {
     totalFrames: number;
-    currentStage: ExportSteps;//TODO change currentStage to currentStep
+    currentStep: ExportSteps;
+    video: Video;
 
     addListener(event: "frame_progress", listener: (progress?: Progress) => void): this;
     addListener(event: "frame_finish", listener: (frameNumber?: number) => void): this;
@@ -88,6 +124,42 @@ declare abstract class VideoExport extends EventEmitter {
 }
 
 declare class Video extends EventEmitter {
+    constructor(width: number, height: number, fps: number);
+    constructor(size: RegularSize, fps: number);
+    constructor(size: ShortSize, fps: number);
+    constructor(options: RegularOptions);
+    constructor(options: ShortOptions);
+    constructor(options: RegularSquashedOptions);
+    constructor(options: ShortSquashedOptions);
+
+    readonly duration: number;
+    scenes: Array<Scene>;
+    width: number;
+    height: number;
+    fps: number;
+    spf: number;
+    tempPath: string;
+
+    setWidth(width: number): this;
+    setHeight(width: number): this;
+
+    setSize(width: number, height: number): this;
+    setSize(size: RegularSize): this;
+    setSize(size: ShortSize): this;
+
+    setFps(fps: number): this;
+    setSpf(spf: number): this;
+
+    setTempPath(path: string): this;
+
+    add(scene: Scene): this;
+
+    export(outputPath: string, returnPromise?: false): this;
+    export(outputPath: string, returnPromise: true): Promise<undefined>;
+    export(outputPath: string, options: ExportOptions, returnPromise?: false): this;
+    export(outputPath: string, options: ExportOptions, returnPromise: true): Promise<undefined>;
+    export(outputPath: string, callback: (videoExport: VideoExport) => void): this;
+    export(outputPath: string, options: ExportOptions, callback: (videoExport: VideoExport) => void): this;
 
     addListener(event: "frame_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
     addListener(event: "frame_finish", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
@@ -154,3 +226,5 @@ declare class Video extends EventEmitter {
     prependOnceListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
     prependOnceListener(event: "error", listener: (err?: Error, videoExport: VideoExport) => void): this;
 }
+
+export = { setTempPath, setFfmpegPath, Video, ExportSteps };
