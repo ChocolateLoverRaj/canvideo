@@ -5,7 +5,7 @@
 const { Interface, either } = require("../type");
 
 //Size type
-const sizeType = a => Number.isSafeInteger(a) && !(a & 1) ? false : "is not a valid size.";
+const sizeType = a => Number.isSafeInteger(a) && a > 0 && !(a & 1) ? false : "is not a valid size.";
 
 //Interface for video size
 const regularSizeInterface = new Interface(false)

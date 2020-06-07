@@ -1,29 +1,8 @@
 //Manage animatable properties
 
 //Dependencies
-const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("./type");
-
-const propertiesType1 = Types.TYPE;
-const propertiesType2 = interface({
-    type: {
-        type: Types.TYPE,
-        required: false
-    },
-    setter: {
-        type: Types.FUNCTION,
-        required: false
-    },
-    getter: {
-        type: Types.FUNCTION,
-        required: false
-    },
-    initial: {
-        type: Types.ANY,
-        required: false
-    }
-}, false);
-const propertiesType = keyValueObject(either(propertiesType1, propertiesType2));
-const methodsToBindType = arrayOf(Types.STRING);
+const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("../type");
+const { propertiesType, methodsToBindType } = require("./properties-type");
 
 const params = [
     {
@@ -70,7 +49,9 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     throw new TypeError(`${k}: ${v}, ${err}`);
                 }
             } :
-            setterAfterFilter;
+            function(v){
+                return setterAfterFilter(v, setFunction);
+            };
         let getter = p.getter || function () {
             return o[hiddenKey];
         };

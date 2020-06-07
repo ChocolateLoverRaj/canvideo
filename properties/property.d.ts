@@ -1,4 +1,4 @@
-import type = require("./type/type");
+import type from "../type/type";
 
 declare interface Property {
     type?: type;
@@ -7,7 +7,5 @@ declare interface Property {
     initial?: any;
 }
 declare type property = type | Property;
-export interface Properties {
-    [key: string | number]: property;
-}
-export type methods = Array<string>;
+
+export = property;

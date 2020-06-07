@@ -5,6 +5,7 @@ import keyValueObject = require("./type/key-value-object");
 import Overloader = require("./type/overloader");
 import typedFunction = require("./type/typed-function");
 import either = require("./type/either");
+import instanceOf = require("./type/instanceOf");
 
 export = {
     Types,
@@ -14,5 +15,6 @@ export = {
     keyValueObject,
     Overloader,
     typedFunction,
-    either
+    either,
+    instanceOf
 }

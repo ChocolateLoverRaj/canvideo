@@ -14,7 +14,8 @@ const {
     keyValueObject,
     Overloader,
     typedFunction,
-    either } = require("../type");
+    either,
+    instanceOf } = require("../type");
 const expectError = require("./expect-error");
 
 chai.use(asserttype);
@@ -577,12 +578,12 @@ function test() {
                     .overload([{ type: Types.NUMBER }, { type: Types.BOOLEAN, optional: true }], function (n, double) {
                         return this.a + n * (double ? 2 : 1);
                     });
-                o.bind({ a: "hi" });
-                expect(o.overloader("more", true)).to.be.string("a", "hi more more");
-                expect(o.overloader("more")).to.be.string("a", "hi more");
-                o.bind({ a: 5 });
-                expect(o.overloader(5, true)).to.equal(15);
-                expect(o.overloader(5)).to.equal(10);
+                var boundFirst = { a: "hi" };
+                expect(o.overloader.call(boundFirst, "more", true)).to.be.string("a", "hi more more");
+                expect(o.overloader.call(boundFirst, "more")).to.be.string("a", "hi more");
+                var boundSecond = { a: 5 };
+                expect(o.overloader.call(boundSecond, 5, true)).to.equal(15);
+                expect(o.overloader.call(boundSecond, 5)).to.equal(10);
                 var threw = false;
                 expectError(() => {
                     o.overloader();
@@ -654,6 +655,36 @@ function test() {
                 expect(t(true)).to.be.string();
                 expect(t(false)).to.be.false;
             })
+        });
+        describe("instanceOf", () => {
+            it("Promise", () => {
+                var pType = instanceOf(Promise);
+                async function promiseReturner() { };
+
+                expect(pType("not a promise")).to.be.string();
+                expect(pType(new Promise(() => { }))).to.be.false;
+                expect(pType(promiseReturner())).to.be.false;
+            });
+            it("Object", () => {
+                var oType = instanceOf(Object);
+
+                expect(oType("hi")).to.be.string();
+                expect(oType(34)).to.be.string();
+                expect(oType({})).to.be.false;
+                expect(oType([])).to.be.false;
+            });
+            it("Custom Class", () => {
+                class A { };
+                class B extends A { };
+
+                var aType = instanceOf(A);
+                var bType = instanceOf(B);
+
+                expect(aType(new A())).to.be.false;
+                expect(aType(new B())).to.be.false;
+                expect(bType(new A())).to.be.string();
+                expect(bType(new B())).to.be.false;
+            });
         });
     });
 };

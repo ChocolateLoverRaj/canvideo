@@ -9,6 +9,7 @@ const keyValueObject = require("./type/key-value-object");
 const Overloader = require("./type/overloader");
 const typedFunction = require("./type/typed-function");
 const either = require("./type/either");
+const instanceOf = require("./type/instanceOf");
 
 //Export the module
 module.exports = {
@@ -19,5 +20,6 @@ module.exports = {
     keyValueObject,
     Overloader,
     typedFunction,
-    either
+    either,
+    instanceOf
 };

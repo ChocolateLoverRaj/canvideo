@@ -2,7 +2,7 @@
 
 //Dependencies
 const { Types, Interface } = require("../type");
-const { animanage } = require("../animanage");
+const { animanage } = require("../properties/animanage");
 
 //Camera interface
 const cameraInterface = new Interface(true)

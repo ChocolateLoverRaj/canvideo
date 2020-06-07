@@ -1,4 +1,4 @@
-import type = require("./type/type");
+import type = require("../type/type");
 import params = require("./animanage/params");
 import Animanaged = require("./animanage/animanaged");
 

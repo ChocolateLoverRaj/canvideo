@@ -15,7 +15,6 @@ declare class Overloader {
     constructor();
 
     overloads: Array<Overload>;
-    boundTo: any;
     overloader: Function;
 
     overload(args: Array<OverloadArg>, f: Function): this;

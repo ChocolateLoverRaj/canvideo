@@ -5,7 +5,7 @@
 const chai = require('chai');
 
 //My Modules
-const { animanage } = require("../animanage");
+const { animanage } = require("../properties/animanage");
 const { Types } = require("../type");
 const expectError = require("./expect-error");
 const Animation = require("../animation");

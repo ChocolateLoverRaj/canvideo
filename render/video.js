@@ -10,13 +10,18 @@ const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 
 //My Modules
-const { Overloader, Types, Interface, either, typedFunction } = require("../type");
+const { Overloader, Types, Interface, either, typedFunction, instanceOf } = require("../type");
 const { sizeType, regularSizeInterface, shortSizeInterface, sizeInterface } = require("./size");
 const Scene = require("./scene");
+const typify = require("../properties/typify");
+
+//Dependency stuff
+const fsPromises = fs.promises;
 
 //Setup ffmpeg
-//TODO let the user choose the ffmpeg path.
-ffmpeg.setFfmpegPath("ffmpeg");
+
+//Image regex
+const imageRegex = /canvideo \d+\.png/i;
 
 //Video options
 const optionsInterface = new Interface(false)
@@ -44,38 +49,95 @@ const exportOptionsInterface = new Interface(false)
     .required("keepImages", Types.BOOLEAN)
     .toType();
 //Temp path
-var tempPath;
+var globalTempPath;
 
-//Set the global tempPath
-async function setTempPath(path) {
-    //Check if directory exists
-    if (fs.existsSync(path)) {
-        tempPath = new Promise((resolve, reject) => {
+//Make sure directory exists
+function directoryExists(path) {
+    return new Promise((resolve, reject) => {
+        //Check if directory exists
+        if (fs.existsSync(path)) {
             fs.lstat(path, (err, stats) => {
                 if (!err) {
                     if (stats.isDirectory()) {
                         resolve(path);
                     }
                     else {
-                        throw new URIError(`directory: ${path}, is not a directory.`);
+                        reject(`directory: ${path}, is not a directory.`);
                     }
                 }
                 else {
-                    throw new Error(`Error checking if directory exists: ${err}`);
+                    reject(`Error checking if directory exists: ${err}`);
                 }
             });
-        });
-    }
-    else {
-        throw new URIError(`directory: ${path}, does not exist.`);
-    }
+        }
+        else {
+            reject(`directory: ${path}, does not exist.`);
+        }
+    });
 }
+
+//Set the global tempPath
+function setTempPath(path) {
+    globalTempPath = directoryExists(path);
+}
+
+//Check that ffmpeg path is good
+function checkFfmpegPath() {
+    return new Promise((resolve, reject) => {
+        ffmpeg.getAvailableFormats((err, formats) => {
+            if (!err && formats) {
+                resolve(true);
+            }
+            else {
+                resolve(false);
+            }
+        });
+    });
+}
+
+//Set ffmpeg path
+var setFfmpegPath = function (path) {
+    ffmpeg.setFfmpegPath(path);
+    return checkFfmpegPath()
+        .then(good => {
+            if (!good) {
+                throw new ReferenceError(`ffmpegPath: ${path}, is not a valid ffmpegPath.`);
+            }
+        });
+};
+
+//Export steps enum
+const ExportSteps = {
+    RENDER_FRAMES: 0,
+    GENERATE_VIDEO: 1,
+    DELETE_FRAMES: 2,
+    FINISHED: 3
+};
 
 //Video class
 class Video extends EventEmitter {
     constructor() {
         super();
-        this.tempPath = tempPath;
+        typify(this, {
+            tempPath: {
+                type: Types.STRING,
+                setter(v, set) {
+                    set(directoryExists(v));
+                }
+            },
+            width: sizeType,
+            height: sizeType,
+            fps: Types.POSITIVE_NUMBER,
+            spf: {
+                type: Types.POSITIVE_NUMBER,
+                setter: function (v) {
+                    this.fps = 1 / v;
+                },
+                getter: function () {
+                    return 1 / this.fps;
+                }
+            }
+        });
         this.duration = 0;
         new Overloader()
             .overload([{ type: sizeType }, { type: sizeType }, { type: Types.POSITIVE_NUMBER }], function (width, height, fps) {
@@ -100,13 +162,6 @@ class Video extends EventEmitter {
         this.scenes = [];
     };
 
-    set spf(v) {
-        this.fps = 1 / v;
-    }
-    get spf() {
-        return 1 / this.fps;
-    }
-
     add() {
         return typedFunction([{ name: "scene", type: Types.OBJECT }], function (scene) {
             if (typeof scene.render === 'function') {
@@ -125,37 +180,44 @@ class Video extends EventEmitter {
         }).call(this, ...arguments);
     }
 
-    setTempPath(path) {
-        //Check if directory exists
-        if (fs.existsSync(path)) {
-            this.tempPath = fs.lstat(path, (err, stats) => {
-                if (!err) {
-                    if (stats.isDirectory()) {
-                        return true;
-                    }
-                    else {
-                        throw new URIError(`directory: ${path}, is not a directory.`);
-                    }
-                }
-                else {
-                    throw new Error(`Error checking if directory exists: ${err}`);
-                }
-            });
-        }
-        else {
-            throw new URIError(`directory: ${path}, does not exist.`);
-        }
+    setWidth(width) {
+        this.width = width;
+        return this;
+    }
+    setHeight(height) {
+        this.height = height;
+        return this;
+    }
+    setSize() {
+        new Overloader()
+            .overload([{ type: regularSizeInterface }], function ({ width, height }) {
+                this.width = width, this.height = height;
+            })
+            .overload([{ type: shortSizeInterface }], function ({ w, h }) {
+                this.width = w, this.height = h;
+            })
+            .overloader.apply(this, arguments);
+        return this;
     }
 
-    static Stages = {
-        RENDER_FRAMES: 0,
-        GENERATE_VIDEO: 1,
-        DELETE_FRAMES: 2,
-        FINISHED: 3
-    };
+    setFps(fps) {
+        this.fps = fps;
+        return this;
+    }
+    setSpf(spf) {
+        this.spf = spf;
+        return this;
+    }
+
+    setTempPath(path) {
+        this.tempPath = path;
+        return this;
+    }
+
     export() {
-        var start = function (outputPath, keepImages) {
-            if (this.tempPath) {
+        var start = async function (outputPath, { keepImages }) {
+            var tempPathToUse = this.tempPath || globalTempPath;
+            if (tempPathToUse) {
                 var uriFromFrameNumber = function (frame) {
                     var time = frame * this.spf;
                     var startTime = 0;
@@ -170,63 +232,70 @@ class Video extends EventEmitter {
                     }
                 }.bind(this);
 
-                var numberOfFrames = Math.ceil(this.duration * this.fps);
+                var frameCount = Math.ceil(this.duration * this.fps);
                 var framesFinished = 0;
                 var framesAdded = 0;
                 var framesDeleted = 0;
-                var stagesFinished = 0;
-                var totalStages = 3;
+                var stepsFinished = 0;
+                var totalSteps = 3;
                 var emitter = new EventEmitter()
                     .on("frame_progress", progress => {
                         this.emit("frame_progress", progress, emitter);
-                        this.emit("any_progress", progress, Video.Stages.RENDER_FRAMES);
+                        this.emit("any_progress", progress, ExportSteps.RENDER_FRAMES);
                     })
                     .on("frame_finish", frameNumber => {
                         this.emit("frame_finish", frameNumber, emitter);
                         emitter.emit("frame_progress", {
-                            progress: ++framesFinished / numberOfFrames,
+                            progress: ++framesFinished / frameCount,
                             count: framesFinished,
-                            total: numberOfFrames
+                            total: frameCount
                         });
+                    })
+                    .on("frame_delete", frameNumber => {
+                        this.emit("frame_delete", frameNumber, emitter);
                     })
 
                     .on("generate_progress", progress => {
                         this.emit("generate_progress", progress, emitter);
-                        this.emit("any_progress", progress, Video.Stages.GENERATE_VIDEO);
+                        this.emit("any_progress", progress, ExportSteps.GENERATE_VIDEO);
                     })
-                    .on("generate_part", frames => {
-                        this.emit("generate_part", frames, emitter);
+                    .on("generate_part", framesGenerated => {
+                        this.emit("generate_part", framesGenerated, emitter);
                         emitter.emit("generate_progress", {
-                            progress: (framesAdded += frames) / numberOfFrames,
+                            progress: (framesAdded += framesGenerated) / frameCount,
                             count: framesAdded,
-                            total: numberOfFrames
+                            total: frameCount
                         });
                     })
 
                     .on("delete_progress", progress => {
                         this.emit("delete_progress", progress, emitter);
-                        this.emit("any_progress", progress, Video.Stages.DELETE_FRAMES);
+                        this.emit("any_progress", progress, ExportSteps.DELETE_FRAMES);
                     })
                     .on("delete_finish", frameNumber => {
                         this.emit("delete_finish", frameNumber, emitter);
                         emitter.emit("delete_progress", {
-                            progress: ++framesDeleted / numberOfFrames,
+                            progress: ++framesDeleted / frameCount,
                             count: framesDeleted,
-                            total: numberOfFrames
+                            total: frameCount
                         });
                     })
 
-                    .on("stage_progress", progress => {
+                    .on("step_progress", progress => {
                         emitter.currentStage++;
                         this.emit("stage_progress", progress, emitter);
                     })
-                    .on("stage_finish", stage => {
-                        this.emit("stage_finish", stage, emitter);
-                        emitter.emit("stage_progress", ++stagesFinished / totalStages);
+                    .on("step_finish", step => {
+                        this.emit("step_finish", step, emitter);
+                        emitter.emit("step_progress", {
+                            progress: ++stepsFinished / totalSteps,
+                            count: stepsFinished,
+                            total: totalSteps
+                        });
                     })
 
-                    .on("any_progress", (progress, stage) => {
-                        this.emit("any_progress", progress, stage, emitter);
+                    .on("any_progress", (progress, step) => {
+                        this.emit("any_progress", progress, step, emitter);
                     })
                     .on("finish", () => {
                         this.emit("finish", emitter);
@@ -234,75 +303,125 @@ class Video extends EventEmitter {
                     .on('error', err => {
                         this.emit('error', err, emitter);
                     });
-                emitter.totalFrames = numberOfFrames;
+                emitter.totalFrames = frameCount;
                 emitter.currentStage = 0;
                 emitter.video = this;
-                this.tempPath.then(tempPath => {
-                    var framePaths = [];
 
-                    function deleteFrames() {
-                        var deletePromises = [];
-                        for (var i = 0; i < framePaths.length; i++) {
-                            let frameNumber = i;
-                            deletePromises.push(new Promise((resolve, reject) => {
-                                fs.unlink(framePaths[i], () => {
-                                    emitter.emit("delete_finish", frameNumber);
-                                    resolve();
-                                });
-                            }));
+                var tempPath;
+                async function deleteOld() {
+                    var files = await fsPromises.readdir(tempPath);
+                    var deletePromises = [];
+                    for (var i = 0; i < files.length; i++) {
+                        let file = files[i];
+                        if (imageRegex.test(file)) {
+                            //canvideo <
+                            //012345678<
+                            let frameNumber = parseInt(file.substring(9, file.indexOf('.')));
+                            if (frameNumber >= frameCount) {
+                                deletePromises.push(fsPromises.unlink(path.join(tempPath, file))
+                                    .then(() => {
+                                        emitter.emit("frame_delete", frameNumber);
+                                    })
+                                );
+                            }
                         }
-                        return Promise.all(deletePromises);
                     }
+                    return Promise.all(deletePromises);
+                };
 
+                var framePaths = [];
+                async function renderNew() {
                     var framePromises = [];
-                    for (var i = 0; i < numberOfFrames; i++) {
-                        var framePath = path.join(tempPath, `/${i}.png`);
-                        framePaths.push(framePath);
-
-                        let frameNumber = i;
-
-                        let frameStream = uriFromFrameNumber(i);
-                        let outStream = fs.createWriteStream(framePath, { encoding: "base64" });
+                    for (var i = 0; i < frameCount; i++) {
+                        let frame = i;
+                        let imagePath = path.join(tempPath, `canvideo ${frame}.png`);
+                        framePaths.push(imagePath);
                         framePromises.push(new Promise((resolve, reject) => {
-                            frameStream
+                            uriFromFrameNumber(i)
                                 .on('end', () => {
-                                    emitter.emit("frame_finish", frameNumber);
+                                    emitter.emit("frame_finish", frame);
                                     resolve();
                                 })
                                 .on('error', err => {
-                                    emitter.emit('error', err, frameNumber);
+                                    emitter.emit('error', err);
+                                    reject();
                                 })
-                                .pipe(outStream);
+                                .pipe(fs.createWriteStream(imagePath));
                         }));
                     }
-                    Promise.all(framePromises)
-                        .then(() => {
-                            //First step done
-                            emitter.emit("stage_finish", Video.Stages.RENDER_FRAMES);
+                    return await Promise.all(framePromises);
+                };
 
-                            //Generate video using ffmpeg
-                            ffmpeg()
-                                .input(path.join(tempPath, "/%01d.png"))
-                                .inputFPS(this.fps)
-                                .on('progress', progress => {
-                                    emitter.emit("generate_part", progress.frames - framesAdded);
-                                })
-                                .on('end', async () => {
-                                    //Done with second stage
-                                    emitter.emit("stage_finish", Video.Stages.GENERATE_VIDEO);
+                var generateVideo = function () {
+                    return new Promise((resolve, reject) => {
+                        ffmpeg()
+                            .once('end', () => {
+                                resolve();
+                            })
+                            .on('progress', ({ frames }) => {
+                                emitter.emit("generate_part", frames - framesAdded);
+                            })
+                            .on('error', err => {
+                                reject(err);
+                            })
+                            .input(path.join(tempPath, "canvideo %01d.png"))
+                            .inputFPS(this.fps)
+                            .save(outputPath)
+                            .outputFps(this.fps)
+                            .noAudio();
+                    });
+                }.bind(this);
 
-                                    //Delete frames
-                                    if (!keepImages) {
-                                        await deleteFrames();
-                                    }
-                                    emitter.emit("stage_finish", Video.Stages.DELETE_FRAMES);
-                                    emitter.emit("finish");
+                function deleteFrames() {
+                    if (keepImages) {
+                        return false;
+                    }
+                    else {
+                        var deletePromises = [];
+                        for (var i = 0; i < framePaths.length; i++) {
+                            let frameNumber = i;
+                            deletePromises.push(fsPromises.unlink(framePaths[frameNumber])
+                                .then(() => {
+                                    emitter.emit("delete_finish", frameNumber);
                                 })
-                                .save(outputPath)
-                                .noAudio();
+                            );
+                        }
+                        return Promise.all(deletePromises);
+                    }
+                };
+
+                async function startSteps() {
+                    //Start steps
+                    //Wait for tempPath to be available and check that ffmpegPath is valid
+                    await Promise.all([
+                        tempPathToUse.then(path => {
+                            tempPath = path;
+                        }),
+                        checkFfmpegPath().then(good => {
+                            if (!good) {
+                                emitter.emit('error', "Invalid ffmpeg path. Use the setFfmpegPath function to set the path.");
+                            }
                         })
-                        .catch(err => undefined);
-                });
+                    ]);
+
+                    //Delete old frames and render new ones simultaneously
+                    await Promise.all([deleteOld(), renderNew()]);
+                    emitter.emit("step_finish", ExportSteps.RENDER_FRAMES);
+
+                    //Actually generate video
+                    await generateVideo();
+                    emitter.emit("step_finish", ExportSteps.GENERATE_VIDEO);
+
+                    //Delete frames
+                    await deleteFrames();
+                    emitter.emit("step_finish", ExportSteps.DELETE_FRAMES);
+
+                    //And then we're done
+                    emitter.emit("finish");
+                };
+
+                //Start steps asynchronously and synchronously return emitter
+                startSteps();
                 return emitter;
             }
             else {
@@ -316,11 +435,11 @@ class Video extends EventEmitter {
             }
         };
 
-        var handleReturning = function (outputPath, keepImages, returnPromise) {
+        var handleReturning = function (outputPath, options, returnPromise) {
             checkOutputPath(outputPath);
             if (returnPromise) {
                 return new Promise((resolve, reject) => {
-                    start(outputPath, keepImages)
+                    start(outputPath, options)
                         .on("finished", () => {
                             resolve();
                         })
@@ -328,28 +447,28 @@ class Video extends EventEmitter {
                 });
             }
             else {
-                start(outputPath, keepImages);
+                start(outputPath, options);
                 return this;
             }
         }.bind(this);
 
-        function handleCallback(outputPath, keepImages, callback) {
+        function handleCallback(outputPath, options, callback) {
             checkOutputPath(outputPath);
-            callback(start(outputPath, keepImages));
+            callback(start(outputPath, options));
         }
 
         return new Overloader()
             .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
-                return handleReturning(outputPath, false, returnPromise);
+                return handleReturning(outputPath, { keepImages: false }, returnPromise);
             })
-            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.BOOLEAN, optional: true }], function (outputPath, { keepImages }, returnPromise = false) {
-                return handleReturning(outputPath, keepImages, returnPromise);
+            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.BOOLEAN, optional: true }], function (outputPath, options, returnPromise = false) {
+                return handleReturning(outputPath, options, returnPromise);
             })
             .overload([{ type: Types.STRING }, { type: Types.FUNCTION }], function (outputPath, callback) {
-                handleCallback(outputPath, false, callback);
+                handleCallback(outputPath, { keepImages: false }, callback);
             })
-            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, { keepImages }, callback) {
-                handleCallback(outputPath, keepImages, callback);
+            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, options, callback) {
+                handleCallback(outputPath, options, callback);
             })
             .overloader.apply(this, arguments);
     }
@@ -360,7 +479,7 @@ setTempPath("../temp/");
 
 const Rectangle = require("../shapes/rectangle");
 const Animation = require("../animation");
-var video = new Video({ size: { width: 400, height: 400 }, fps: 60 })
+var video = new Video({ size: { width: 400, height: 400 }, fps: 12 })
     .add(new Scene()
         .add(0, 4, new Rectangle(0, 0, 200, 200)
             .fill("blue")
@@ -379,6 +498,16 @@ var video = new Video({ size: { width: 400, height: 400 }, fps: 60 })
     )
     .export("../temp/test.mp4");
 
-video.on("finish", () => {
-    console.log("done")
-})
+video
+    .on("finish", () => {
+        console.log("done")
+    })
+    .on("step_finish", s => {
+        console.log(s);
+    })
+    .on("error", err => {
+        console.log(err);
+    });
+
+//Export the module
+module.exports = { setTempPath, setFfmpegPath, Video };
