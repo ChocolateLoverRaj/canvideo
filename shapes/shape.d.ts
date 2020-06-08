@@ -1,6 +1,6 @@
 import canvas = require('canvas');
 
-import Animanaged = require("../animanage/animanaged");
+import Animanaged = require("../properties/animanage/animanaged");
 import params = require("../animanage/params");
 import setColor = require("../render/color/set");
 import GetColor = require("../render/color/get");

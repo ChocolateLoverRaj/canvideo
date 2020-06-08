@@ -8,7 +8,7 @@ const canvas = require('canvas');
 
 //My Modules
 const { propertiesType, methodsToBindType, animanage } = require("../properties/animanage");
-const { Types, Interface, either, typedFunction } = require("../type");
+const { Types, typedFunction } = require("../type");
 const colorType = require("../render/color");
 
 //Figure out whether ctx given is actually ctx.
@@ -30,7 +30,7 @@ class Shape {
                 optional: true,
                 default: []
             }
-        ], function (properties, methodsToBind) {
+        ], function (properties = {}, methodsToBind = []) {
             const shapeProperties = {
                 fillColor: {
                     type: colorType,
@@ -71,6 +71,7 @@ class Shape {
                     initial: 0
                 }
             }
+
             properties = Object.assign(properties, shapeProperties);
 
             const shapeMethodsToBind = ["draw"];
@@ -91,9 +92,15 @@ class Shape {
     }
     draw() {
         return typedFunction([{ name: "ctx", type: ctxType }], function (ctx) {
-            ctx.fillStyle = this.fillColor.hexString;
-            ctx.strokeStyle = this.strokeColor.hexString;
-            ctx.lineWidth = this.strokeWidth;
+            if (this.isExplicitlySet("fillColor")) {
+                ctx.fillStyle = this.fillColor.hexString;
+            }
+            if (this.isExplicitlySet("strokeColor")) {
+                ctx.strokeStyle = this.strokeColor.hexString;
+            }
+            if (this.isExplicitlySet("strokeWidth")) {
+                ctx.lineWidth = this.strokeWidth;
+            }
             return this;
         }).apply(this, arguments);
     }

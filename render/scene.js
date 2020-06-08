@@ -12,9 +12,10 @@ const {
     Types,
     Overloader,
     Interface } = require("../type");
-const { cameraInterface, Camera } = require("./camera");
+const Camera = require("./camera");
 const { sizeInterface } = require("./size");
 const colorType = require("./color");
+const shapeInterface = require("../shapes/shape-interface");
 
 //Config
 const defaultDuration = 5;
@@ -24,11 +25,6 @@ const addInterface = new Interface(false)
     .optional("startTime", Types.NON_NEGATIVE_NUMBER)
     .optional("duration", Types.POSITIVE_NUMBER)
     .optional("layer", Types.NON_NEGATIVE_INTEGER)
-    .toType();
-
-//Shape interface
-const shapeInterface = new Interface(true)
-    .required("at", Types.FUNCTION)
     .toType();
 
 //Scene class
@@ -171,6 +167,11 @@ class Scene {
             //Draw the background
             ctx.fillStyle = this.backgroundColor.hexString;
             ctx.fillRect(0, 0, width, height);
+
+            //Set the default settings
+            ctx.fillStyle = "black";
+            ctx.strokeStyle = "none";
+            ctx.lineWidth = 1;
 
             //Set the necessary transforms
             var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(at);

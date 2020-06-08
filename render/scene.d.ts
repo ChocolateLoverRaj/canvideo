@@ -1,8 +1,7 @@
-import canvas = require('canvas');
-
-import Camera = require("./camera-class");
-import setColor = require("./color/set");
-import GetColor = require("./color/get");
+import Drawable from "./drawable";
+import Camera from "./camera";
+import setColor from "./color/set";
+import GetColor from "./color/get";
 
 declare interface AddOptions {
     startTime?: number;
@@ -10,11 +9,7 @@ declare interface AddOptions {
     layer?: number;
 }
 
-declare interface Drawable {
-    at: (frameNumber: number) => {
-        draw: (ctx: canvas.CanvasRenderingContext2D) => any;
-    };
-}
+
 
 declare interface RenderOptions {
     width: number;

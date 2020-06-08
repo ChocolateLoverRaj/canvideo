@@ -18,6 +18,9 @@ const params = [
     }
 ]
 const animanage = typedFunction(params, function (o, properties, methodsToBind) {
+    //List of properties that were explicitly set
+    var explicit = new Set();
+
     //Add properties, getters/setters, and hidden properties.
     var oInterface = new Interface(false);
     for (let k in properties) {
@@ -41,6 +44,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         let setterAfterFilter = (p.setter || setFunction).bind(o);
         let setter = type ?
             function (v) {
+                explicit.add(k);
                 let err = type(v);
                 if (!err) {
                     return setterAfterFilter(v, setFunction);
@@ -50,6 +54,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 }
             } :
             function(v){
+                explicit.add(k);
                 return setterAfterFilter(v, setFunction);
             };
         let getter = p.getter || function () {
@@ -65,6 +70,14 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         oInterface.optional(k, type || Types.ANY);
     }
     oInterface = oInterface.toType();
+    //Add the isExplicitlySet function
+    Object.defineProperty(o, "isExplicitlySet", {
+        enumerable: true,
+        configurable: false,
+        value: typedFunction([{name: "key", type: Types.STRING}], function(key){
+            return explicit.has(key);
+        })
+    });
     //Add the animate function
     var animations = [];
     Object.defineProperty(o, "animate", {

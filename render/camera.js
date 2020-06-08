@@ -1,18 +1,8 @@
 //Camera for scenes
 
 //Dependencies
-const { Types, Interface } = require("../type");
+const { Types } = require("../type");
 const { animanage } = require("../properties/animanage");
-
-//Camera interface
-const cameraInterface = new Interface(true)
-    .required("scaleX", Types.NUMBER)
-    .required("scaleY", Types.NUMBER)
-    .required("refX", Types.NUMBER)
-    .required("refY", Types.NUMBER)
-    .required("x", Types.NUMBER)
-    .required("y", Types.NUMBER)
-    .toType();
 
 //Camera class
 class Camera {
@@ -75,4 +65,4 @@ class Camera {
 }
 
 //Export the module
-module.exports = { cameraInterface, Camera };
+module.exports = Camera;

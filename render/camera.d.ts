@@ -1,7 +1,4 @@
-import type from "../type/type";
 import Animanaged = require("../properties/animanage/animanaged");
-
-declare const cameraInterface: type;
 
 declare class Camera extends Animanaged<Camera> {
     constructor();
@@ -26,4 +23,4 @@ declare class Camera extends Animanaged<Camera> {
     setPosition(x: number, y: number): this;
 }
 
-export = { cameraInterface, Camera };
+export = Camera;

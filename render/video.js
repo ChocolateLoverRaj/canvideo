@@ -221,7 +221,7 @@ class Video extends EventEmitter {
     }
 
     export() {
-        var start = async function (outputPath, { keepImages }) {
+        var start = function (outputPath, { keepImages }) {
             var tempPathToUse = this.tempPath || globalTempPath;
             if (tempPathToUse) {
                 var uriFromFrameNumber = function (frame) {
@@ -464,6 +464,7 @@ class Video extends EventEmitter {
             return this;
         }.bind(this);
 
+        if(this.duration > 0){
         return new Overloader()
             .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
                 return handleReturning(outputPath, { keepImages: false }, returnPromise);
@@ -478,6 +479,10 @@ class Video extends EventEmitter {
                 handleCallback(outputPath, options, callback);
             })
             .overloader.apply(this, arguments);
+        }
+        else{
+            throw new Error("video duration must be greater than 0.");
+        }
     }
 }
 

@@ -1,14 +1,19 @@
-import Video from "./render/video";
+import { setTempPath, setFfmpegPath, Video, ExportSteps} from "./render/video";
 import Scene from "./render/scene";
 import { Camera } from "./render/camera";
-import { Shape, Rectangle } from "./shapes";
+import { Shape, Rectangle, Group, Circle } from "./shapes";
 import Animation from "./animation";
 
 export = {
+    setTempPath,
+    setFfmpegPath,
     Video,
+    ExportSteps,
     Scene,
     Camera,
     Shape,
     Rectangle,
+    Group,
+    Circle,
     Animation
 };
