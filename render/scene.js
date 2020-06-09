@@ -16,6 +16,7 @@ const Camera = require("./camera");
 const { sizeInterface } = require("./size");
 const colorType = require("./color");
 const shapeInterface = require("../shapes/shape-interface");
+const typify = require("../properties/typify");
 
 //Config
 const defaultDuration = 5;
@@ -30,6 +31,24 @@ const addInterface = new Interface(false)
 //Scene class
 class Scene {
     constructor() {
+        typify(this, {
+            backgroundColor: {
+                type: colorType,
+                setter: function(v, set){
+                    if(typeof v === 'object'){
+                        set(tinyColor(Object.assign(this._backgroundColor.toRgb(), v)));
+                    }
+                    else{
+                        set(tinyColor(v));
+                    }
+                },
+                getter: function(){
+                    var rgb = this._backgroundColor.toRgb();
+                    rgb.hexString = this._backgroundColor.toHexString();
+                    return rgb;
+                }
+            }
+        })
         this.drawables = [];
         this._camera = new Camera();
         this._duration = 0;
@@ -110,26 +129,8 @@ class Scene {
 
         this.autoDuration = Math.max(this.autoDuration, drawable.endTime);
         this.drawables.push(drawable);
-        this._backgroundColor = tinyColor("white");
         return this;
     };
-
-    set backgroundColor(color){
-        typedFunction([{name: "color", type: colorType}], function(color){
-            if(typeof color === 'object'){
-                this._backgroundColor = tinyColor(Object.assign(this._backgroundColor.toRgb(), color));
-            }
-            else{
-                this._backgroundColor = tinyColor(color);
-            }
-        }).call(this, color);
-        return this;
-    }
-    get backgroundColor(){
-        var rgb = this._backgroundColor.toRgb();
-        rgb.hexString = this._backgroundColor.toHexString();
-        return rgb;
-    }
 
     setBackgroundColor(color){
         this.backgroundColor = color;
@@ -163,6 +164,9 @@ class Scene {
             //Create a new canvas
             var canvas = createCanvas(width, height);
             var ctx = canvas.getContext('2d');
+
+            //Set ctx special properties
+            ctx.now = at;
 
             //Draw the background
             ctx.fillStyle = this.backgroundColor.hexString;

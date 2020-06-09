@@ -1,9 +1,8 @@
-import canvas = require('canvas');
-
-import Animanaged = require("../properties/animanage/animanaged");
-import params = require("../animanage/params");
-import setColor = require("../render/color/set");
-import GetColor = require("../render/color/get");
+import MyCtx from "../render/my-ctx";
+import Animanaged from "../properties/animanage/animanaged";
+import params from "../properties/animanage/params";
+import setColor from "../render/color/set";
+import GetColor from "../render/color/get";
 
 declare class Shape<T extends Shape> extends Animanaged<T>{
     constructor(properties: params.Properties, methodsToBind: params.methods);
@@ -18,7 +17,7 @@ declare class Shape<T extends Shape> extends Animanaged<T>{
 
     fill(color: setColor): this;
     stroke(color: setColor, width?: number): this;
-    draw(ctx: canvas.CanvasRenderingContext2D): this;
+    draw(ctx: MyCtx): this;
 }
 
 export = Shape;

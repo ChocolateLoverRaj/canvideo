@@ -1,7 +1,7 @@
 import { setTempPath, setFfmpegPath, Video, ExportSteps} from "./render/video";
 import Scene from "./render/scene";
 import { Camera } from "./render/camera";
-import { Shape, Rectangle, Group, Circle } from "./shapes";
+import { Shape, Rectangle, Group, Circle, Polygon } from "./shapes";
 import Animation from "./animation";
 
 export = {
@@ -15,5 +15,6 @@ export = {
     Rectangle,
     Group,
     Circle,
+    Polygon,
     Animation
 };

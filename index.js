@@ -3,8 +3,8 @@
 //Dependencies
 const { setTempPath, setFfmpegPath, Video, ExportSteps } = require("./render/video");
 const Scene = require("./render/scene");
-const { Camera } = require("./render/camera");
-const { Shape, Rectangle, Group, Circle } = require("./shapes");
+const Camera = require("./render/camera");
+const { Shape, Rectangle, Group, Circle, Polygon } = require("./shapes");
 const Animation = require("./animation");
 
 //Export everything
@@ -19,5 +19,6 @@ module.exports = {
     Rectangle,
     Group,
     Circle,
+    Polygon,
     Animation
 };
