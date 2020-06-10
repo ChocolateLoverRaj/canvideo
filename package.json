@@ -4,7 +4,7 @@
   "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -22,9 +22,13 @@
   },
   "homepage": "https://github.com/ChocolateLoverRaj/canvideo#readme",
   "dependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "canvas": "^2.6.1",
     "fluent-ffmpeg": "^2.1.2",
     "tinycolor2": "^1.4.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-asserttype": "^1.0.5",
+    "mocha": "^7.2.0"
   }
 }
