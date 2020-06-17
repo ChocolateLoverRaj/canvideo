@@ -117,28 +117,6 @@ const ExportSteps = {
 
 //Video class
 class Video extends EventEmitter {
-    static fromJson(a) {
-        switch (typeof a) {
-            case 'object':
-                return checkObject(a);
-            case 'string':
-                var o;
-                try {
-                    o = JSON.parse(a);
-                }
-                catch (e) {
-                    return e;
-                }
-                return checkObject(o);
-            default:
-                return new TypeError("Given JSON is neither a javascript object nor a JSON string.");
-        }
-
-        function checkObject(o) {
-            
-        }
-    }
-
     constructor() {
         super();
         typify(this, {
@@ -241,27 +219,6 @@ class Video extends EventEmitter {
     setTempPath(path) {
         this.tempPath = path;
         return this;
-    }
-
-    toJson(stringify = true){
-        var o = {
-            width: this.width,
-            height: this.height,
-            fps: this.fps,
-            scenes: this.scenes.map(s => {
-                return s.toJson(false);
-            })
-        };
-
-        if(stringify === true){
-            return JSON.stringify(o);
-        }
-        else if(stringify === false){
-            return o;
-        }
-        else{
-            throw new TypeError("stringify must be boolean.");
-        }
     }
 
     export() {
