@@ -2,7 +2,8 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Types } = require("../type");
+const { Types, arrayOf, Overloader } = require("../type");
+const pointInterface = require("./point-interface");
 
 //Circle class
 class Circle extends Shape {
@@ -16,6 +17,29 @@ class Circle extends Shape {
         this.cx = cx;
         this.cy = cy;
         this.r = r;
+    }
+
+    setCx(cx) {
+        this.cx = cx;
+        return this;
+    }
+    setCy(cy) {
+        this.cy = cy;
+        return this;
+    }
+    setC() {
+        new Overloader()
+            .overload([{ type: Types.NUMBER }, { type: Types.NUMBER }], function (x, y) {
+                this.cx = x, this.cy = y;
+            })
+            .overload([{ type: pointInterface }], function ({ x, y }) {
+                this.cx = x, this.cy = y;
+            })
+            .overload([{ type: arrayOf(Types.NUMBER, 2) }], function ([x, y]) {
+                this.cx = x, this.cy = y;
+            })
+            .overloader.apply(this, arguments);
+        return this;
     }
 
     draw(ctx) {

@@ -2,7 +2,8 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { typedFunction, Types, arrayOf } = require("../type");
+const { Overloader, Types, arrayOf } = require("../type");
+const pointInterface = require("./point-interface");
 
 //Number line class
 class NumberLine extends Shape {
@@ -21,6 +22,27 @@ class NumberLine extends Shape {
         this.y = y;
         this.width = width;
         this.height = height;
+    }
+
+    setX(x) {
+        this.x = x;
+    }
+    setY(y) {
+        this.y = y;
+    }
+    setPosition() {
+        new Overloader()
+            .overload([{ type: Types.NUMBER }, { type: Types.NUMBER }], function (x, y) {
+                this.x = x, this.y = y;
+            })
+            .overload([{ type: pointInterface }], function ({ x, y }) {
+                this.x = x, this.y = y;
+            })
+            .overload([{ type: arrayOf(Types.NUMBER, 2) }], function ([x, y]) {
+                this.x = x, this.y = y;
+            })
+            .overloader.apply(this, arguments);
+        return this;
     }
 
     coordinateAt(n) {
