@@ -40,7 +40,4 @@ export default class Scene {
     render(at: number, options: RenderOptions): string;
 
     setDuration(duration: number): PNGStream;
-
-    toJson(stringify?: true): string;
-    toJson(stringify: false): object;
 }
