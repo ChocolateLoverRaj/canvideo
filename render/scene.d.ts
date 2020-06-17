@@ -37,7 +37,7 @@ export default class Scene {
 
     setCamera(camera: Camera): this;
 
-    render(at: number, options: RenderOptions): string;
+    render(at: number, options: RenderOptions): PNGStream;
 
-    setDuration(duration: number): PNGStream;
+    setDuration(duration: number): this;
 }
