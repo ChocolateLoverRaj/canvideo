@@ -1,3 +1,5 @@
+import { PNGStream } from "canvas";
+
 import Drawable from "./drawable";
 import Camera from "./camera";
 import setColor from "./color/set";
@@ -8,8 +10,6 @@ declare interface AddOptions {
     duration?: number;
     layer?: number;
 }
-
-
 
 declare interface RenderOptions {
     width: number;
@@ -39,7 +39,7 @@ declare class Scene {
 
     render(at: number, options: RenderOptions): string;
 
-    setDuration(duration: number): this;
+    setDuration(duration: number): PNGStream;
 }
 
 export = Scene;

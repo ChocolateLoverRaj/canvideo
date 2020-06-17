@@ -12,8 +12,8 @@ const ffmpeg = require('fluent-ffmpeg');
 //My Modules
 const { Overloader, Types, Interface, either, typedFunction, instanceOf } = require("../type");
 const { sizeType, regularSizeInterface, shortSizeInterface, sizeInterface } = require("./size");
-const Scene = require("./scene");
 const typify = require("../properties/typify");
+const defaultify = require("../lib/default-properties");
 
 //Dependency stuff
 const fsPromises = fs.promises;
@@ -46,7 +46,8 @@ const shortSquashedOptionsInterface = new Interface(false)
 
 //Export options interface
 const exportOptionsInterface = new Interface(false)
-    .required("keepImages", Types.BOOLEAN)
+    .optional("keepImages", Types.BOOLEAN)
+    .optional("maxStreams", Types.POSITIVE_INTEGER)
     .toType();
 //Temp path
 var globalTempPath;
@@ -221,23 +222,9 @@ class Video extends EventEmitter {
     }
 
     export() {
-        var start = function (outputPath, { keepImages }) {
+        var start = function (outputPath, { keepImages, maxStreams }) {
             var tempPathToUse = this.tempPath || globalTempPath;
             if (tempPathToUse) {
-                var uriFromFrameNumber = function (frame) {
-                    var time = frame * this.spf;
-                    var startTime = 0;
-                    for (var i = 0; i < this.scenes.length; i++) {
-                        let scene = this.scenes[i];
-                        if (time < startTime + scene.duration) {
-                            return scene.render(time - startTime, { width: this.width, height: this.height });
-                        }
-                        else {
-                            startTime += scene.duration;
-                        }
-                    }
-                }.bind(this);
-
                 var frameCount = Math.ceil(this.duration * this.fps);
                 var framesFinished = 0;
                 var framesAdded = 0;
@@ -248,6 +235,9 @@ class Video extends EventEmitter {
                     .on("frame_progress", progress => {
                         this.emit("frame_progress", progress, emitter);
                         this.emit("any_progress", progress, ExportSteps.RENDER_FRAMES);
+                    })
+                    .on("frame_start", frameNumber => {
+                        this.emit("frame_start", frameNumber, emitter);
                     })
                     .on("frame_finish", frameNumber => {
                         this.emit("frame_finish", frameNumber, emitter);
@@ -336,26 +326,50 @@ class Video extends EventEmitter {
                 };
 
                 var framePaths = [];
-                async function renderNew() {
-                    var framePromises = [];
-                    for (var i = 0; i < frameCount; i++) {
-                        let frame = i;
-                        let imagePath = path.join(tempPath, `canvideo ${frame}.png`);
-                        framePaths.push(imagePath);
-                        framePromises.push(new Promise((resolve, reject) => {
-                            uriFromFrameNumber(i)
+                const renderNew = async () => {
+                    return new Promise((resolve, reject) => {
+                        var sceneStart = 0;
+                        var currentScene = 0;
+                        var maxAtOnce = Math.min(frameCount, maxStreams);
+                        var nextInLine = maxAtOnce - 1;
+                        var framesLeft = frameCount;
+                        const doneSavingFrame = () => {
+                            if (--framesLeft === 0) {
+                                resolve();
+                                return;
+                            }
+                            else if (++nextInLine < frameCount) {
+                                let time = nextInLine * this.spf;
+                                let currentSceneDuration = this.scenes[currentScene].duration;
+                                if (time >= sceneStart + currentSceneDuration) {
+                                    sceneStart += currentSceneDuration;
+                                    currentScene++;
+                                }
+                                saveFrame(nextInLine);
+                            }
+                        }
+                        const saveFrame = frame => {
+                            let imagePath = path.join(tempPath, `canvideo ${frame}.png`);
+                            framePaths.push(imagePath);
+                            emitter.emit("frame_start", frame);
+                            var time = frame * this.spf;
+                            var pngStream = this.scenes[currentScene].render(time, { width: this.width, height: this.height });
+                            pngStream
                                 .on('end', () => {
+                                    pngStream.destroy();
                                     emitter.emit("frame_finish", frame);
-                                    resolve();
+                                    doneSavingFrame();
                                 })
                                 .on('error', err => {
                                     emitter.emit('error', err);
-                                    reject();
+                                    reject(err);
                                 })
-                                .pipe(fs.createWriteStream(imagePath));
-                        }));
-                    }
-                    return await Promise.all(framePromises);
+                                .pipe(fs.createWriteStream(imagePath, { autoClose: true }));
+                        }
+                        for (var i = 0; i < maxAtOnce; i++) {
+                            saveFrame(i);
+                        }
+                    });
                 };
 
                 var generateVideo = function () {
@@ -374,11 +388,17 @@ class Video extends EventEmitter {
                             .inputFPS(this.fps)
                             .save(outputPath)
                             .outputFps(this.fps)
+                            .videoCodec('libx264')
+                            .withOption([
+                                '-threads 1',
+                                '-pix_fmt yuv420p',
+                                '-movflags faststart'
+                            ])
                             .noAudio();
                     });
                 }.bind(this);
 
-                function deleteFrames() {
+                async function deleteFrames() {
                     if (keepImages) {
                         return false;
                     }
@@ -441,7 +461,12 @@ class Video extends EventEmitter {
             }
         };
 
+        const defaultOptions = {
+            keepImages: false,
+            maxStreams: 100
+        }
         var handleReturning = function (outputPath, options, returnPromise) {
+            options = defaultify(options, defaultOptions);
             checkOutputPath(outputPath);
             if (returnPromise) {
                 return new Promise((resolve, reject) => {
@@ -458,29 +483,30 @@ class Video extends EventEmitter {
             }
         }.bind(this);
 
-        var handleCallback = function(outputPath, options, callback) {
+        var handleCallback = function (outputPath, options, callback) {
+            options = defaultify(options, defaultOptions);
             checkOutputPath(outputPath);
             callback(start(outputPath, options));
             return this;
         }.bind(this);
 
-        if(this.duration > 0){
-        return new Overloader()
-            .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
-                return handleReturning(outputPath, { keepImages: false }, returnPromise);
-            })
-            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.BOOLEAN, optional: true }], function (outputPath, options, returnPromise = false) {
-                return handleReturning(outputPath, options, returnPromise);
-            })
-            .overload([{ type: Types.STRING }, { type: Types.FUNCTION }], function (outputPath, callback) {
-                handleCallback(outputPath, { keepImages: false }, callback);
-            })
-            .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, options, callback) {
-                handleCallback(outputPath, options, callback);
-            })
-            .overloader.apply(this, arguments);
+        if (this.duration > 0) {
+            return new Overloader()
+                .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
+                    return handleReturning(outputPath, { keepImages: false }, returnPromise);
+                })
+                .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.BOOLEAN, optional: true }], function (outputPath, options, returnPromise = false) {
+                    return handleReturning(outputPath, options, returnPromise);
+                })
+                .overload([{ type: Types.STRING }, { type: Types.FUNCTION }], function (outputPath, callback) {
+                    handleCallback(outputPath, { keepImages: false }, callback);
+                })
+                .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, options, callback) {
+                    handleCallback(outputPath, options, callback);
+                })
+                .overloader.apply(this, arguments);
         }
-        else{
+        else {
             throw new Error("video duration must be greater than 0.");
         }
     }

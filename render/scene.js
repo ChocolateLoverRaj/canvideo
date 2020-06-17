@@ -17,6 +17,7 @@ const { sizeInterface } = require("./size");
 const colorType = require("./color");
 const shapeInterface = require("../shapes/shape-interface");
 const typify = require("../properties/typify");
+const cameraInterface = require("./camera-interface");
 
 //Config
 const defaultDuration = 5;
@@ -34,6 +35,7 @@ class Scene {
         typify(this, {
             backgroundColor: {
                 type: colorType,
+                initial: tinyColor("white"),
                 setter: function(v, set){
                     if(typeof v === 'object'){
                         set(tinyColor(Object.assign(this._backgroundColor.toRgb(), v)));
