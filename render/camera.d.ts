@@ -1,6 +1,6 @@
 import Animanaged = require("../properties/animanage/animanaged");
 
-declare class Camera extends Animanaged<Camera> {
+export default class Camera extends Animanaged<Camera> {
     constructor();
 
     scaleX: number;
@@ -22,5 +22,3 @@ declare class Camera extends Animanaged<Camera> {
     setY(y: number): this;
     setPosition(x: number, y: number): this;
 }
-
-export = Camera;

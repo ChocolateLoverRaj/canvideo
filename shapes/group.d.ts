@@ -2,7 +2,7 @@ import Drawable from "../render/drawable";
 import Shape from "./shape";
 import MyCtx from "../render/my-ctx";
 
-declare class Group extends Shape<Group>{
+export default class Group extends Shape<Group>{
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
 
     children: Array<Drawable>;
@@ -43,5 +43,3 @@ declare class Group extends Shape<Group>{
 
     draw(ctx: MyCtx): this;
 }
-
-export = Group;

@@ -4,7 +4,7 @@ import params from "../properties/animanage/params";
 import setColor from "../render/color/set";
 import GetColor from "../render/color/get";
 
-declare class Shape<T extends Shape> extends Animanaged<T>{
+export default class Shape<T extends Shape> extends Animanaged<T>{
     constructor(properties: params.Properties, methodsToBind: params.methods);
 
     set fillColor(color: setColor): this;
@@ -19,5 +19,3 @@ declare class Shape<T extends Shape> extends Animanaged<T>{
     stroke(color: setColor, width?: number): this;
     draw(ctx: MyCtx): this;
 }
-
-export = Shape;

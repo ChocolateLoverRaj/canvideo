@@ -1,10 +1,10 @@
-import calculator = require("./animanage/calculator");
+import calculator = require("./properties/animanage/calculator");
 
 declare interface Value {
     [key: string | number]: Value | number;
 }
 
-declare class Animation{
+export default class Animation {
     constructor(startValue: Value, endValue: Value);
 
     readonly calculator: calculator<Value>;
@@ -13,5 +13,3 @@ declare class Animation{
     reverse(): this;
     getCalculator(): calculator<Value>;
 }
-
-export = Animation;

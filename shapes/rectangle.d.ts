@@ -13,29 +13,29 @@ declare interface GetCornerRound {
     bottomLeft: number;
     bottomRight: number;
 }
-declare type setCornerRound = number | SetCornerRound | Array<number> & {length: 4};
+declare type setCornerRound = number | SetCornerRound | Array<number> & { length: 4 };
 
-declare interface SetVerticalCornerRound{
+declare interface SetVerticalCornerRound {
     left?: number;
     right?: number;
 }
-declare interface GetVerticalCornerRound{
+declare interface GetVerticalCornerRound {
     left: number;
     right: number;
 }
-declare type setVerticalCornerRound = number | SetVerticalCornerRound | Array<number> & {length: 2};
+declare type setVerticalCornerRound = number | SetVerticalCornerRound | Array<number> & { length: 2 };
 
-declare interface SetHorizontalCornerRound{
+declare interface SetHorizontalCornerRound {
     top?: number;
     bottom?: number;
 }
-declare interface GetHorizontalCornerRound{
+declare interface GetHorizontalCornerRound {
     top: number;
     bottom: number;
 }
-declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Array<number> & {length: 2};
+declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Array<number> & { length: 2 };
 
-declare class Rectangle extends Shape<Rectangle>{
+export default class Rectangle extends Shape<Rectangle>{
     constructor(x: number, y: number, width: number, height: number, cornerRound?: number);
 
     x: number;
@@ -63,7 +63,7 @@ declare class Rectangle extends Shape<Rectangle>{
     setTopRightCornerRound(cornerRound: number): this;
     setBottomLeftCornerRound(cornerRound: number): this;
     setBottomRightCornerRound(cornerRound: number): this;
-    
+
     setCornerRound(cornerRound: setCornerRound): this;
     setTopCornerRound(cornerRound: setVerticalCornerRound): this;
     setBottomCornerRound(cornerRound: setVerticalCornerRound): this;
@@ -72,5 +72,3 @@ declare class Rectangle extends Shape<Rectangle>{
 
     draw(ctx: MyCtx): this;
 }
-
-export = Rectangle;

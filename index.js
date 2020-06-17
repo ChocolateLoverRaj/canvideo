@@ -4,7 +4,7 @@
 const { setTempPath, setFfmpegPath, Video, ExportSteps } = require("./render/video");
 const Scene = require("./render/scene");
 const Camera = require("./render/camera");
-const { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path } = require("./shapes");
+const { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path } = require("./shapes/shapes");
 const Animation = require("./animation");
 
 //Export everything

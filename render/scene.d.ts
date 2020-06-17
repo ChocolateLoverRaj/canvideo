@@ -16,7 +16,7 @@ declare interface RenderOptions {
     height: number;
 }
 
-declare class Scene {
+export default class Scene {
     constructor();
 
     drawables: Array<Drawable>;
@@ -40,6 +40,7 @@ declare class Scene {
     render(at: number, options: RenderOptions): string;
 
     setDuration(duration: number): PNGStream;
-}
 
-export = Scene;
+    toJson(stringify?: true): string;
+    toJson(stringify: false): object;
+}

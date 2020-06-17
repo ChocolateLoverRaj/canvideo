@@ -221,6 +221,18 @@ class Scene {
         this.duration = duration;
         return this;
     };
+
+    toJson(stringify = true){
+        if(stringify === true){
+            
+        }
+        else if(stringify === false){
+            return "hi"
+        }
+        else{
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 }
 
 //Export the module
