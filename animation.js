@@ -82,7 +82,13 @@ class Animation {
         }
         const calcNumber = (s, e) => s + progress * (e - s);
         const calcObject = (s, e) => {
-            let o = {};
+            var o;
+            if(s instanceof Array && e instanceof Array){
+                o = [];
+            }
+            else{
+                o = {};
+            }
             for (var k in s) {
                 let sV = s[k];
                 let eV = e[k];

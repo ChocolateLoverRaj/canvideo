@@ -49,7 +49,8 @@ declare interface Scene {
 }
 
 declare interface ExportOptions {
-    keepImages: boolean;
+    keepImages?: boolean;
+    maxStreams?: number;
 }
 
 declare abstract class VideoExport extends EventEmitter {
@@ -58,6 +59,7 @@ declare abstract class VideoExport extends EventEmitter {
     video: Video;
 
     addListener(event: "frame_progress", listener: (progress?: Progress) => void): this;
+    addListener(event: "frame_start", listener: (frameNumber?: number) => void): this;
     addListener(event: "frame_finish", listener: (frameNumber?: number) => void): this;
     addListener(event: "frame_delete", listener: (frameNumber?: number) => void): this;
     addListener(event: "generate_progress", listener: (progress?: Progress) => void): this;
@@ -71,6 +73,7 @@ declare abstract class VideoExport extends EventEmitter {
     addListener(event: "error", listener: (err?: Error) => void): this;
 
     on(event: "frame_progress", listener: (progress?: Progress) => void): this;
+    on(event: "frame_start", listener: (frameNumber?: number) => void): this;
     on(event: "frame_finish", listener: (frameNumber?: number) => void): this;
     on(event: "frame_delete", listener: (frameNumber?: number) => void): this;
     on(event: "generate_progress", listener: (progress?: Progress) => void): this;
@@ -84,6 +87,7 @@ declare abstract class VideoExport extends EventEmitter {
     on(event: "error", listener: (err?: Error) => void): this;
 
     once(event: "frame_progress", listener: (progress?: Progress) => void): this;
+    once(event: "frame_start", listener: (frameNumber?: number) => void): this;
     once(event: "frame_finish", listener: (frameNumber?: number) => void): this;
     once(event: "frame_delete", listener: (frameNumber?: number) => void): this;
     once(event: "generate_progress", listener: (progress?: Progress) => void): this;
@@ -97,6 +101,7 @@ declare abstract class VideoExport extends EventEmitter {
     once(event: "error", listener: (err?: Error) => void): this;
 
     prependListener(event: "frame_progress", listener: (progress?: Progress) => void): this;
+    prependListener(event: "frame_start", listener: (frameNumber?: number) => void): this;
     prependListener(event: "frame_finish", listener: (frameNumber?: number) => void): this;
     prependListener(event: "frame_delete", listener: (frameNumber?: number) => void): this;
     prependListener(event: "generate_progress", listener: (progress?: Progress) => void): this;
@@ -110,6 +115,7 @@ declare abstract class VideoExport extends EventEmitter {
     prependListener(event: "error", listener: (err?: Error) => void): this;
 
     prependOnceListener(event: "frame_progress", listener: (progress?: Progress) => void): this;
+    prependOnceListener(event: "frame_start", listener: (frameNumber?: number) => void): this;
     prependOnceListener(event: "frame_finish", listener: (frameNumber?: number) => void): this;
     prependOnceListener(event: "frame_delete", listener: (frameNumber?: number) => void): this;
     prependOnceListener(event: "generate_progress", listener: (progress?: Progress) => void): this;
@@ -162,6 +168,7 @@ declare class Video extends EventEmitter {
     export(outputPath: string, options: ExportOptions, callback: (videoExport: VideoExport) => void): this;
 
     addListener(event: "frame_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
+    addListener(event: "frame_start", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     addListener(event: "frame_finish", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     addListener(event: "frame_delete", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     addListener(event: "generate_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
@@ -175,6 +182,7 @@ declare class Video extends EventEmitter {
     addListener(event: "error", listener: (err?: Error, videoExport?: VideoExport) => void): this;
 
     on(event: "frame_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
+    on(event: "frame_start", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     on(event: "frame_finish", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     on(event: "frame_delete", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     on(event: "generate_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
@@ -188,6 +196,7 @@ declare class Video extends EventEmitter {
     on(event: "error", listener: (err?: Error) => void, videoExport: VideoExport): this;
 
     once(event: "frame_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
+    once(event: "frame_start", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     once(event: "frame_finish", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     once(event: "frame_delete", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     once(event: "generate_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
@@ -201,6 +210,7 @@ declare class Video extends EventEmitter {
     once(event: "error", listener: (err?: Error, videoExport: VideoExport) => void): this;
 
     prependListener(event: "frame_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
+    prependListener(event: "frame_start", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     prependListener(event: "frame_finish", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     prependListener(event: "frame_delete", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     prependListener(event: "generate_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
@@ -214,6 +224,7 @@ declare class Video extends EventEmitter {
     prependListener(event: "error", listener: (err?: Error, videoExport: VideoExport) => void): this;
 
     prependOnceListener(event: "frame_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
+    prependOnceListener(event: "frame_start", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     prependOnceListener(event: "frame_finish", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     prependOnceListener(event: "frame_delete", listener: (frameNumber?: number, videoExport: VideoExport) => void): this;
     prependOnceListener(event: "generate_progress", listener: (progress?: Progress, videoExport: VideoExport) => void): this;
