@@ -130,9 +130,6 @@ declare abstract class VideoExport extends EventEmitter {
 }
 
 export declare class Video extends EventEmitter {
-    static fromJson(videoObject: object): Video | Error;
-    static fromJson(videoJson: string): Video | Error;
-
     constructor(width: number, height: number, fps: number);
     constructor(size: RegularSize, fps: number);
     constructor(size: ShortSize, fps: number);
@@ -162,9 +159,6 @@ export declare class Video extends EventEmitter {
     setTempPath(path: string): this;
 
     add(scene: Scene): this;
-
-    toJson(stringify?: true): string;
-    toJson(stringify: false): object;
 
     export(outputPath: string, returnPromise?: false): this;
     export(outputPath: string, returnPromise: true): Promise<undefined>;

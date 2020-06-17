@@ -117,28 +117,6 @@ const ExportSteps = {
 
 //Video class
 class Video extends EventEmitter {
-    static fromJson(a) {
-        switch (typeof a) {
-            case 'object':
-                return checkObject(a);
-            case 'string':
-                var o;
-                try {
-                    o = JSON.parse(a);
-                }
-                catch (e) {
-                    return e;
-                }
-                return checkObject(o);
-            default:
-                return new TypeError("Given JSON is neither a javascript object nor a JSON string.");
-        }
-
-        function checkObject(o) {
-            
-        }
-    }
-
     constructor() {
         super();
         typify(this, {
@@ -161,7 +139,6 @@ class Video extends EventEmitter {
                 }
             }
         });
-        this.duration = 0;
         new Overloader()
             .overload([{ type: sizeType }, { type: sizeType }, { type: Types.POSITIVE_NUMBER }], function (width, height, fps) {
                 this.width = width, this.height = height, this.fps = fps;
@@ -188,11 +165,18 @@ class Video extends EventEmitter {
         this.scenes = [];
     };
 
+    get duration(){
+        var d = 0;
+        for(var i = 0; i < this.scenes.length; i++){
+            d += this.scenes[i].duration;
+        }
+        return d;
+    }
+
     add() {
         return typedFunction([{ name: "scene", type: Types.OBJECT }], function (scene) {
             if (typeof scene.render === 'function') {
                 if (typeof scene.duration === 'number') {
-                    this.duration += scene.duration;
                     this.scenes.push(scene);
                 }
                 else {
@@ -241,27 +225,6 @@ class Video extends EventEmitter {
     setTempPath(path) {
         this.tempPath = path;
         return this;
-    }
-
-    toJson(stringify = true){
-        var o = {
-            width: this.width,
-            height: this.height,
-            fps: this.fps,
-            scenes: this.scenes.map(s => {
-                return s.toJson(false);
-            })
-        };
-
-        if(stringify === true){
-            return JSON.stringify(o);
-        }
-        else if(stringify === false){
-            return o;
-        }
-        else{
-            throw new TypeError("stringify must be boolean.");
-        }
     }
 
     export() {
@@ -374,29 +337,23 @@ class Video extends EventEmitter {
                         var sceneStart = 0;
                         var currentScene = 0;
                         var maxAtOnce = Math.min(frameCount, maxStreams);
-                        var nextInLine = maxAtOnce - 1;
+                        var nextInLine = 0;
                         var framesLeft = frameCount;
                         const doneSavingFrame = () => {
                             if (--framesLeft === 0) {
                                 resolve();
-                                return;
                             }
-                            else if (++nextInLine < frameCount) {
-                                let time = nextInLine * this.spf;
-                                let currentSceneDuration = this.scenes[currentScene].duration;
-                                if (time >= sceneStart + currentSceneDuration) {
-                                    sceneStart += currentSceneDuration;
-                                    currentScene++;
-                                }
-                                saveFrame(nextInLine);
+                            else if (nextInLine < frameCount) {
+                                saveFrame();
                             }
                         }
-                        const saveFrame = frame => {
+                        const saveFrame = () => {
+                            let frame = nextInLine;
                             let imagePath = path.join(tempPath, `canvideo ${frame}.png`);
                             framePaths.push(imagePath);
                             emitter.emit("frame_start", frame);
-                            var time = frame * this.spf;
-                            var pngStream = this.scenes[currentScene].render(time, { width: this.width, height: this.height });
+                            var timeInScene = frame * this.spf - sceneStart;
+                            var pngStream = this.scenes[currentScene].render(timeInScene, { width: this.width, height: this.height });
                             pngStream
                                 .on('end', () => {
                                     pngStream.destroy();
@@ -408,9 +365,17 @@ class Video extends EventEmitter {
                                     reject(err);
                                 })
                                 .pipe(fs.createWriteStream(imagePath, { autoClose: true }));
+
+                                
+                            let nextTime = ++nextInLine * this.spf;
+                            let currentSceneDuration = this.scenes[currentScene].duration;
+                            if (nextTime >= sceneStart + currentSceneDuration) {
+                                sceneStart += currentSceneDuration;
+                                currentScene++;
+                            }
                         }
                         for (var i = 0; i < maxAtOnce; i++) {
-                            saveFrame(i);
+                            saveFrame();
                         }
                     });
                 };
