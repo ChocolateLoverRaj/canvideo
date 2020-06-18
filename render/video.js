@@ -227,6 +227,27 @@ class Video extends EventEmitter {
         return this;
     }
 
+    toJson(stringify = true){
+        var o = {
+            width: this.width,
+            height: this.height,
+            fps: this.fps,
+            scenes: this.scenes.map(s => {
+                return s.toJson(false, this.fps);
+            })
+        };
+
+        if(stringify === true){
+            return JSON.stringify(o);
+        }
+        else if(stringify === false){
+            return
+        }
+        else{
+            throw new TypeError("stringify must be boolean.");
+        }
+    }
+
     export() {
         var start = function (outputPath, { keepImages, maxStreams }) {
             var tempPathToUse = this.tempPath || globalTempPath;

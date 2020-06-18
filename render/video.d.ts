@@ -160,6 +160,9 @@ export declare class Video extends EventEmitter {
 
     add(scene: Scene): this;
 
+    toJson(stringify?: true): string;
+    toJson(stringify: false): object;
+
     export(outputPath: string, returnPromise?: false): this;
     export(outputPath: string, returnPromise: true): Promise<undefined>;
     export(outputPath: string, options: ExportOptions, returnPromise?: false): this;

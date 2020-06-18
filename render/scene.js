@@ -221,6 +221,21 @@ class Scene {
         this.duration = duration;
         return this;
     };
+
+    toJson(stringify = true, fps = 60){
+        let o = {
+            backgroundColor: this.backgroundColor.hexString
+        };
+        if(stringify === true){
+            return JSON.stringify(o);
+        }
+        else if(stringify === false){
+            return o;
+        }
+        else{
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 }
 
 //Export the module
