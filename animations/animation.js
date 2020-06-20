@@ -121,6 +121,22 @@ class Animation {
         this.reversed = true;
         return this;
     }
+
+    toJson(stringify = true) {
+        let o = {
+            startValue: this.startValue,
+            endValue: this.endValue
+        };
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 };
 
 //Export the module

@@ -8,6 +8,7 @@ declare class Animation<Properties extends object> implements Animator<Propertie
     constructor(startValue: Value, endValue: Value);
 
     name: "animation";
+    lasts: boolean;
     reversed: boolean;
 
     calculate(progress: number): Properties;

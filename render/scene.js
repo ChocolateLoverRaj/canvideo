@@ -36,15 +36,15 @@ class Scene {
             backgroundColor: {
                 type: colorType,
                 initial: tinyColor("white"),
-                setter: function(v, set){
-                    if(typeof v === 'object'){
+                setter: function (v, set) {
+                    if (typeof v === 'object') {
                         set(tinyColor(Object.assign(this._backgroundColor.toRgb(), v)));
                     }
-                    else{
+                    else {
                         set(tinyColor(v));
                     }
                 },
-                getter: function(){
+                getter: function () {
                     var rgb = this._backgroundColor.toRgb();
                     rgb.hexString = this._backgroundColor.toHexString();
                     return rgb;
@@ -134,7 +134,7 @@ class Scene {
         return this;
     };
 
-    setBackgroundColor(color){
+    setBackgroundColor(color) {
         this.backgroundColor = color;
         return this;
     }
@@ -222,17 +222,30 @@ class Scene {
         return this;
     };
 
-    toJson(stringify = true, fps = 60){
+    toJson(stringify = true, fps = 60) {
         let o = {
-            backgroundColor: this.backgroundColor.hexString
+            backgroundColor: this.backgroundColor.hexString,
+            drawables: []
         };
-        if(stringify === true){
+        for (var i = 0; i < this.drawables.length; i++) {
+            let { startTime, endTime, layer, shape } = this.drawables[i];
+            o.drawables.push({
+                startTime,
+                endTime,
+                layer,
+                shape: {
+                    name: shape.name || false,
+                    data: shape.toJson(false, fps)
+                }
+            });
+        }
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
-        else{
+        else {
             throw new TypeError("stringify must be a boolean.");
         }
     }

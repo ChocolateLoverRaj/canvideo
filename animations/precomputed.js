@@ -8,7 +8,7 @@ class Precomputed {
                 let entry = values[i];
                 if (!(entry instanceof Array && entry.length === 2 && typeof entry[0] === 'number' && entry[0] >= 0 && entry[0] <= 1 && typeof entry[1] ===
                     'object')) {
-                    throw new TypeError("All entries must be [number (between 0 and 1), any].");
+                    throw new TypeError("All entries must be [number (between 0 and 1), object].");
                 }
             }
             this.values = values;
@@ -36,6 +36,25 @@ class Precomputed {
         }
         else {
             throw new TypeError("progress must be a number between 0 and 1.");
+        }
+    }
+
+    lasts = false;
+    last(){
+        this.lasts = true;
+        return this;
+    }
+
+    toJson(stringify = true) {
+        let values = this.values;
+        if (stringify === true) {
+            return JSON.stringify(values);
+        }
+        else if (stringify === false) {
+            return values;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
         }
     }
 }

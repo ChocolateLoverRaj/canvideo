@@ -1,5 +1,11 @@
-export default class Precomputed {
-    constructor(values: Array<[number, any]>);
+import { Animator } from "./animator";
 
-    calculate(progress: number): any;
+declare class Precomputed implements Animator<object> {
+    constructor(values: Array<[number, object]>);
+
+    lasts: boolean;
+
+    calculate(progress: number): object;
 }
+
+export = Precomputed;

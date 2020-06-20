@@ -7,6 +7,8 @@ const pointInterface = require("./point-interface");
 
 //Circle class
 class Circle extends Shape {
+    name = "circle";
+    
     constructor(cx, cy, r) {
         super({
             cx: Types.NUMBER,

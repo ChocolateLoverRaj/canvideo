@@ -232,16 +232,17 @@ class Video extends EventEmitter {
             width: this.width,
             height: this.height,
             fps: this.fps,
-            scenes: this.scenes.map(s => {
-                return s.toJson(false, this.fps);
-            })
+            scenes: []
         };
+        for(var i = 0; i < this.scenes.length; i++){
+            o.scenes.push(this.scenes[i].toJson(false, this.fps));
+        }
 
         if(stringify === true){
             return JSON.stringify(o);
         }
         else if(stringify === false){
-            return
+            return o;
         }
         else{
             throw new TypeError("stringify must be boolean.");

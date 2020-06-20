@@ -16,6 +16,8 @@ const ctxType = a => a instanceof canvas.CanvasRenderingContext2D ? false : "is 
 
 //Shape class
 class Shape {
+    name = "shape";
+
     constructor() {
         typedFunction([
             {
@@ -103,6 +105,24 @@ class Shape {
             }
             return this;
         }).apply(this, arguments);
+    }
+
+    toJson(stringify = true, fps = 60){
+        let o = {
+            fillColor: this.isExplicitlySet("fillColor") ? this.fillColor.hexString : undefined,
+            strokeColor: this.isExplicitlySet("strokeColor") ? this.strokeColor.hexString : undefined,
+            strokeWidth: this.isExplicitlySet("strokeWidth") ? this.strokeWidth : undefined,
+            animations: this.animations.toJson(false, fps)
+        };
+        if(stringify === true){
+            return JSON.stringify(o);
+        }
+        else if(stringify === false){
+            return o;
+        }
+        else{
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 }
 

@@ -1,9 +1,16 @@
 import { PNGStream } from "canvas";
 
-import Drawable from "./drawable";
+import { default as Shape } from "./drawable";
 import Camera from "./camera";
 import setColor from "./color/set";
 import GetColor from "./color/get";
+
+declare interface Drawable {
+    startTime: number;
+    endTime: number;
+    layer: number;
+    shape: Shape;
+}
 
 declare interface AddOptions {
     startTime?: number;

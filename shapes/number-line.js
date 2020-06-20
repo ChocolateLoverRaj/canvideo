@@ -7,6 +7,8 @@ const pointInterface = require("./point-interface");
 
 //Number line class
 class NumberLine extends Shape {
+    name = "numberLine";
+    
     constructor(startNumber, endNumber, x, y, width, height) {
         super({
             startNumber: Types.NUMBER,

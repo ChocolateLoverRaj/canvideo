@@ -4,6 +4,7 @@
 const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("../type");
 const { propertiesType, methodsToBindType } = require("../properties/properties-type");
 const Animation = require("./animation");
+const Precomputed = require("./precomputed");
 
 //Animator interface
 const animatorInterface = new Interface(true)
@@ -23,6 +24,12 @@ const params = [
         name: "methodsToBind", type: methodsToBindType
     }
 ]
+
+//List of built in animations
+const builtInAnimations = new Set()
+    .add(Animation)
+    .add(Precomputed)
+
 const animanage = typedFunction(params, function (o, properties, methodsToBind) {
     //List of properties that were explicitly set
     var explicit = new Set();
@@ -86,6 +93,50 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
     });
     //Add the animate function
     var animations = o.animations = [];
+    //add the toJson method to the animations
+    animations.toJson = function (stringify = true, fps = 60) {
+        let arr = [];
+        if (typeof fps === 'number' && fps > 0) {
+            for (var i = 0; i < animations.length; i++) {
+                let { startTime, duration, animator, isCalculator, isCustom } = animations[i];
+                let o = {
+                    startTime,
+                    duration
+                };
+                if (isCalculator) {
+                    o.lasts = false;
+                }
+                else {
+                    o.name = animator.name || undefined;
+                    o.lasts = animator.lasts || false;
+                }
+                if (isCalculator || isCustom && !(typeof animator.toJson === 'function')) {
+                    //Implicitly create a precomputed animation
+                    let values = [];
+                    for(var j = 0; j <= 1; j+= 1 / fps){
+                        values.push([j, animator(j)]);
+                    }
+                    o.data = new Precomputed(values).toJson(false);
+                }
+                else {
+                    o.data = animator.toJson(false);
+                }
+                arr.push(o);
+            }
+        }
+        else {
+            throw new TypeError("fps must be a positive number.");
+        }
+        if (stringify === true) {
+            return JSON.stringify(arr);
+        }
+        else if (stringify === false) {
+            return arr;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
     Object.defineProperty(o, "animate", {
         enumerable: true,
         configurable: false,
@@ -97,14 +148,15 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     startTime,
                     duration,
                     animator,
-                    isCalculator: typeof animator === 'function'
+                    isCalculator: typeof animator === 'function',
+                    isCustom: false
                 };
                 if (typeof animator === 'object') {
-                    if (animator instanceof Animation) {
-                        animation.isCustom = false;
-                    }
-                    else {
-                        animation.isCustom = true;
+                    for(let builtIn of builtInAnimations.keys()){
+                        if(animator instanceof builtIn){
+                            animation.isCustom = false;
+                            break;
+                        }
                     }
                 }
                 else {

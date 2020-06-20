@@ -14,6 +14,8 @@ const sizeInterface = new Interface(false)
 
 //Group class
 class Group extends Shape {
+    name = "group";
+    
     constructor(x = 0, y = 0, originalWidth = 400, originalHeight = 400, refX = 0, refY = 0) {
         super({
             children: {
