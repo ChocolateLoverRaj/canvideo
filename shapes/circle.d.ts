@@ -1,7 +1,7 @@
 import MyCtx from "../render/my-ctx";
 import Shape from "./shape";
 
-export default class Circle extends Shape<Circle> {
+declare class Circle extends Shape<Circle> {
     constructor(cx: number, cy: number, r: number);
 
     cx: number;
@@ -16,3 +16,5 @@ export default class Circle extends Shape<Circle> {
 
     draw(ctx: MyCtx): this;
 }
+
+export = Circle;

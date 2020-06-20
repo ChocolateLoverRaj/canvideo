@@ -27,7 +27,7 @@ new Video(600, 400, 60)
             .add(new Rectangle(400, 200, 100, 100))
             .add(wheel(400, 300))
             .add(wheel(200, 300))
-            .animate(0, 5, new Animation({ x: -600 }, { x: 600 }).getCalculator())
+            .animate(0, 5, new Animation({ x: -600 }, { x: 600 }))
         )
     )
     .add(new Scene()
@@ -61,9 +61,7 @@ new Video(600, 400, 60)
             .animate(0, 5, new Animation(
                 { x: 350, y: 310, width: 100, height: 125 },
                 { x: 300, y: 200, width: 0, height: 0 }
-            )
-                .getCalculator()
-            )
+            ))
         )
     )
     .export("../generated/truck.mp4", { keepImages: false }, videoExport => {

@@ -1,4 +1,4 @@
-import Animanaged = require("../properties/animanage/animanaged");
+import Animanaged = require("../animations/animanaged");
 
 export default class Camera extends Animanaged<Camera> {
     constructor();

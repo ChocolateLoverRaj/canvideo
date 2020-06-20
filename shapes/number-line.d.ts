@@ -1,6 +1,6 @@
 import Shape from "./shape";
 
-export default class NumberLine extends Shape<NumberLine>{
+declare class NumberLine extends Shape<NumberLine>{
     constructor(startNumber: number, endNumber: number, x: number, y: number, width: number, height: number);
 
     startNumber: number;
@@ -18,3 +18,5 @@ export default class NumberLine extends Shape<NumberLine>{
 
     coordinateAt(n: number): { x: number, y: number };
 }
+
+export = NumberLine;

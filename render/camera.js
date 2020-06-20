@@ -2,7 +2,7 @@
 
 //Dependencies
 const { Types } = require("../type");
-const { animanage } = require("../properties/animanage");
+const { animanage } = require("../animations/animanage");
 
 //Camera class
 class Camera {

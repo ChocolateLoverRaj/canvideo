@@ -7,7 +7,7 @@ const tinyColor = require('tinycolor2');
 const canvas = require('canvas');
 
 //My Modules
-const { propertiesType, methodsToBindType, animanage } = require("../properties/animanage");
+const { propertiesType, methodsToBindType, animanage } = require("../animations/animanage");
 const { Types, typedFunction } = require("../type");
 const colorType = require("../render/color");
 

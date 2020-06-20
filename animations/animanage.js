@@ -2,7 +2,13 @@
 
 //Dependencies
 const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("../type");
-const { propertiesType, methodsToBindType } = require("./properties-type");
+const { propertiesType, methodsToBindType } = require("../properties/properties-type");
+const Animation = require("./animation");
+
+//Animator interface
+const animatorInterface = new Interface(true)
+    .optional("name", Types.STRING)
+    .toType();
 
 const params = [
     {
@@ -53,7 +59,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     throw new TypeError(`${k}: ${v}, ${err}`);
                 }
             } :
-            function(v){
+            function (v) {
                 explicit.add(k);
                 return setterAfterFilter(v, setFunction);
             };
@@ -74,25 +80,42 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
     Object.defineProperty(o, "isExplicitlySet", {
         enumerable: true,
         configurable: false,
-        value: typedFunction([{name: "key", type: Types.STRING}], function(key){
+        value: typedFunction([{ name: "key", type: Types.STRING }], function (key) {
             return explicit.has(key);
         })
     });
     //Add the animate function
-    var animations = [];
+    var animations = o.animations = [];
     Object.defineProperty(o, "animate", {
         enumerable: true,
         configurable: false,
         value: typedFunction([
             { name: "startTime", type: Types.NON_NEGATIVE_NUMBER },
             { name: "duration", type: Types.NON_NEGATIVE_NUMBER },
-            { name: "calculator", type: Types.FUNCTION }], function (startTime, duration, calculator) {
-                animations.push({ startTime, duration, calculator });
+            { name: "animator", type: either(animatorInterface, Types.FUNCTION) }], function (startTime, duration, animator) {
+                let animation = {
+                    startTime,
+                    duration,
+                    animator,
+                    isCalculator: typeof animator === 'function'
+                };
+                if (typeof animator === 'object') {
+                    if (animator instanceof Animation) {
+                        animation.isCustom = false;
+                    }
+                    else {
+                        animation.isCustom = true;
+                    }
+                }
+                else {
+                    animation.isCustom = true;
+                }
+                animations.push(animation);
                 return this;
             })
     });
     //Add the set function
-    var sets = [];
+    var sets = o.sets = [];
     Object.defineProperty(o, "set", {
         enumerable: true,
         configurable: false,
@@ -142,20 +165,20 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 let a = animations[i];
                 if (time >= a.startTime && time < a.startTime + a.duration) {
                     let progress = (time - a.startTime) / a.duration;
-                    runCalculator(a.calculator, progress);
+                    runCalculator(progress);
                 }
-                else if (time > a.startTime + a.duration && a.calculator.lasts) {
-                    runCalculator(a.calculator, 1);
+                else if (time > a.startTime + a.duration && a.lasts) {
+                    runCalculator(1);
                 }
-            }
-            function runCalculator(calculator, progress) {
-                let value = calculator(progress);
-                let err = oInterface(value);
-                if (!err) {
-                    at = Object.assign(at, value);
-                }
-                else {
-                    throw new TypeError(`Problem with animate function: ${err}`);
+                function runCalculator(progress) {
+                    let value = a.isCalculator ? a.animator(progress) : a.animator.calculate(progress);
+                    let err = oInterface(value);
+                    if (!err) {
+                        at = Object.assign(at, value);
+                    }
+                    else {
+                        throw new TypeError(`Problem with animate function: ${err}`);
+                    }
                 }
             }
             return at;

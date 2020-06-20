@@ -7,7 +7,7 @@ declare interface Point{
     y: number;
 }
 
-export default class Polygon extends Shape<Polygon>{
+declare class Polygon extends Shape<Polygon>{
     constructor(...xyList: Array<number>);
     constructor(...xyPair: Array<[number, number]>);
     constructor(...points: Array<Point>);
@@ -16,3 +16,5 @@ export default class Polygon extends Shape<Polygon>{
 
     draw(ctx: CanvasRenderingContext2D): this;
 }
+
+export = Polygon;

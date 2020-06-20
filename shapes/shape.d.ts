@@ -1,17 +1,13 @@
 import MyCtx from "../render/my-ctx";
-import Animanaged from "../properties/animanage/animanaged";
-import params from "../properties/animanage/params";
-import setColor from "../render/color/set";
-import GetColor from "../render/color/get";
+import Animanaged from "../animations/animanaged";
+import { properties, methods } from "../properties/properties";
+import { GetColor, setColor } from "../color";
 
-export default class Shape<T extends Shape> extends Animanaged<T>{
-    constructor(properties: params.Properties, methodsToBind: params.methods);
+declare class Shape<T extends Shape<T>> extends Animanaged<T>{
+    constructor(properties: properties, methodsToBind: methods);
 
-    set fillColor(color: setColor): this;
-    get fillColor(): GetColor;
-
-    set strokeColor(color: setColor): this;
-    get strokeColor(): GetColor;
+    readonly fillColor: GetColor;
+    readonly strokeColor: GetColor;
 
     strokeWidth: number;
 
@@ -19,3 +15,5 @@ export default class Shape<T extends Shape> extends Animanaged<T>{
     stroke(color: setColor, width?: number): this;
     draw(ctx: MyCtx): this;
 }
+
+export = Shape;

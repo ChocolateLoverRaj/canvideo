@@ -233,6 +233,7 @@ class Rectangle extends Shape {
         this.bottomRightCornerRound = cornerRound;
         return this;
     }
+    
     setCornerRound() {
         if (arguments.length > 1) {
             this.cornerRound = [...arguments];

@@ -1,20 +1,8 @@
-import Types = require("./type/types");
-import interface = require("./type/interface");
-import arrayOf = require("./type/array-of");
-import keyValueObject = require("./type/key-value-object");
-import Overloader = require("./type/overloader");
-import typedFunction = require("./type/typed-function");
-import either = require("./type/either");
-import instanceOf = require("./type/instanceOf");
-
-export = {
-    Types,
-    interface: interface.interface,
-    Interface: interface.Interface,
-    arrayOf,
-    keyValueObject,
-    Overloader,
-    typedFunction,
-    either,
-    instanceOf
-}
+export { default as Types } from "./type/types";
+export { interface, Interface } from "./type/interface";
+export { default as arrayOf } from "./type/array-of";
+export { default as keyValueObject } from "./type/key-value-object";
+export { default as Overloader } from "./type/overloader";
+export { default as typedFunction } from "./type/typed-function";
+export { default as either } from "./type/either";
+export { default as instanceOf } from "./type/instanceOf";
