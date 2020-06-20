@@ -36,6 +36,6 @@ var video = new Video(400, 400, 12)
         )*/
     );
 
-video.setTempPath("../generated/").export("../generated/f.mp4", {keepImages: false});
+video.setTempPath("../generated/").export("../generated/f.mp4", { keepImages: false });
 
 fs.writeFileSync("./f.json", video.toJson());
