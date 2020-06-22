@@ -36,6 +36,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
 
     //Add properties, getters/setters, and hidden properties.
     var oInterface = new Interface(false);
+    var propertiesToDefine = {};
     for (let k in properties) {
         let p = properties[k];
         let type = p.type || p;
@@ -79,6 +80,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
             set: setter,
             get: getter
         };
+        propertiesToDefine[k] = property;
         Object.defineProperty(o, k, property);
         oInterface.optional(k, type || Types.ANY);
     }
@@ -113,10 +115,12 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 if (isCalculator || isCustom && !(typeof animator.toJson === 'function')) {
                     //Implicitly create a precomputed animation
                     let values = [];
-                    for(var j = 0; j <= 1; j+= 1 / fps){
+                    for (var j = 0; j <= 1; j += 1 / fps) {
                         values.push([j, animator(j)]);
                     }
-                    o.data = new Precomputed(values).toJson(false);
+                    var implicitPrecomputed = new Precomputed(values);
+                    o.name = implicitPrecomputed.name;
+                    o.data = implicitPrecomputed.toJson(false);
                 }
                 else {
                     o.data = animator.toJson(false);
@@ -152,8 +156,8 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     isCustom: false
                 };
                 if (typeof animator === 'object') {
-                    for(let builtIn of builtInAnimations.keys()){
-                        if(animator instanceof builtIn){
+                    for (let builtIn of builtInAnimations.keys()) {
+                        if (animator instanceof builtIn) {
                             animation.isCustom = false;
                             break;
                         }
@@ -185,15 +189,20 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         value: typedFunction([{ name: "time", type: Types.NON_NEGATIVE_NUMBER }], function (time) {
             var at = {};
             //Copy all values
-            for (let k in this) {
-                if (!["animate", "at"].includes(k)) {
+            var keys = Object.getOwnPropertyNames(this);
+            for (var i = 0; i < keys.length; i++) {
+                let k = keys[i];
+                if (!["animate", "at", "set"].includes(k)) {
                     let v = this[k];
                     if (typeof v === 'function') {
-                        v = v.bind(at);
+                        at[k] = v.bind(at);
                     }
-                    at[k] = v;
+                    else {
+                        at[k] = v;
+                    }
                 }
             }
+            Object.defineProperties(at, { ...propertiesToDefine });
             //Bind all methods
             for (var i = 0; i < methodsToBind.length; i++) {
                 let method = methodsToBind[i];

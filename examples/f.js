@@ -1,7 +1,7 @@
 //Parse and stringify videos to JSON
 
 const fs = require('fs');
-const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group, Precomputed } = require("../index");
+const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group } = require("../index");
 
 var video = new Video(400, 400, 12)
     .add(new Scene()
@@ -11,31 +11,29 @@ var video = new Video(400, 400, 12)
                 .last()
             )
         )
-        .add(0, 10, new Polygon(0, 0, 400, 0, 300, 200, 400, 400, 0, 400, 100, 200)
+        .add(0, 10, new Polygon(300, 0, 400, 0, 400, 100)
             .fill("green")
             .animate(0, 10, function (progress) {
+                var color = {
+                    r: Math.floor(Math.random() * 256),
+                    g: Math.floor(Math.random() * 256),
+                    b: Math.floor(Math.random() * 256)
+                }
                 return {
-                    fillColor: {
-                        r: Math.floor(Math.random() * 256),
-                        g: Math.floor(Math.random() * 256),
-                        b: Math.floor(Math.random() * 256)
-                    }
+                    fillColor: color
                 };
             })
         )
-        /*
-        .add(4, 2, new Group(100, 200)
-            .fill("white")
+        .add(4, 2, new Group(200, 100)
+            .fill("dodgerBlue")
             .add(new Circle(-100, 0, 25)
                 .set(5, { r: 15 })
             )
             .add(new Circle(100, 0, 15)
                 .set(5, { r: 25 })
             )
-            .set(5, { x: 300 })
-        )*/
+            .set(5, { y: 300 })
+        )
     );
-
-video.setTempPath("../generated/").export("../generated/f.mp4", { keepImages: false });
 
 fs.writeFileSync("./f.json", video.toJson());

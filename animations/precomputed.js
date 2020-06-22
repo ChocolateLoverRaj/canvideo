@@ -2,6 +2,8 @@
 
 //Precomputed class
 class Precomputed {
+    name = "precomputed";
+    
     constructor(values) {
         if (values instanceof Array) {
             for (var i = 0; i < values.length; i++) {
