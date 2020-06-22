@@ -170,6 +170,37 @@ class Group extends Shape {
         }
         return this;
     }
+
+    toJson(stringify = true, fps = 60){
+        let o = {
+            ...super.toJson(false, fps),
+            x: this.x,
+            y: this.y,
+            originalWidth: this.originalWidth,
+            originalHeight: this.originalHeight,
+            width: this.width,
+            height: this.height,
+            refX: this.refX,
+            refY: this.refY,
+            children: []
+        };
+        for(var i = 0; i < this.children.length; i++){
+            let child = this.children[i];
+            o.children.push({
+                name: child.name,
+                data: this.children[i].toJson(false, fps)
+            });
+        }
+        if(stringify === true){
+            return JSON.stringify(o);
+        }
+        else if(stringify === false){
+            return o;
+        }
+        else{
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 };
 
 //Export the group class

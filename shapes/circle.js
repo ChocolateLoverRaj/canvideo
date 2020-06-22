@@ -57,6 +57,24 @@ class Circle extends Shape {
 
         return this;
     }
+
+    toJson(stringify = true, fps = 60){
+        let o = {
+            ...super.toJson(false, fps),
+            cx: this.cx,
+            cy: this.cy,
+            r: this.r
+        };
+        if(stringify === true){
+            return JSON.stringify(o);
+        }
+        else if(stringify === false){
+            return o;
+        }
+        else{
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 }
 
 //Export the class

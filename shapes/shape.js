@@ -112,7 +112,8 @@ class Shape {
             fillColor: this.isExplicitlySet("fillColor") ? this.fillColor.hexString : undefined,
             strokeColor: this.isExplicitlySet("strokeColor") ? this.strokeColor.hexString : undefined,
             strokeWidth: this.isExplicitlySet("strokeWidth") ? this.strokeWidth : undefined,
-            animations: this.animations.toJson(false, fps)
+            animations: this.animations.toJson(false, fps),
+            sets: this.sets.toJson(false)
         };
         if(stringify === true){
             return JSON.stringify(o);

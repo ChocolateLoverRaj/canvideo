@@ -44,10 +44,22 @@ class Rectangle extends Shape {
             y: Types.NUMBER,
             width: Types.NUMBER,
             height: Types.NUMBER,
-            topLeftCornerRound: Types.NON_NEGATIVE_NUMBER,
-            topRightCornerRound: Types.NON_NEGATIVE_NUMBER,
-            bottomLeftCornerRound: Types.NON_NEGATIVE_NUMBER,
-            bottomRightCornerRound: Types.NON_NEGATIVE_NUMBER,
+            topLeftCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
+            topRightCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
+            bottomLeftCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
+            bottomRightCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
             cornerRound: {
                 type: cornerRoundType,
                 setter: function (v) {
@@ -317,6 +329,26 @@ class Rectangle extends Shape {
         }
 
         return this;
+    }
+
+    toJson(stringify = true, fps = 60){
+        let o = {
+            ...super.toJson(false, fps),
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            cornerRound: this.cornerRound
+        };
+        if(stringify === true){
+            return JSON.stringify(o);
+        }
+        else if(stringify === false){
+            return o;
+        }
+        else{
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 }
 

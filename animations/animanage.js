@@ -95,7 +95,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
     });
     //Add the animate function
     var animations = o.animations = [];
-    //add the toJson method to the animations
+    //Add the toJson method to the animations
     animations.toJson = function (stringify = true, fps = 60) {
         let arr = [];
         if (typeof fps === 'number' && fps > 0) {
@@ -106,6 +106,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     duration
                 };
                 if (isCalculator) {
+                    o.name = undefined;
                     o.lasts = false;
                 }
                 else {
@@ -172,6 +173,23 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
     });
     //Add the set function
     var sets = o.sets = [];
+    //Add the toJson method to the sets
+    sets.toJson = function (stringify = true) {
+        let arr = [];
+        for (var i = 0; i < sets.length; i++) {
+            let { at, value } = sets[i];
+            arr.push([at, value]);
+        }
+        if (stringify === true) {
+            return JSON.stringify(arr);
+        }
+        else if (stringify === false) {
+            return arr;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
+    };
     Object.defineProperty(o, "set", {
         enumerable: true,
         configurable: false,

@@ -2,6 +2,8 @@ import { EventEmitter } from 'events';
 
 import { PNGStream } from 'canvas';
 
+import { SceneJson } from "./scene";
+
 export declare function setTempPath(path: string): Promise<string>;
 
 export declare function setFfmpegPath(path: string): Promise<boolean>;
@@ -129,6 +131,13 @@ declare abstract class VideoExport extends EventEmitter {
     prependOnceListener(event: "error", listener: (err?: Error) => void): this;
 }
 
+declare interface VideoJson {
+    width: number;
+    height: number;
+    fps: number;
+    scenes: Array<SceneJson>;
+}
+
 export declare class Video extends EventEmitter {
     constructor(width: number, height: number, fps: number);
     constructor(size: RegularSize, fps: number);
@@ -160,8 +169,8 @@ export declare class Video extends EventEmitter {
 
     add(scene: Scene): this;
 
-    toJson(stringify?: true): string;
-    toJson(stringify: false): object;
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): VideoJson;
 
     export(outputPath: string, returnPromise?: false): this;
     export(outputPath: string, returnPromise: true): Promise<undefined>;

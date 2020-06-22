@@ -234,7 +234,7 @@ class Scene {
                 endTime,
                 layer,
                 shape: {
-                    name: shape.name || false,
+                    name: shape.name,
                     data: shape.toJson(false, fps)
                 }
             });

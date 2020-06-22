@@ -23,7 +23,22 @@ declare interface RenderOptions {
     height: number;
 }
 
-export default class Scene {
+declare interface DrawableJson {
+    startTime: number;
+    endTime: number;
+    layer: number;
+    shape: {
+        name: string | undefined;
+        data: object;
+    }
+}
+
+export declare interface SceneJson {
+    backgroundColor: string;
+    drawables: Array<DrawableJson>;
+}
+
+export declare class Scene {
     constructor();
 
     drawables: Array<Drawable>;
@@ -31,11 +46,11 @@ export default class Scene {
     duration: number;
     readonly autoDuration: number;
 
-    add(drawable: Drawable): this;
-    add(startTime: number, drawable: Drawable): this;
-    add(startTime: number, duration: number, drawable: Drawable): this;
-    add(startTime: number, duration: number, layer: number, drawable: Drawable): this;
-    add(addOptions: AddOptions, drawable: Drawable): this;
+    add(drawable: Shape): this;
+    add(startTime: number, drawable: Shape): this;
+    add(startTime: number, duration: number, drawable: Shape): this;
+    add(startTime: number, duration: number, layer: number, drawable: Shape): this;
+    add(addOptions: AddOptions, drawable: Shape): this;
 
     set backgroundColor(color: setColor): this;
     get backgroundColor(): GetColor;
@@ -48,6 +63,8 @@ export default class Scene {
 
     setDuration(duration: number): this;
 
-    toJson(stringify?: true): string;
-    toJson(stringify: false): object;
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): SceneJson;
 }
+
+export default Scene;

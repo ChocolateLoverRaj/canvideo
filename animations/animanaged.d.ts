@@ -8,19 +8,42 @@ declare interface Animation<Properties extends object> {
     isCustom: boolean;
 }
 
-declare interface Set<Properties extends object>{
+declare interface Set<Properties extends object> {
     at: number;
     value: Properties
 }
 
-declare abstract class Animanaged<T extends object> {
-    animations: Array<Animation<T>>
-    sets: Array<Set<T>>
-
-    isExplicitlySet(key: string): boolean;
-    animate(startTime: number, duration: number, animator: animator<T>): this;
-    set(at: number, value: T): this;
-    at(progress: number): T;
+export declare interface AnimationJson {
+    startTime: number;
+    duration: number;
+    name: string | undefined;
+    lasts: boolean;
+    data: any;
 }
 
-export = Animanaged;
+export declare type SetJson<Properties> = [number, Properties];
+
+declare abstract class Animations<Properties> extends Array<Animation<Properties>>{
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): object;
+}
+
+declare abstract class Sets<Properties> extends Array<Set<Properties>>{
+    toJson(stringify?: true): string;
+    toJson(stringify: false): object;
+}
+
+export declare abstract class Animanaged<T extends object, P extends object> {
+    animations: Animations<P>;
+    sets: Sets<P>;
+
+    isExplicitlySet(key: string): boolean;
+    animate(startTime: number, duration: number, animator: animator<P>): this;
+    set(at: number, value: P): this;
+    at(progress: number): T;
+
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): object;
+}
+
+export default Animanaged;

@@ -1,5 +1,31 @@
 import MyCtx from "../render/my-ctx";
-import Shape from "./shape";
+import {Shape, ShapeProperties, ShapeJson} from "./shape";
+
+declare interface RectangleProperties extends ShapeProperties<RectangleProperties>{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+
+    topLeftCornerRound: number;
+    topRightCornerRound: number;
+    bottomLeftCornerRound: number;
+    bottomRightCornerRound: number;
+
+    cornerRound: setCornerRound | GetCornerRound;
+    topCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
+    bottomCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
+    leftCornerRound: setHorizontalCornerRound |  GetHorizontalCornerRound;
+    rightCornerRound: setHorizontalCornerRound | GetHorizontalCornerRound;
+}
+
+declare interface RectangleJson extends ShapeJson<RectangleProperties>{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    cornerRound: GetCornerRound;
+}
 
 declare interface SetCornerRound {
     topLeft?: number;
@@ -36,7 +62,7 @@ declare interface GetHorizontalCornerRound {
 declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Array<number> & { length: 2 };
 
 declare class Rectangle extends Shape<Rectangle>{
-    constructor(x: number, y: number, width: number, height: number, cornerRound?: number);
+    constructor(x: number, y: number, width: number, height: number, cornerRound?: setCornerRound);
 
     x: number;
     y: number;
@@ -48,11 +74,11 @@ declare class Rectangle extends Shape<Rectangle>{
     bottomLeftCornerRound: number;
     bottomRightCornerRound: number;
 
-    readonly cornerRound: GetCornerRound;
-    readonly topCornerRound: GetVerticalCornerRound;
-    readonly bottomCornerRound: GetVerticalCornerRound;
-    readonly leftCornerRound: GetHorizontalCornerRound;
-    readonly rightCornerRound: GetHorizontalCornerRound;
+    cornerRound: setCornerRound | GetCornerRound;
+    topCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
+    bottomCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
+    leftCornerRound: setHorizontalCornerRound |  GetHorizontalCornerRound;
+    rightCornerRound: setHorizontalCornerRound | GetHorizontalCornerRound;
 
     setTopLeftCornerRound(cornerRound: number): this;
     setTopRightCornerRound(cornerRound: number): this;
@@ -66,6 +92,9 @@ declare class Rectangle extends Shape<Rectangle>{
     setRightCornerRound(cornerRound: setHorizontalCornerRound): this;
 
     draw(ctx: MyCtx): this;
+
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): RectangleJson;
 }
 
 export = Rectangle;

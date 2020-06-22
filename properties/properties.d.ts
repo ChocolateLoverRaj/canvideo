@@ -12,6 +12,6 @@ export declare type properties = {
     [Key in string | number ]: property;
 }
 
-export type methods = Array<string>;
+export declare type methods = Array<string>;
 
 export default Property;

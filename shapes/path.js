@@ -85,6 +85,25 @@ class Path extends Shape {
 
         return this;
     }
+
+    toJson(stringify = true, fps = 60){
+        let o = {
+            ...super.toJson(false, fps),
+            doFill: this.doFill,
+            strokeDash: this.strokeDash,
+            strokeDashOffset: this.strokeDashOffset,
+            operations: this.operations
+        };
+        if(stringify === true){
+            return JSON.stringify(o);
+        }
+        else if(stringify === false){
+            return o;
+        }
+        else{
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 }
 
 //Export the Path class

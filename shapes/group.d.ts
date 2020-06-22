@@ -1,8 +1,36 @@
 import Drawable from "../render/drawable";
-import Shape from "./shape";
-import MyCtx from "../render/my-ctx";
+import { Shape, ShapeProperties, ShapeJson } from "./shape";
 
-declare class Group extends Shape<Group>{
+declare interface GroupProperties extends ShapeProperties<GroupProperties> {
+    children: Array<Drawable>;
+    x: number;
+    y: number;
+    originalWidth: number;
+    originalHeight: number;
+    refX: number;
+    refY: number;
+    width: number;
+    height: number;
+}
+
+declare interface ChildJson {
+    name: string | undefined;
+    data: object;
+}
+
+declare interface GroupJson extends ShapeJson<GroupProperties> {
+    x: number;
+    y: number;
+    originalWidth: number;
+    originalHeight: number;
+    refX: number;
+    refY: number;
+    width: number;
+    height: number;
+    children: Array<ChildJson>;
+}
+
+declare class Group extends Shape<Group, GroupProperties>{
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
 
     children: Array<Drawable>;
@@ -41,7 +69,8 @@ declare class Group extends Shape<Group>{
 
     add(drawable: Drawable): this;
 
-    draw(ctx: MyCtx): this;
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): GroupJson;
 }
 
 export = Group;
