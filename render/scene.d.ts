@@ -39,6 +39,9 @@ export declare interface SceneJson {
 }
 
 export declare class Scene {
+    static fromJson(json: string, parse?: true, throwErrors?: boolean): Scene;
+    static fromJson(json: any, parse: false, throwErrors?: boolean): Scene;
+
     constructor();
 
     drawables: Array<Drawable>;

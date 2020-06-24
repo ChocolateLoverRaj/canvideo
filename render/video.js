@@ -14,6 +14,7 @@ const { Overloader, Types, Interface, either, typedFunction, instanceOf } = requ
 const { sizeType, regularSizeInterface, shortSizeInterface, sizeInterface } = require("./size");
 const typify = require("../properties/typify");
 const defaultify = require("../lib/default-properties");
+const Scene = require("./scene");
 
 //Dependency stuff
 const fsPromises = fs.promises;
@@ -117,6 +118,64 @@ const ExportSteps = {
 
 //Video class
 class Video extends EventEmitter {
+    static fromJson(json, parse = true, throwErrors = false) {
+        if (typeof throwErrors !== 'boolean') {
+            throw new TypeError("throwErrors must be a boolean.");
+        }
+        if (typeof json === 'string' && parse === true) {
+            try {
+                json = JSON.parse(json);
+            }
+            catch (e) {
+                if (throwErrors) {
+                    throw e;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else if (parse !== false) {
+            throw new TypeError("json and parse arguments do not fit together.");
+        }
+        try {
+            if (typeof json === 'object') {
+                const propertiesToAdd = new Set()
+                    .add("width")
+                    .add("height")
+                    .add("fps")
+                    .add("scenes");
+                var { width, height, fps, scenes } = json;
+                for (var k in json) {
+                    if (!propertiesToAdd.has(k)) {
+                        throw new TypeError(`Unknown property: ${k}.`);
+                    }
+                }
+                var video = new Video(width, height, fps);
+                if(scenes instanceof Array){
+                    for(var i = 0; i < scenes.length; i++){
+                        video.add(Scene.fromJson(scenes[i], false, true));
+                    }
+                }
+                else{
+                    throw new TypeError("video.scenes is not an array.");
+                }
+                return video;
+            }
+            else {
+                throw new TypeError("video is not an object.");
+            }
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
     constructor() {
         super();
         typify(this, {
@@ -165,9 +224,9 @@ class Video extends EventEmitter {
         this.scenes = [];
     };
 
-    get duration(){
+    get duration() {
         var d = 0;
-        for(var i = 0; i < this.scenes.length; i++){
+        for (var i = 0; i < this.scenes.length; i++) {
             d += this.scenes[i].duration;
         }
         return d;
@@ -227,24 +286,24 @@ class Video extends EventEmitter {
         return this;
     }
 
-    toJson(stringify = true){
+    toJson(stringify = true, fps = this.fps) {
         var o = {
             width: this.width,
             height: this.height,
             fps: this.fps,
             scenes: []
         };
-        for(var i = 0; i < this.scenes.length; i++){
-            o.scenes.push(this.scenes[i].toJson(false, this.fps));
+        for (var i = 0; i < this.scenes.length; i++) {
+            o.scenes.push(this.scenes[i].toJson(false, fps));
         }
 
-        if(stringify === true){
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
-        else{
+        else {
             throw new TypeError("stringify must be boolean.");
         }
     }
@@ -388,7 +447,7 @@ class Video extends EventEmitter {
                                 })
                                 .pipe(fs.createWriteStream(imagePath, { autoClose: true }));
 
-                                
+
                             let nextTime = ++nextInLine * this.spf;
                             let currentSceneDuration = this.scenes[currentScene].duration;
                             if (nextTime >= sceneStart + currentSceneDuration) {

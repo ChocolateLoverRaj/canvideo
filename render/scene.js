@@ -18,6 +18,7 @@ const colorType = require("./color");
 const shapeInterface = require("../shapes/shape-interface");
 const typify = require("../properties/typify");
 const cameraInterface = require("./camera-interface");
+const shapes = require("../shapes/shapes");
 
 //Config
 const defaultDuration = 5;
@@ -31,6 +32,61 @@ const addInterface = new Interface(false)
 
 //Scene class
 class Scene {
+    static fromJson(json, parse = true, throwErrors = false) {
+        if (typeof throwErrors !== 'boolean') {
+            throw new TypeError("throwErrors must be a boolean.");
+        }
+        if (typeof json === 'string' && parse === true) {
+            try {
+                json = JSON.parse(json);
+            }
+            catch (e) {
+                if (throwErrors) {
+                    throw e;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else if (parse !== false) {
+            throw new TypeError("json and parse arguments do not fit together.");
+        }
+        try {
+            if (typeof json === 'object') {
+                var { backgroundColor, drawables } = json;
+                const propertiesToAdd = new Set()
+                    .add("backgroundColor")
+                    .add("drawables");
+                for (var k in json) {
+                    if (!propertiesToAdd.has(k)) {
+                        throw new TypeError(`Unknown property: ${k}.`);
+                    }
+                }
+                var scene = new Scene().setBackgroundColor(backgroundColor);
+                if (drawables instanceof Array) {
+                    for (var i = 0; i < drawables.length; i++) {
+                        let { startTime, endTime, layer, shape } = drawables[i];
+                    }
+                }
+                else{
+                    throw new TypeError("scene.drawables is not an array.");
+                }
+            }
+            else {
+                throw new TypeError("video is not an object.");
+            }
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
     constructor() {
         typify(this, {
             backgroundColor: {
@@ -234,6 +290,7 @@ class Scene {
                 endTime,
                 layer,
                 shape: {
+                    isBuiltin: shapes.isBuiltin(shape),
                     name: shape.name,
                     data: shape.toJson(false, fps)
                 }

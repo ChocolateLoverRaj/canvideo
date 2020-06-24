@@ -139,6 +139,9 @@ declare interface VideoJson {
 }
 
 export declare class Video extends EventEmitter {
+    static fromJson(json: string, parse?: true, throwErrors?: boolean): Video;
+    static fromJson(json: any, parse: false, throwErrors?: boolean): Video;
+
     constructor(width: number, height: number, fps: number);
     constructor(size: RegularSize, fps: number);
     constructor(size: ShortSize, fps: number);

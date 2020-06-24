@@ -5,3 +5,5 @@ export { default as Circle } from "./circle";
 export { default as Polygon } from "./polygon";
 export { default as NumberLine } from "./number-line";
 export { default as Path } from "./path";
+
+export function isBuiltin(shape: any): boolean;
