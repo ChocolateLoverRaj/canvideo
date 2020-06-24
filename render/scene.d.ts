@@ -28,6 +28,7 @@ declare interface DrawableJson {
     endTime: number;
     layer: number;
     shape: {
+        isBuiltin: boolean;
         name: string | undefined;
         data: object;
     }
@@ -39,8 +40,10 @@ export declare interface SceneJson {
 }
 
 export declare class Scene {
-    static fromJson(json: string, parse?: true, throwErrors?: boolean): Scene;
-    static fromJson(json: any, parse: false, throwErrors?: boolean): Scene;
+    static fromJson(json: string, parse?: true, throwErrors?: false): Scene | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): Scene;
+    static fromJson(json: any, parse: false, throwErrors?: false): Scene | false;
+    static fromJson(json: any, parse: false, throwErrors: true): Scene;
 
     constructor();
 

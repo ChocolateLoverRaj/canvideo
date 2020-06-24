@@ -62,7 +62,11 @@ declare interface GetHorizontalCornerRound {
 declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Array<number> & { length: 2 };
 
 declare class Rectangle extends Shape<Rectangle>{
+    static shapeName: "rectangle";
+
     constructor(x: number, y: number, width: number, height: number, cornerRound?: setCornerRound);
+
+    shapeName: "rectangle";
 
     x: number;
     y: number;

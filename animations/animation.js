@@ -5,7 +5,8 @@
 const { typedFunction, Types } = require("../type");
 
 class Animation {
-    name = "animation";
+    static animationName = "animation";
+    animationName = "animation";
 
     constructor() {
         typedFunction([

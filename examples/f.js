@@ -37,6 +37,7 @@ var video = new Video(400, 400, 12)
     );
 
 //fs.writeFileSync("./f.json", video.toJson());
+//TODO explain what the purpose of this example file is.
 
 var videoFromJson = Video.fromJson(fs.readFileSync("./f.json", "utf-8"), true, true);
 

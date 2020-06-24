@@ -36,7 +36,8 @@ const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCo
 
 //Rectangle class
 class Rectangle extends Shape {
-    name = "rectangle";
+    static shapeName = "rectangle";
+    shapeName = "rectangle";
     
     constructor(x, y, width, height, cornerRound = 0) {
         super({

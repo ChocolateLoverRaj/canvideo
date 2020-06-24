@@ -1,7 +1,7 @@
 //Manage animatable properties
 
 //Dependencies
-const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("../type");
+const { Types, typedFunction, keyValueObject, interface, either, Interface } = require("../type");
 const { methodsToBindType } = require("../properties/properties-type");
 const Animation = require("./animation");
 const Precomputed = require("./precomputed");
@@ -138,7 +138,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     o.lasts = false;
                 }
                 else {
-                    o.name = animator.name || undefined;
+                    o.name = animator.animationName || undefined;
                     o.lasts = animator.lasts || false;
                 }
                 if (isCalculator || isCustom && !(typeof animator.toJson === 'function')) {
@@ -150,9 +150,11 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     var implicitPrecomputed = new Precomputed(values);
                     o.name = implicitPrecomputed.name;
                     o.data = implicitPrecomputed.toJson(false);
+                    o.isBuiltin = true;
                 }
                 else {
                     o.data = animator.toJson(false);
+                    o.isBuiltin = !isCustom;
                 }
                 arr.push(o);
             }
@@ -170,6 +172,43 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
             throw new TypeError("stringify must be a boolean.");
         }
     }
+    //Add the importJson method to the animations
+    animations.importJson = function (json, parse = true) {
+        if (typeof json === 'string' && parse === true) {
+            json = JSON.parse(json);
+        }
+        else if (parse !== false) {
+            throw new TypeError("Cannot parse non string json.");
+        }
+        if (json instanceof Array) {
+            for (var { startTime, duration, isBuiltin, name, lasts, data } of json) {
+                var animation = {
+                    startTime,
+                    duration,
+                    isCalculator: false
+                }
+                if(isBuiltin){
+                    animation.isCustom = false;
+                    for(var builtinAnimation of builtInAnimations){
+                        if(name === builtinAnimation.animationName){
+                            //TODO make fromJson functions for animation class and precalculated class
+                            animation.animator = builtinAnimation.fromJson(data, false, true);
+                            animation.animator.lasts = lasts;
+                            break;
+                        }
+                    }
+                    throw new TypeError(`There is not builtin animation called: ${name}.`);
+                }
+                else{
+                    //TODO handle custom animations.
+                }
+                animations.push(animation);
+            }
+        }
+        else {
+            throw new TypeError("animations is not an array.");
+        }
+    }
     Object.defineProperty(o, "animate", {
         enumerable: true,
         configurable: false,
@@ -185,7 +224,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     isCustom: false
                 };
                 if (typeof animator === 'object') {
-                    for (let builtIn of builtInAnimations.keys()) {
+                    for (let builtIn of builtInAnimations) {
                         if (animator instanceof builtIn) {
                             animation.isCustom = false;
                             break;
@@ -255,6 +294,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 return this;
             })
     });
+    //TODO add importJson to sets
     //Add the at function.
     Object.defineProperty(o, "at", {
         enumerable: true,

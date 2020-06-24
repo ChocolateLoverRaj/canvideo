@@ -16,6 +16,7 @@ declare interface Set<Properties extends object> {
 export declare interface AnimationJson {
     startTime: number;
     duration: number;
+    isBuiltin: boolean;
     name: string | undefined;
     lasts: boolean;
     data: any;

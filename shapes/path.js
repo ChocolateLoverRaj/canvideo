@@ -6,7 +6,8 @@ const { Types, typedFunction, arrayOf } = require("../type");
 
 //Path class
 class Path extends Shape {
-    name = "path";
+    static shapeName = "path";
+    shapeName = "path";
     
     constructor(fill = false) {
         if (typeof fill === 'boolean') {

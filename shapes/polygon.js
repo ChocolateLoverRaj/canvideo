@@ -7,7 +7,8 @@ const pointInterface = require("./point-interface");
 
 //Polygon class
 class Polygon extends Shape {
-    name = "polygon";
+    static shapeName = "polygon";
+    shapeName = "polygon";
 
     constructor() {
         super({

@@ -66,12 +66,16 @@ class Scene {
                 var scene = new Scene().setBackgroundColor(backgroundColor);
                 if (drawables instanceof Array) {
                     for (var i = 0; i < drawables.length; i++) {
-                        let { startTime, endTime, layer, shape } = drawables[i];
+                        let { startTime, endTime, layer, shape: { isBuiltin, name, data } } = drawables[i];
+                        if(isBuiltin){
+                            scene.add(startTime, endTime, layer, shapes.fromJson(name, data, false, true));
+                        }
                     }
                 }
-                else{
+                else {
                     throw new TypeError("scene.drawables is not an array.");
                 }
+                return scene;
             }
             else {
                 throw new TypeError("video is not an object.");
@@ -291,7 +295,7 @@ class Scene {
                 layer,
                 shape: {
                     isBuiltin: shapes.isBuiltin(shape),
-                    name: shape.name,
+                    name: shape.shapeName,
                     data: shape.toJson(false, fps)
                 }
             });

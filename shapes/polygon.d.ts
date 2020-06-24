@@ -16,10 +16,13 @@ declare interface Point {
 }
 
 declare class Polygon extends Shape<Polygon>{
+    static shapeName: "polygon";
+
     constructor(...xyList: Array<number>);
     constructor(...xyPair: Array<[number, number]>);
     constructor(...points: Array<Point>);
 
+    shapeName: "polygon";
     points: Array<Point>;
 
     draw(ctx: CanvasRenderingContext2D): this;

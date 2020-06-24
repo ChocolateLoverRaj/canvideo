@@ -2,7 +2,8 @@
 
 //Precomputed class
 class Precomputed {
-    name = "precomputed";
+    static animationName = "precomputed";
+    animationName = "precomputed";
     
     constructor(values) {
         if (values instanceof Array) {

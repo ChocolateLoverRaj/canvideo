@@ -15,8 +15,11 @@ declare interface PathJson extends ShapeJson<PathProperties> {
 }
 
 declare class Path extends Shape<Path>{
+    static shapeName: "path";
+
     constructor(fill?: boolean);
 
+    shapeName: "path";
     doFill: boolean;
     strokeDash: Array<number>;
     strokeDashOffset: number;

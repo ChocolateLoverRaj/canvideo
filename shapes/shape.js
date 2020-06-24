@@ -16,7 +16,47 @@ const ctxType = a => a instanceof canvas.CanvasRenderingContext2D ? false : "is 
 
 //Shape class
 class Shape {
-    name = "shape";
+    static shapeName = "shape";
+    shapeName = "shape";
+
+    static fromJson(json, parse = true, throwErrors = false) {
+        if (typeof json === 'string' && parse === true) {
+            try {
+                json = JSON.parse(json);
+            }
+            catch (e) {
+                if (throwErrors) {
+                    throw e;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else if (parse !== false) {
+            throw new TypeError("Cannot parse non string json.");
+        }
+        try {
+            var { fillColor, strokeColor, strokeWidth, animations, sets } = json;
+            var shape = new Shape();
+            if(fillColor){
+                shape.fill(fillColor);
+            }
+            if(strokeColor){
+                shape.stroke(strokeColor, strokeWidth);
+            }
+            shape.animations.importJson(animations, false);
+            return shape;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    }
 
     constructor() {
         typedFunction([
@@ -107,7 +147,7 @@ class Shape {
         }).apply(this, arguments);
     }
 
-    toJson(stringify = true, fps = 60){
+    toJson(stringify = true, fps = 60) {
         let o = {
             fillColor: this.isExplicitlySet("fillColor") ? this.fillColor.hexString : undefined,
             strokeColor: this.isExplicitlySet("strokeColor") ? this.strokeColor.hexString : undefined,
@@ -115,13 +155,13 @@ class Shape {
             animations: this.animations.toJson(false, fps),
             sets: this.sets.toJson(false)
         };
-        if(stringify === true){
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
-        else{
+        else {
             throw new TypeError("stringify must be a boolean.");
         }
     }

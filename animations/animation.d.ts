@@ -5,9 +5,11 @@ declare interface Value {
 }
 
 declare class Animation<Properties extends object> implements Animator<Properties> {
+    static animationName: "animation";
+    
     constructor(startValue: Value, endValue: Value);
 
-    name: "animation";
+    animationName: "animation";
     lasts: boolean;
     reversed: boolean;
 

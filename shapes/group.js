@@ -2,6 +2,11 @@
 
 //Dependencies
 const Shape = require("./shape");
+const Circle = require("./circle");
+const NumberLine = require("./number-line");
+const Path = require("./path");
+const Polygon = require("./polygon");
+const Rectangle = require("./rectangle");
 const { arrayOf, Types, Overloader, Interface } = require("../type");
 const shapeInterface = require("./shape-interface");
 const pointInterface = require("./point-interface");
@@ -12,10 +17,22 @@ const sizeInterface = new Interface(false)
     .required("height", Types.POSITIVE_NUMBER)
     .toType();
 
+//Check if a shape is builtin
+//This is because requiring ./shapes.js will cause circular dependencies
+const isBuiltin = shape =>
+    shape instanceof Shape ||
+    shape instanceof Rectangle ||
+    shape instanceof Group ||
+    shape instanceof Circle ||
+    shape instanceof Polygon ||
+    shape instanceof NumberLine ||
+    shape instanceof Path;
+
 //Group class
 class Group extends Shape {
-    name = "group";
-    
+    static shapeName = "group";
+    shapeName = "group";
+
     constructor(x = 0, y = 0, originalWidth = 400, originalHeight = 400, refX = 0, refY = 0) {
         super({
             children: {
@@ -51,15 +68,15 @@ class Group extends Shape {
     }
     setOriginalSize() {
         new Overloader()
-            .overload([{type: Types.POSITIVE_NUMBER}, {type: Types.POSITIVE_NUMBER}], function(width, height){
+            .overload([{ type: Types.POSITIVE_NUMBER }, { type: Types.POSITIVE_NUMBER }], function (width, height) {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
-            .overload([{type: sizeInterface}], function({width, height}){
+            .overload([{ type: sizeInterface }], function ({ width, height }) {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
-            .overload([{type: arrayOf(Types.POSITIVE_NUMBER, 2)}], function([width, height]){
+            .overload([{ type: arrayOf(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
@@ -76,15 +93,15 @@ class Group extends Shape {
     }
     setSize() {
         new Overloader()
-            .overload([{type: Types.POSITIVE_NUMBER}, {type: Types.POSITIVE_NUMBER}], function(width, height){
+            .overload([{ type: Types.POSITIVE_NUMBER }, { type: Types.POSITIVE_NUMBER }], function (width, height) {
                 this.width = width;
                 this.height = height;
             })
-            .overload([{type: sizeInterface}], function({width, height}){
+            .overload([{ type: sizeInterface }], function ({ width, height }) {
                 this.width = width;
                 this.height = height;
             })
-            .overload([{type: arrayOf(Types.POSITIVE_NUMBER, 2)}], function([width, height]){
+            .overload([{ type: arrayOf(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
                 this.width = width;
                 this.height = height;
             })
@@ -171,7 +188,7 @@ class Group extends Shape {
         return this;
     }
 
-    toJson(stringify = true, fps = 60){
+    toJson(stringify = true, fps = 60) {
         let o = {
             ...super.toJson(false, fps),
             x: this.x,
@@ -184,20 +201,21 @@ class Group extends Shape {
             refY: this.refY,
             children: []
         };
-        for(var i = 0; i < this.children.length; i++){
+        for (var i = 0; i < this.children.length; i++) {
             let child = this.children[i];
             o.children.push({
+                isBuiltin: isBuiltin(child),
                 name: child.name,
                 data: this.children[i].toJson(false, fps)
             });
         }
-        if(stringify === true){
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
-        else{
+        else {
             throw new TypeError("stringify must be a boolean.");
         }
     }

@@ -18,11 +18,13 @@ export declare interface ShapeProperties<P extends {}> extends P {
 }
 
 export declare class Shape<T extends Shape<T>, P> extends Animanaged<T, ShapeProperties<P>>{
+    static shapeName: "shape";
+
     constructor(properties: properties, methodsToBind: methods);
 
-    readonly fillColor: GetColor;
-    readonly strokeColor: GetColor;
-
+    shapeName: "shape";
+    fillColor: setColor | GetColor;
+    strokeColor: setColor | GetColor;
     strokeWidth: number;
 
     fill(color: setColor): this;
