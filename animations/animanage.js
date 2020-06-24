@@ -2,9 +2,33 @@
 
 //Dependencies
 const { Types, typedFunction, keyValueObject, interface, either, Interface, arrayOf } = require("../type");
-const { propertiesType, methodsToBindType } = require("../properties/properties-type");
+const { methodsToBindType } = require("../properties/properties-type");
 const Animation = require("./animation");
 const Precomputed = require("./precomputed");
+
+//Properties type
+const propertiesType = keyValueObject(either(Types.TYPE, interface({
+    type: {
+        type: Types.TYPE,
+        required: false
+    },
+    setter: {
+        type: Types.FUNCTION,
+        required: false
+    },
+    getter: {
+        type: Types.FUNCTION,
+        required: false
+    },
+    initial: {
+        type: Types.ANY,
+        required: false
+    },
+    toJson: {
+        type: Types.FUNCTION,
+        required: false
+    }
+}, false)));
 
 //Animator interface
 const animatorInterface = new Interface(true)
@@ -28,15 +52,16 @@ const params = [
 //List of built in animations
 const builtInAnimations = new Set()
     .add(Animation)
-    .add(Precomputed)
+    .add(Precomputed);
 
 const animanage = typedFunction(params, function (o, properties, methodsToBind) {
     //List of properties that were explicitly set
     var explicit = new Set();
 
-    //Add properties, getters/setters, and hidden properties.
+    //Add properties, getters/setters, hidden properties, and toJson.
     var oInterface = new Interface(false);
     var propertiesToDefine = {};
+    var propertiesToJson = new Map();
     for (let k in properties) {
         let p = properties[k];
         let type = p.type || p;
@@ -83,6 +108,9 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         propertiesToDefine[k] = property;
         Object.defineProperty(o, k, property);
         oInterface.optional(k, type || Types.ANY);
+        if (p.hasOwnProperty("toJson")) {
+            propertiesToJson.set(k, p.toJson);
+        }
     }
     oInterface = oInterface.toType();
     //Add the isExplicitlySet function
@@ -171,14 +199,41 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 return this;
             })
     });
+    //Add the propertyToJson method
+    Object.defineProperty(o, "propertyToJson", {
+        enumerable: true,
+        configurable: false,
+        value: typedFunction([
+            { name: "property", type: Types.KEY },
+            { name: "stringify", optional: true, type: Types.BOOLEAN },
+            { name: "fps", type: Types.POSITIVE_NUMBER, optional: true }
+        ], function (property) {
+            if (propertiesToJson.has(property, stringify = true, fps = 60)) {
+                let jsonProperty = propertiesToJson.get(property).call(o[property], fps);
+                return stringify ? JSON.stringify(jsonProperty) : jsonProperty;
+            }
+            else {
+                throw new TypeError(`No toJson function specified for given property: ${property}.`);
+            }
+        })
+    })
     //Add the set function
     var sets = o.sets = [];
     //Add the toJson method to the sets
-    sets.toJson = function (stringify = true) {
+    sets.toJson = function (stringify = true, fps = 60) {
         let arr = [];
         for (var i = 0; i < sets.length; i++) {
             let { at, value } = sets[i];
-            arr.push([at, value]);
+            let jsonValue = {};
+            for (var k in value) {
+                if (propertiesToJson.has(k)) {
+                    jsonValue[k] = propertiesToJson.get(k).call(value[k], fps);
+                }
+                else {
+                    jsonValue[k] = value[k];
+                }
+            }
+            arr.push({ at, value: jsonValue });
         }
         if (stringify === true) {
             return JSON.stringify(arr);

@@ -29,8 +29,8 @@ declare abstract class Animations<Properties> extends Array<Animation<Properties
 }
 
 declare abstract class Sets<Properties> extends Array<Set<Properties>>{
-    toJson(stringify?: true): string;
-    toJson(stringify: false): object;
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): object;
 }
 
 export declare abstract class Animanaged<T extends object, P extends object> {
@@ -42,8 +42,8 @@ export declare abstract class Animanaged<T extends object, P extends object> {
     set(at: number, value: P): this;
     at(progress: number): T;
 
-    toJson(stringify?: true, fps?: number): string;
-    toJson(stringify: false, fps?: number): object;
+    propertyToJson(property: string | number, stringify?: true): string;
+    propertyToJson(property: string | number, stringify: false): any;
 }
 
 export default Animanaged;
