@@ -19,7 +19,10 @@ class Shape {
     static shapeName = "shape";
     shapeName = "shape";
 
-    static fromJson(json, parse = true, throwErrors = false) {
+    static fromJson(json, parse = true, throwErrors = false, shape = new Shape()) {
+        if(!(shape instanceof Shape)){
+            throw new TypeError("shape must be an instanceof Shape.");
+        }
         if (typeof json === 'string' && parse === true) {
             try {
                 json = JSON.parse(json);
@@ -38,7 +41,6 @@ class Shape {
         }
         try {
             var { fillColor, strokeColor, strokeWidth, animations, sets } = json;
-            var shape = new Shape();
             if(fillColor){
                 shape.fill(fillColor);
             }

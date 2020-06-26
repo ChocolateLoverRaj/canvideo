@@ -8,6 +8,41 @@ class Animation {
     static animationName = "animation";
     animationName = "animation";
 
+    static fromJson(json, parse = true, throwErrors = false) {
+        if (typeof json === 'string' && parse === true) {
+            try {
+                json = JSON.parse(json);
+            }
+            catch (e) {
+                if (throwErrors) {
+                    throw e;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else if (parse !== false) {
+            throw new TypeError("Cannot parse non string json.");
+        }
+        try {
+            let { startValue, endValue, reversed } = json;
+            let animation = new Animation(startValue, endValue);
+            if (reversed) {
+                animation.reverse();
+            }
+            return animation;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
     constructor() {
         typedFunction([
             {
@@ -126,7 +161,8 @@ class Animation {
     toJson(stringify = true) {
         let o = {
             startValue: this.startValue,
-            endValue: this.endValue
+            endValue: this.endValue,
+            reversed: this.reversed
         };
         if (stringify === true) {
             return JSON.stringify(o);

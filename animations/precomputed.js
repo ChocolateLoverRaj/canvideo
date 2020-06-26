@@ -4,6 +4,36 @@
 class Precomputed {
     static animationName = "precomputed";
     animationName = "precomputed";
+
+    static fromJson(json, parse = true, throwErrors = false) {
+        if (typeof json === 'string' && parse === true) {
+            try {
+                json = JSON.parse(json);
+            }
+            catch (e) {
+                if (throwErrors) {
+                    throw e;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else if (parse !== false) {
+            throw new TypeError("Cannot parse non string json.");
+        }
+        try {
+            return new Precomputed(json);
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    }
     
     constructor(values) {
         if (values instanceof Array) {
@@ -49,12 +79,11 @@ class Precomputed {
     }
 
     toJson(stringify = true) {
-        let values = this.values;
         if (stringify === true) {
-            return JSON.stringify(values);
+            return JSON.stringify(this.values);
         }
         else if (stringify === false) {
-            return values;
+            return this.values;
         }
         else {
             throw new TypeError("stringify must be a boolean.");

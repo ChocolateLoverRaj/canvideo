@@ -41,4 +41,4 @@ var video = new Video(400, 400, 12)
 
 var videoFromJson = Video.fromJson(fs.readFileSync("./f.json", "utf-8"), true, true);
 
-console.log(videoFromJson);
+console.log(videoFromJson.scenes[0].drawables[2].shape);

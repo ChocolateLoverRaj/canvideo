@@ -148,7 +148,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                         values.push([j, animator(j)]);
                     }
                     var implicitPrecomputed = new Precomputed(values);
-                    o.name = implicitPrecomputed.name;
+                    o.name = Precomputed.animationName;
                     o.data = implicitPrecomputed.toJson(false);
                     o.isBuiltin = true;
                 }
@@ -187,19 +187,22 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     duration,
                     isCalculator: false
                 }
-                if(isBuiltin){
+                if (isBuiltin) {
+                    let notFound = true;
                     animation.isCustom = false;
-                    for(var builtinAnimation of builtInAnimations){
-                        if(name === builtinAnimation.animationName){
-                            //TODO make fromJson functions for animation class and precalculated class
+                    for (var builtinAnimation of builtInAnimations) {
+                        if (name === builtinAnimation.animationName) {
+                            notFound = false;
                             animation.animator = builtinAnimation.fromJson(data, false, true);
                             animation.animator.lasts = lasts;
                             break;
                         }
                     }
-                    throw new TypeError(`There is not builtin animation called: ${name}.`);
+                    if (notFound) {
+                        throw new TypeError(`There is not builtin animation called: ${name}.`);
+                    }
                 }
-                else{
+                else {
                     //TODO handle custom animations.
                 }
                 animations.push(animation);

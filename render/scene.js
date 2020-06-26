@@ -68,7 +68,7 @@ class Scene {
                     for (var i = 0; i < drawables.length; i++) {
                         let { startTime, endTime, layer, shape: { isBuiltin, name, data } } = drawables[i];
                         if(isBuiltin){
-                            scene.add(startTime, endTime, layer, shapes.fromJson(name, data, false, true));
+                            scene.add(startTime, endTime - startTime, layer, shapes.fromJson(name, data, false, true));
                         }
                     }
                 }
