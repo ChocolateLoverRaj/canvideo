@@ -8,7 +8,7 @@ const canvas = require('canvas');
 
 //My Modules
 const { propertiesType, methodsToBindType, animanage } = require("../animations/animanage");
-const { Types, typedFunction } = require("../type");
+const { Types, typedFunction, instanceOf } = require("../type");
 const colorType = require("../render/color");
 
 //Figure out whether ctx given is actually ctx.
@@ -19,36 +19,33 @@ class Shape {
     static shapeName = "shape";
     shapeName = "shape";
 
-    static fromJson(json, parse = true, throwErrors = false, shape = new Shape()) {
-        if(!(shape instanceof Shape)){
-            throw new TypeError("shape must be an instanceof Shape.");
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "shape", type: instanceOf(Shape), optional: true }
+    ], function (json, parse = true, throwErrors = false, shape) {
+        let shapeGiven = false;
+        if (shape instanceof Shape) {
+            shapeGiven = true;
         }
-        if (typeof json === 'string' && parse === true) {
-            try {
-                json = JSON.parse(json);
-            }
-            catch (e) {
-                if (throwErrors) {
-                    throw e;
-                }
-                else {
-                    return false;
-                }
-            }
-        }
-        else if (parse !== false) {
-            throw new TypeError("Cannot parse non string json.");
+        else {
+            shape = new Shape();
         }
         try {
+            if(parse){
+                json = JSON.parse(json);
+            }
             var { fillColor, strokeColor, strokeWidth, animations, sets } = json;
-            if(fillColor){
+            if (fillColor) {
                 shape.fill(fillColor);
             }
-            if(strokeColor){
+            if (strokeColor) {
                 shape.stroke(strokeColor, strokeWidth);
             }
             shape.animations.importJson(animations, false);
-            return shape;
+            shape.sets.importJson(sets, false);
+            return shapeGiven ? [shape, json] : shape;
         }
         catch (e) {
             if (throwErrors) {
@@ -58,7 +55,7 @@ class Shape {
                 return false;
             }
         }
-    }
+    });
 
     constructor() {
         typedFunction([

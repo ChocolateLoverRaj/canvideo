@@ -64,6 +64,11 @@ declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Arra
 declare class Rectangle extends Shape<Rectangle>{
     static shapeName: "rectangle";
 
+    static fromJson(json: string, parse?: true, throwErrors?: false): Rectangle | false;
+    static fromJson(json: any, parse: false, throwErrors?: false): Rectangle | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): Rectangle;
+    static fromJson(json: any, parse: false, throwErrors: true): Rectangle;
+
     constructor(x: number, y: number, width: number, height: number, cornerRound?: setCornerRound);
 
     shapeName: "rectangle";

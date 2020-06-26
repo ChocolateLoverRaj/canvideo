@@ -66,7 +66,6 @@ shapes.fromJson = typedFunction([
     try{
         for(var shape of shapes.list){
             if(name === shape.shapeName){
-                //TODO Make the fromJson function for other shapes, too.
                 return shape.fromJson(json, false, true);
             }
         }

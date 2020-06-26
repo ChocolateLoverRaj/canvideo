@@ -32,6 +32,11 @@ declare interface GroupJson extends ShapeJson<GroupProperties> {
 
 declare class Group extends Shape<Group, GroupProperties>{
     static shapeName: "group";
+
+    static fromJson(json: string, parse?: true, throwErrors?: false): Group | false;
+    static fromJson(json: any, parse: false, throwErrors?: false): Group | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): Group;
+    static fromJson(json: any, parse: false, throwErrors: true): Group;
     
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
 

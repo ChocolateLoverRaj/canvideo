@@ -20,6 +20,15 @@ export declare interface ShapeProperties<P extends {}> extends P {
 export declare class Shape<T extends Shape<T>, P> extends Animanaged<T, ShapeProperties<P>>{
     static shapeName: "shape";
 
+    static fromJson<S extends Shape<any, any>>(json: string, parse?: true, throwErrors?: false, shape: S): [S, object] | false;
+    static fromJson<S extends Shape<any, any>>(json: any, parse: false, throwErrors?: false, shape: S): [S, object] | false;
+    static fromJson<S extends Shape<any, any>>(json: string, parse?: true, throwErrors: true, shape: S): [S, object];
+    static fromJson<S extends Shape<any, any>>(json: any, parse: false, throwErrors: true, shape: S): [S, object];
+    static fromJson(json: string, parse?: true, throwErrors?: false): Shape<Shape, ShapeProperties<{}>> | false;
+    static fromJson(json: any, parse: false, throwErrors?: false): Shape<Shape, ShapeProperties<{}>> | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): Shape<Shape, ShapeProperties<{}>>;
+    static fromJson(json: any, parse: false, throwErrors: true): Shape<Shape, ShapeProperties<{}>>;
+
     constructor(properties: properties, methodsToBind: methods);
 
     shapeName: "shape";

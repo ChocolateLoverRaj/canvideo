@@ -75,6 +75,7 @@ class Scene {
                 else {
                     throw new TypeError("scene.drawables is not an array.");
                 }
+                //TODO make a way of turning a Camera to json and creating a Camera from json.
                 return scene;
             }
             else {

@@ -17,6 +17,11 @@ declare interface CircleJson extends ShapeJson<CircleProperties> {
 declare class Circle extends Shape<Circle, CircleProperties> {
     static shapeName: "circle";
 
+    static fromJson(json: string, parse?: true, throwErrors?: false): Circle | false;
+    static fromJson(json: any, parse: false, throwErrors?: false): Circle | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): Circle;
+    static fromJson(json: any, parse: false, throwErrors: true): Circle;
+
     constructor(cx: number, cy: number, r: number);
 
     shapeName: "circle";

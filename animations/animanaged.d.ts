@@ -27,11 +27,17 @@ export declare type SetJson<Properties> = [number, Properties];
 declare abstract class Animations<Properties> extends Array<Animation<Properties>>{
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): object;
+
+    importJson(json: string, parse?: true): this;
+    importJson(json: any, parse: false): this;
 }
 
 declare abstract class Sets<Properties> extends Array<Set<Properties>>{
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): object;
+
+    importJson(json: string, parse?: true): this;
+    importJson(json: any, parse: false): this;
 }
 
 export declare abstract class Animanaged<T extends object, P extends object> {

@@ -21,6 +21,11 @@ declare interface NumberLineJson extends ShapeJson<NumberLineProperties> {
 declare class NumberLine extends Shape<NumberLine, NumberLineProperties>{
     static shapeName: "numberLine";
 
+    static fromJson(json: string, parse?: true, throwErrors?: false): NumberLine | false;
+    static fromJson(json: any, parse: false, throwErrors?: false): NumberLine | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): NumberLine;
+    static fromJson(json: any, parse: false, throwErrors: true): NumberLine;
+
     constructor(startNumber: number, endNumber: number, x: number, y: number, width: number, height: number);
 
     shapeName: "numberLine";

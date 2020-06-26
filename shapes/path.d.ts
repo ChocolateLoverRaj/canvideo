@@ -17,6 +17,11 @@ declare interface PathJson extends ShapeJson<PathProperties> {
 declare class Path extends Shape<Path>{
     static shapeName: "path";
 
+    static fromJson(json: string, parse?: true, throwErrors?: false): Path | false;
+    static fromJson(json: any, parse: false, throwErrors?: false): Path | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): Path;
+    static fromJson(json: any, parse: false, throwErrors: true): Path;
+
     constructor(fill?: boolean);
 
     shapeName: "path";

@@ -118,7 +118,6 @@ const ExportSteps = {
 
 //Video class
 class Video extends EventEmitter {
-    //TODO update typescript to reflect throwErrors, because if it doesn't throw errors it can return false.
     static fromJson(json, parse = true, throwErrors = false) {
         if (typeof throwErrors !== 'boolean') {
             throw new TypeError("throwErrors must be a boolean.");

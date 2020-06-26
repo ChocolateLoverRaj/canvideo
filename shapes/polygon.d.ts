@@ -18,6 +18,11 @@ declare interface Point {
 declare class Polygon extends Shape<Polygon>{
     static shapeName: "polygon";
 
+    static fromJson(json: string, parse?: true, throwErrors?: false): Polygon | false;
+    static fromJson(json: any, parse: false, throwErrors?: false): Polygon | false;
+    static fromJson(json: string, parse?: true, throwErrors: true): Polygon;
+    static fromJson(json: any, parse: false, throwErrors: true): Polygon;
+
     constructor(...xyList: Array<number>);
     constructor(...xyPair: Array<[number, number]>);
     constructor(...points: Array<Point>);

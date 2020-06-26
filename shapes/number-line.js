@@ -2,14 +2,42 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Overloader, Types, arrayOf } = require("../type");
+const { Overloader, Types, arrayOf, typedFunction } = require("../type");
 const pointInterface = require("./point-interface");
 
 //Number line class
 class NumberLine extends Shape {
     static shapeName = "numberLine";
     shapeName = "numberLine";
-    
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
+    ], function (json, parse = true, throwErrors = false) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let [numberLine, {
+                startNumber, endNumber,
+                x, y,
+                width, height }] = Shape.fromJson(json, false, true, new NumberLine(0, 1, 0, 0, 1, 1));
+            numberLine.startNumber = startNumber, numberLine.endNumber = endNumber;
+            numberLine.x = x, numberLine.y = y;
+            numberLine.width = width, numberLine.height = height;
+            return numberLine;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor(startNumber, endNumber, x, y, width, height) {
         super({
             startNumber: Types.NUMBER,
@@ -91,7 +119,7 @@ class NumberLine extends Shape {
         return this;
     }
 
-    toJson(stringify = true, fps = 60){
+    toJson(stringify = true, fps = 60) {
         let o = {
             ...super.toJson(false, fps),
             startNumber: this.startNumber,
@@ -101,13 +129,13 @@ class NumberLine extends Shape {
             width: this.width,
             height: this.height
         };
-        if(stringify === true){
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
-        else{
+        else {
             throw new TypeError("stringify must be a boolean.");
         }
     }

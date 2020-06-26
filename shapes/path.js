@@ -8,6 +8,44 @@ const { Types, typedFunction, arrayOf } = require("../type");
 class Path extends Shape {
     static shapeName = "path";
     shapeName = "path";
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
+    ], function (json, parse = true, throwErrors = false) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let [path, { doFill, strokeDash, strokeDashOffset, operations }] = Shape.fromJson(json, false, true, new Path());
+            path.strokeDash = strokeDash;
+            path.strokeDashOffset = strokeDashOffset;
+            if(typeof doFill === 'boolean'){
+                path.doFill = doFill;
+            }
+            else{
+                throw new TypeError("path doFill must be a boolean.");
+            }
+            for(let [name, args] of operations){
+                if(["moveTo", "lineTo", "arc"].includes(name)){
+                    path[name](...args);
+                }
+                else{
+                    throw new TypeError(`Unknown operation name: ${name}.`);
+                }
+            }
+            return path;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
     
     constructor(fill = false) {
         if (typeof fill === 'boolean') {

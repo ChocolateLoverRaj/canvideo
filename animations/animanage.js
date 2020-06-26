@@ -211,6 +211,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         else {
             throw new TypeError("animations is not an array.");
         }
+        return animations;
     }
     Object.defineProperty(o, "animate", {
         enumerable: true,
@@ -297,7 +298,23 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                 return this;
             })
     });
-    //TODO add importJson to sets
+    sets.importJson = function (json, parse = true) {
+        if (typeof json === 'string' && parse === true) {
+            json = JSON.parse(json);
+        }
+        else if (parse !== false) {
+            throw new TypeError("Cannot parse non string json.");
+        }
+        if (json instanceof Array) {
+            for (let { at, value } of json) {
+                o.set(at, value);
+            }
+        }
+        else {
+            throw new TypeError("json is not an array.");
+        }
+        return sets;
+    }
     //Add the at function.
     Object.defineProperty(o, "at", {
         enumerable: true,

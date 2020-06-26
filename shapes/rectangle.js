@@ -2,7 +2,7 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Types, Interface, either, arrayOf } = require("../type");
+const { Types, Interface, either, arrayOf, typedFunction } = require("../type");
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)
@@ -38,7 +38,42 @@ const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCo
 class Rectangle extends Shape {
     static shapeName = "rectangle";
     shapeName = "rectangle";
-    
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
+    ], function (json, parse = true, throwErrors = false) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let [circle, {
+                x, y,
+                width, height,
+                cornerRound: {
+                    topLeft,
+                    topRight,
+                    bottomLeft,
+                    bottomRight
+                } }] = Shape.fromJson(json, false, true, new Rectangle(0, 0, 0, 0));
+            circle.x = x, circle.y = y;
+            circle.width = width, circle.height = height;
+            circle.cornerRound = {
+                topLeft, topRight, bottomLeft, bottomRight
+            };
+            return circle;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor(x, y, width, height, cornerRound = 0) {
         super({
             x: Types.NUMBER,
@@ -248,7 +283,7 @@ class Rectangle extends Shape {
         this.bottomRightCornerRound = cornerRound;
         return this;
     }
-    
+
     setCornerRound() {
         if (arguments.length > 1) {
             this.cornerRound = [...arguments];
@@ -332,7 +367,7 @@ class Rectangle extends Shape {
         return this;
     }
 
-    toJson(stringify = true, fps = 60){
+    toJson(stringify = true, fps = 60) {
         let o = {
             ...super.toJson(false, fps),
             x: this.x,
@@ -341,13 +376,13 @@ class Rectangle extends Shape {
             height: this.height,
             cornerRound: this.cornerRound
         };
-        if(stringify === true){
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
-        else{
+        else {
             throw new TypeError("stringify must be a boolean.");
         }
     }
