@@ -1,7 +1,25 @@
 //Parse and stringify videos to JSON
 
 const fs = require('fs');
-const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group } = require("../index");
+const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group, Shape } = require("../index");
+
+class CustomShape extends Shape {
+    constructor(stuff){
+        super();
+        this.stuff = stuff;
+    }
+
+    toJson(stringify, fps){
+        let o = super.toJson(false, fps);
+        o.stuff = this.stuff;
+        if(stringify){
+            return JSON.stringify(o);
+        }
+        else{
+            return o;
+        }
+    }
+}
 
 var video = new Video(400, 400, 12)
     .add(new Scene()
@@ -34,9 +52,10 @@ var video = new Video(400, 400, 12)
             )
             .set(5, { y: 300 })
         )
+        .add(0, 10, new CustomShape("Hello, who is this?"))
     );
 
-//fs.writeFileSync("./f.json", video.toJson());
+fs.writeFileSync("./f.json", video.toJson());
 //TODO explain what the purpose of this example file is.
 
 var read = fs.readFileSync("./f.json", "utf-8");

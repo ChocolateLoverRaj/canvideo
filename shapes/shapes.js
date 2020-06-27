@@ -19,7 +19,7 @@ shapes.list = [Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path];
 //Check if a shape is builtin or not
 shapes.isBuiltin = function(shape){
     for(var builtinShape of shapes.list){
-        if(shape instanceof builtinShape){
+        if(Object.getPrototypeOf(shape) === builtinShape.prototype){
             return true;
         }
     }

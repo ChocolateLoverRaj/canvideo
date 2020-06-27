@@ -21,7 +21,7 @@ const sizeInterface = new Interface(false)
 //This is because requiring ./shapes.js will cause circular dependencies
 const isBuiltin = a => {
     for (let shape of shapesList) {
-        if (a instanceof shape) {
+        if (Object.getPrototypeOf(a) === shape.prototype) {
             return true;
         }
     }

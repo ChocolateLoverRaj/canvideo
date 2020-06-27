@@ -32,27 +32,16 @@ const addInterface = new Interface(false)
 
 //Scene class
 class Scene {
-    static fromJson(json, parse = true, throwErrors = false) {
-        if (typeof throwErrors !== 'boolean') {
-            throw new TypeError("throwErrors must be a boolean.");
-        }
-        if (typeof json === 'string' && parse === true) {
-            try {
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "csMappings", type: instanceOf(Map), optional: true }
+    ],function  (json, parse = true, throwErrors = false) {
+        try {
+            if(parse){
                 json = JSON.parse(json);
             }
-            catch (e) {
-                if (throwErrors) {
-                    throw e;
-                }
-                else {
-                    return false;
-                }
-            }
-        }
-        else if (parse !== false) {
-            throw new TypeError("json and parse arguments do not fit together.");
-        }
-        try {
             if (typeof json === 'object') {
                 var { backgroundColor, drawables } = json;
                 const propertiesToAdd = new Set()
@@ -70,6 +59,7 @@ class Scene {
                         if(isBuiltin){
                             scene.add(startTime, endTime - startTime, layer, shapes.fromJson(name, data, false, true));
                         }
+                        else if(cs)
                     }
                 }
                 else {
@@ -90,7 +80,7 @@ class Scene {
                 return false;
             }
         }
-    }
+    });
 
     constructor() {
         typify(this, {
