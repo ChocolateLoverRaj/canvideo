@@ -2,11 +2,38 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { arrayOf } = require("../type");
+const { arrayOf, typedFunction, Types, instanceOf } = require("../type");
 const pointInterface = require("./point-interface");
 
 //Polygon class
 class Polygon extends Shape {
+    static shapeName = "polygon";
+    shapeName = "polygon";
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let [polygon, { points }] = Shape.fromJson(json, false, true, caMappings, new Polygon());
+            polygon.points = points;
+            return polygon;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor() {
         super({
             points: {
@@ -21,13 +48,13 @@ class Polygon extends Shape {
                 }
                 else {
                     for (var i = 0; i < arguments.length; i += 2) {
-                        if(typeof arguments[i] === 'number' && typeof arguments[i + 1] === 'number'){
+                        if (typeof arguments[i] === 'number' && typeof arguments[i + 1] === 'number') {
                             this.points.push({
                                 x: arguments[i],
                                 y: arguments[i + 1]
                             });
                         }
-                        else{
+                        else {
                             throw new TypeError("Bad list of x and ys.");
                         }
                     }
@@ -35,32 +62,32 @@ class Polygon extends Shape {
                 break;
             case 'object':
                 if (arguments[0] instanceof Array) {
-                    for(var i = 0; i < arguments.length; i++){
+                    for (var i = 0; i < arguments.length; i++) {
                         let arg = arguments[i];
-                        if(arg instanceof Array && arg.length === 2){
-                            if(typeof arg[0] === 'number' && typeof arg[1] === "number"){
+                        if (arg instanceof Array && arg.length === 2) {
+                            if (typeof arg[0] === 'number' && typeof arg[1] === "number") {
                                 this.points.push({
                                     x: arg[0],
                                     y: arg[1]
                                 });
                             }
-                            else{
+                            else {
                                 throw new TypeError("Expected [number, number].");
                             }
                         }
-                        else{
+                        else {
                             throw new TypeError("Expected all args to be an array of [x, y].");
                         }
                     }
                 }
                 else {
-                    for(var i = 0; i < arguments.length; i++){
+                    for (var i = 0; i < arguments.length; i++) {
                         let arg = arguments[i];
                         let err = pointInterface(arg);
-                        if(!err){
+                        if (!err) {
                             this.points.push(arg);
                         }
-                        else{
+                        else {
                             throw new TypeError(`point ${i}: ${arg}, ${err}`);
                         }
                     }
@@ -76,22 +103,38 @@ class Polygon extends Shape {
         }
     }
 
-    draw(ctx){
+    draw(ctx) {
         super.draw(ctx);
 
         ctx.beginPath();
         ctx.moveTo(this.points[0].x, this.points[0].y);
-        for(var i = 0; i < this.points.length; i++){
+        for (var i = 0; i < this.points.length; i++) {
             let point = this.points[i];
             ctx.lineTo(point.x, point.y);
         }
         ctx.closePath();
         ctx.fill();
-        if(this.strokeWidth > 0){
+        if (this.strokeWidth > 0) {
             ctx.stroke();
         }
 
         return this;
+    }
+
+    toJson(stringify = true, fps = 60) {
+        let o = {
+            ...super.toJson(false, fps),
+            points: this.points
+        };
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 }
 

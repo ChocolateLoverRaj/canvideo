@@ -2,6 +2,10 @@ import { EventEmitter } from 'events';
 
 import { PNGStream } from 'canvas';
 
+import { SceneJson } from "./scene";
+import csMappings from "../shapes/cs-mappings";
+import { caMappings } from '../animations/animanaged';
+
 export declare function setTempPath(path: string): Promise<string>;
 
 export declare function setFfmpegPath(path: string): Promise<boolean>;
@@ -129,7 +133,19 @@ declare abstract class VideoExport extends EventEmitter {
     prependOnceListener(event: "error", listener: (err?: Error) => void): this;
 }
 
+declare interface VideoJson {
+    width: number;
+    height: number;
+    fps: number;
+    scenes: Array<SceneJson>;
+}
+
 export declare class Video extends EventEmitter {
+    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Video | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Video;
+    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Video | false;
+    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Video;
+
     constructor(width: number, height: number, fps: number);
     constructor(size: RegularSize, fps: number);
     constructor(size: ShortSize, fps: number);
@@ -159,6 +175,9 @@ export declare class Video extends EventEmitter {
     setTempPath(path: string): this;
 
     add(scene: Scene): this;
+
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): VideoJson;
 
     export(outputPath: string, returnPromise?: false): this;
     export(outputPath: string, returnPromise: true): Promise<undefined>;

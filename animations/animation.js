@@ -2,9 +2,47 @@
 //Just give an object of keys
 
 //Dependencies
-const { typedFunction, Types } = require("./type");
+const { typedFunction, Types } = require("../type");
 
 class Animation {
+    static animationName = "animation";
+    animationName = "animation";
+
+    static fromJson(json, parse = true, throwErrors = false) {
+        if (typeof json === 'string' && parse === true) {
+            try {
+                json = JSON.parse(json);
+            }
+            catch (e) {
+                if (throwErrors) {
+                    throw e;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else if (parse !== false) {
+            throw new TypeError("Cannot parse non string json.");
+        }
+        try {
+            let { startValue, endValue, reversed } = json;
+            let animation = new Animation(startValue, endValue);
+            if (reversed) {
+                animation.reverse();
+            }
+            return animation;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
     constructor() {
         typedFunction([
             {
@@ -75,43 +113,42 @@ class Animation {
         }).apply(this, arguments);
     }
 
-    calculator = typedFunction([{ name: "progress", type: Types.UNIT_INTERVAL }], function (progress) {
-        //If the reverse effect is enabled, then alter the progress.
-        if (this.reversed) {
-            progress = 1 - Math.abs(progress * 2 - 1);
-        }
-        const calcNumber = (s, e) => s + progress * (e - s);
-        const calcObject = (s, e) => {
-            var o;
-            if(s instanceof Array && e instanceof Array){
-                o = [];
+    calculate() {
+        return typedFunction([{ name: "progress", type: Types.UNIT_INTERVAL }], function (progress) {
+            //If the reverse effect is enabled, then alter the progress.
+            if (this.reversed) {
+                progress = 1 - Math.abs(progress * 2 - 1);
             }
-            else{
-                o = {};
-            }
-            for (var k in s) {
-                let sV = s[k];
-                let eV = e[k];
-                switch (typeof sV) {
-                    case 'object':
-                        o[k] = calcObject(sV, eV);
-                        break;
-                    case 'number':
-                        o[k] = calcNumber(sV, eV);
-                        break;
+            const calcNumber = (s, e) => s + progress * (e - s);
+            const calcObject = (s, e) => {
+                var o;
+                if (s instanceof Array && e instanceof Array) {
+                    o = [];
                 }
+                else {
+                    o = {};
+                }
+                for (var k in s) {
+                    let sV = s[k];
+                    let eV = e[k];
+                    switch (typeof sV) {
+                        case 'object':
+                            o[k] = calcObject(sV, eV);
+                            break;
+                        case 'number':
+                            o[k] = calcNumber(sV, eV);
+                            break;
+                    }
+                }
+                return o;
             }
-            return o;
-        }
-        return calcObject(this.startValue, this.endValue);
-    }).bind(this);
-
-    getCalculator() {
-        return this.calculator;
+            return calcObject(this.startValue, this.endValue);
+        }).apply(this, arguments);
     }
 
+    lasts = false;
     last() {
-        this.calculator.lasts = true;
+        this.lasts = true;
         return this;
     }
 
@@ -119,6 +156,23 @@ class Animation {
     reverse() {
         this.reversed = true;
         return this;
+    }
+
+    toJson(stringify = true) {
+        let o = {
+            startValue: this.startValue,
+            endValue: this.endValue,
+            reversed: this.reversed
+        };
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 };
 

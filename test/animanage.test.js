@@ -5,10 +5,10 @@
 const chai = require('chai');
 
 //My Modules
-const { animanage } = require("../properties/animanage");
+const { animanage } = require("../animations/animanage");
 const { Types } = require("../type");
 const expectError = require("./expect-error");
-const Animation = require("../animation");
+const Animation = require("../animations/animation");
 
 const expect = chai.expect;
 
@@ -51,8 +51,8 @@ function test() {
                     initial: 0
                 }
             }, []);
-            o.animate(5, 5, new Animation({ a: 0 }, { a: 10 }).getCalculator());
-            o.animate(5, 5, new Animation({ b: 10 }, { b: 5 }).getCalculator());
+            o.animate(5, 5, new Animation({ a: 0 }, { a: 10 }));
+            o.animate(5, 5, new Animation({ b: 10 }, { b: 5 }));
             expect(o.at(0)).to.include({ a: 0, b: 0 });
             expect(o.at(4)).to.include({ a: 0, b: 0 });
             expect(o.at(5)).to.include({ a: 0, b: 10 });

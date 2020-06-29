@@ -1,9 +1,18 @@
 import { PNGStream } from "canvas";
 
-import Drawable from "./drawable";
+import { default as Shape } from "./drawable";
 import Camera from "./camera";
 import setColor from "./color/set";
 import GetColor from "./color/get";
+import csMappings from "../shapes/cs-mappings";
+import { caMappings } from "../animations/animanaged";
+
+declare interface Drawable {
+    startTime: number;
+    endTime: number;
+    layer: number;
+    shape: Shape;
+}
 
 declare interface AddOptions {
     startTime?: number;
@@ -16,7 +25,28 @@ declare interface RenderOptions {
     height: number;
 }
 
-export default class Scene {
+declare interface DrawableJson {
+    startTime: number;
+    endTime: number;
+    layer: number;
+    shape: {
+        isBuiltin: boolean;
+        name: string | undefined;
+        data: object;
+    }
+}
+
+export declare interface SceneJson {
+    backgroundColor: string;
+    drawables: Array<DrawableJson>;
+}
+
+export declare class Scene {
+    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Scene | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Scene;
+    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Scene | false;
+    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Scene;
+
     constructor();
 
     drawables: Array<Drawable>;
@@ -24,11 +54,11 @@ export default class Scene {
     duration: number;
     readonly autoDuration: number;
 
-    add(drawable: Drawable): this;
-    add(startTime: number, drawable: Drawable): this;
-    add(startTime: number, duration: number, drawable: Drawable): this;
-    add(startTime: number, duration: number, layer: number, drawable: Drawable): this;
-    add(addOptions: AddOptions, drawable: Drawable): this;
+    add(drawable: Shape): this;
+    add(startTime: number, drawable: Shape): this;
+    add(startTime: number, duration: number, drawable: Shape): this;
+    add(startTime: number, duration: number, layer: number, drawable: Shape): this;
+    add(addOptions: AddOptions, drawable: Shape): this;
 
     set backgroundColor(color: setColor): this;
     get backgroundColor(): GetColor;
@@ -40,4 +70,9 @@ export default class Scene {
     render(at: number, options: RenderOptions): PNGStream;
 
     setDuration(duration: number): this;
+
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): SceneJson;
 }
+
+export default Scene;

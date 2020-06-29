@@ -11,13 +11,15 @@ const {
     typedFunction,
     Types,
     Overloader,
-    Interface } = require("../type");
+    Interface,
+    instanceOf } = require("../type");
 const Camera = require("./camera");
 const { sizeInterface } = require("./size");
 const colorType = require("./color");
 const shapeInterface = require("../shapes/shape-interface");
 const typify = require("../properties/typify");
 const cameraInterface = require("./camera-interface");
+const shapes = require("../shapes/shapes");
 
 //Config
 const defaultDuration = 5;
@@ -31,20 +33,69 @@ const addInterface = new Interface(false)
 
 //Scene class
 class Scene {
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            if (typeof json === 'object') {
+                var { backgroundColor, camera, drawables } = json;
+                var scene = new Scene()
+                    .setBackgroundColor(backgroundColor)
+                    .setCamera(Camera.fromJson(camera, false, true));
+                if (drawables instanceof Array) {
+                    for (var i = 0; i < drawables.length; i++) {
+                        let { startTime, endTime, layer, shape: { isBuiltin, name, data } } = drawables[i];
+                        if (isBuiltin) {
+                            scene.add(startTime, endTime - startTime, layer, shapes.fromJson(name, data, false, true, csMappings, caMappings));
+                        }
+                        else if (csMappings.has(name)) {
+                            scene.add(startTime, endTime - startTime, layer, csMappings.get(name)(data, false, true, csMappings, caMappings));
+                        }
+                        else {
+                            throw new TypeError(`Unmapped custom shape name: ${name}.`);
+                        }
+                    }
+                }
+                else {
+                    throw new TypeError("scene.drawables is not an array.");
+                }
+                return scene;
+            }
+            else {
+                throw new TypeError("video is not an object.");
+            }
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor() {
         typify(this, {
             backgroundColor: {
                 type: colorType,
                 initial: tinyColor("white"),
-                setter: function(v, set){
-                    if(typeof v === 'object'){
+                setter: function (v, set) {
+                    if (typeof v === 'object') {
                         set(tinyColor(Object.assign(this._backgroundColor.toRgb(), v)));
                     }
-                    else{
+                    else {
                         set(tinyColor(v));
                     }
                 },
-                getter: function(){
+                getter: function () {
                     var rgb = this._backgroundColor.toRgb();
                     rgb.hexString = this._backgroundColor.toHexString();
                     return rgb;
@@ -134,7 +185,7 @@ class Scene {
         return this;
     };
 
-    setBackgroundColor(color){
+    setBackgroundColor(color) {
         this.backgroundColor = color;
         return this;
     }
@@ -221,6 +272,36 @@ class Scene {
         this.duration = duration;
         return this;
     };
+
+    toJson(stringify = true, fps = 60) {
+        let o = {
+            backgroundColor: this.backgroundColor.hexString,
+            drawables: [],
+            camera: this.camera.toJson(false)
+        };
+        for (var i = 0; i < this.drawables.length; i++) {
+            let { startTime, endTime, layer, shape } = this.drawables[i];
+            o.drawables.push({
+                startTime,
+                endTime,
+                layer,
+                shape: {
+                    isBuiltin: shapes.isBuiltin(shape),
+                    name: shape.shapeName,
+                    data: shape.toJson(false, fps)
+                }
+            });
+        }
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 }
 
 //Export the module

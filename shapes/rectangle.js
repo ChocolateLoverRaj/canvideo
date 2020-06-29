@@ -2,7 +2,7 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Types, Interface, either, arrayOf } = require("../type");
+const { Types, Interface, either, arrayOf, typedFunction, instanceOf } = require("../type");
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)
@@ -36,16 +36,67 @@ const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCo
 
 //Rectangle class
 class Rectangle extends Shape {
+    static shapeName = "rectangle";
+    shapeName = "rectangle";
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let [circle, {
+                x, y,
+                width, height,
+                cornerRound: {
+                    topLeft,
+                    topRight,
+                    bottomLeft,
+                    bottomRight
+                } }] = Shape.fromJson(json, false, true, caMappings, new Rectangle(0, 0, 0, 0));
+            circle.x = x, circle.y = y;
+            circle.width = width, circle.height = height;
+            circle.cornerRound = {
+                topLeft, topRight, bottomLeft, bottomRight
+            };
+            return circle;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor(x, y, width, height, cornerRound = 0) {
         super({
             x: Types.NUMBER,
             y: Types.NUMBER,
             width: Types.NUMBER,
             height: Types.NUMBER,
-            topLeftCornerRound: Types.NON_NEGATIVE_NUMBER,
-            topRightCornerRound: Types.NON_NEGATIVE_NUMBER,
-            bottomLeftCornerRound: Types.NON_NEGATIVE_NUMBER,
-            bottomRightCornerRound: Types.NON_NEGATIVE_NUMBER,
+            topLeftCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
+            topRightCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
+            bottomLeftCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
+            bottomRightCornerRound: {
+                initial: 0,
+                type: Types.NON_NEGATIVE_NUMBER
+            },
             cornerRound: {
                 type: cornerRoundType,
                 setter: function (v) {
@@ -233,6 +284,7 @@ class Rectangle extends Shape {
         this.bottomRightCornerRound = cornerRound;
         return this;
     }
+
     setCornerRound() {
         if (arguments.length > 1) {
             this.cornerRound = [...arguments];
@@ -314,6 +366,26 @@ class Rectangle extends Shape {
         }
 
         return this;
+    }
+
+    toJson(stringify = true, fps = 60) {
+        let o = {
+            ...super.toJson(false, fps),
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            cornerRound: this.cornerRound
+        };
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 }
 

@@ -7,8 +7,8 @@ const tinyColor = require('tinycolor2');
 const canvas = require('canvas');
 
 //My Modules
-const { propertiesType, methodsToBindType, animanage } = require("../properties/animanage");
-const { Types, typedFunction } = require("../type");
+const { propertiesType, methodsToBindType, animanage } = require("../animations/animanage");
+const { Types, typedFunction, instanceOf } = require("../type");
 const colorType = require("../render/color");
 
 //Figure out whether ctx given is actually ctx.
@@ -16,6 +16,48 @@ const ctxType = a => a instanceof canvas.CanvasRenderingContext2D ? false : "is 
 
 //Shape class
 class Shape {
+    static shapeName = "shape";
+    shapeName = "shape";
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true },
+        { name: "shape", type: instanceOf(Shape), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map(), shape) {
+        let shapeGiven = false;
+        if (shape instanceof Shape) {
+            shapeGiven = true;
+        }
+        else {
+            shape = new Shape();
+        }
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            var { fillColor, strokeColor, strokeWidth, animations, sets } = json;
+            if (fillColor) {
+                shape.fill(fillColor);
+            }
+            if (strokeColor) {
+                shape.stroke(strokeColor, strokeWidth);
+            }
+            shape.animations.importJson(animations, false, caMappings);
+            shape.sets.importJson(sets, false);
+            return shapeGiven ? [shape, json] : shape;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor() {
         typedFunction([
             {
@@ -103,6 +145,25 @@ class Shape {
             }
             return this;
         }).apply(this, arguments);
+    }
+
+    toJson(stringify = true, fps = 60) {
+        let o = {
+            fillColor: this.isExplicitlySet("fillColor") ? this.fillColor.hexString : undefined,
+            strokeColor: this.isExplicitlySet("strokeColor") ? this.strokeColor.hexString : undefined,
+            strokeWidth: this.isExplicitlySet("strokeWidth") ? this.strokeWidth : undefined,
+            animations: this.animations.toJson(false, fps),
+            sets: this.sets.toJson(false)
+        };
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 }
 
