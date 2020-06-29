@@ -2,6 +2,7 @@ import MyCtx from "../render/my-ctx";
 import { Animanaged, AnimationJson, SetJson } from "../animations/animanaged";
 import { properties, methods } from "../properties/properties";
 import { GetColor, setColor } from "../color";
+import { caMappings } from "../animations/animanaged";
 
 export declare interface ShapeJson<P extends {}> {
     fillColor: string | undefined;
@@ -17,17 +18,17 @@ export declare interface ShapeProperties<P extends {}> extends P {
     strokeWidth: number | undefined;
 }
 
-export declare class Shape<T extends Shape<T>, P> extends Animanaged<T, ShapeProperties<P>>{
+export declare class Shape<T extends Shape<T>, P extends {}> extends Animanaged<T, ShapeProperties<P>>{
     static shapeName: "shape";
 
-    static fromJson<S extends Shape<any, any>>(json: string, parse?: true, throwErrors?: false, shape: S): [S, object] | false;
-    static fromJson<S extends Shape<any, any>>(json: any, parse: false, throwErrors?: false, shape: S): [S, object] | false;
-    static fromJson<S extends Shape<any, any>>(json: string, parse?: true, throwErrors: true, shape: S): [S, object];
-    static fromJson<S extends Shape<any, any>>(json: any, parse: false, throwErrors: true, shape: S): [S, object];
-    static fromJson(json: string, parse?: true, throwErrors?: false): Shape<Shape, ShapeProperties<{}>> | false;
-    static fromJson(json: any, parse: false, throwErrors?: false): Shape<Shape, ShapeProperties<{}>> | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Shape<Shape, ShapeProperties<{}>>;
-    static fromJson(json: any, parse: false, throwErrors: true): Shape<Shape, ShapeProperties<{}>>;
+    static fromJson<S extends Shape<any, any>>(json: string, parse?: true, throwErrors?: false, caMappings?: caMappings<P>, shape?: S): [S, object] | false;
+    static fromJson<S extends Shape<any, any>>(json: any, parse: false, throwErrors?: false, caMappings?: caMappings<P>, shape?: S): [S, object] | false;
+    static fromJson<S extends Shape<any, any>>(json: string, parse?: true, throwErrors: true, caMappings?: caMappings<P>, shape?: S): [S, object];
+    static fromJson<S extends Shape<any, any>>(json: any, parse: false, throwErrors: true, caMappings?: caMappings<P>, shape?: S): [S, object];
+    static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: caMappings<P>): Shape<Shape, ShapeProperties<{}>> | false;
+    static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: caMappings<P>): Shape<Shape, ShapeProperties<{}>> | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: caMappings<P>): Shape<Shape, ShapeProperties<{}>>;
+    static fromJson(json: any, parse: false, throwErrors: true, caMappings?: caMappings<P>): Shape<Shape, ShapeProperties<{}>>;
 
     constructor(properties: properties, methodsToBind: methods);
 

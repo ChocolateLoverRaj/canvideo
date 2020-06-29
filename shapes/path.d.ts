@@ -1,4 +1,5 @@
 import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import { caMappings } from "../animations/animanaged";
 
 declare interface PathProperties extends ShapeProperties<PathProperties> {
     doFill: boolean;
@@ -14,13 +15,15 @@ declare interface PathJson extends ShapeJson<PathProperties> {
     operations: Array<[string, Array<string>]>;
 }
 
+declare type pathCaMappings = caMappings<PathProperties>;
+
 declare class Path extends Shape<Path>{
     static shapeName: "path";
 
-    static fromJson(json: string, parse?: true, throwErrors?: false): Path | false;
-    static fromJson(json: any, parse: false, throwErrors?: false): Path | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Path;
-    static fromJson(json: any, parse: false, throwErrors: true): Path;
+    static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: pathCaMappings): Path | false;
+    static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: pathCaMappings): Path | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: pathCaMappings): Path;
+    static fromJson(json: any, parse: false, throwErrors: true, caMappings?: pathCaMappings): Path;
 
     constructor(fill?: boolean);
 

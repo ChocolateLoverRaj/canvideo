@@ -1,6 +1,7 @@
 import { CanvasRenderingContext2D } from 'canvas';
 
 import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import { caMappings } from '../animations/animanaged';
 
 declare interface PolygonProperties extends ShapeProperties<PolygonProperties> {
     points: Array<Point>;
@@ -15,13 +16,15 @@ declare interface Point {
     y: number;
 }
 
-declare class Polygon extends Shape<Polygon>{
+declare type polygonCaMappings = caMappings<PolygonProperties>;
+
+declare class Polygon extends Shape<Polygon, PolygonProperties>{
     static shapeName: "polygon";
 
-    static fromJson(json: string, parse?: true, throwErrors?: false): Polygon | false;
-    static fromJson(json: any, parse: false, throwErrors?: false): Polygon | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Polygon;
-    static fromJson(json: any, parse: false, throwErrors: true): Polygon;
+    static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: polygonCaMappings): Polygon | false;
+    static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: polygonCaMappings): Polygon | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: polygonCaMappings): Polygon;
+    static fromJson(json: any, parse: false, throwErrors: true, caMappings?: polygonCaMappings): Polygon;
 
     constructor(...xyList: Array<number>);
     constructor(...xyPair: Array<[number, number]>);

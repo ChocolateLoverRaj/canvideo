@@ -2,7 +2,7 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { arrayOf, typedFunction, Types } = require("../type");
+const { arrayOf, typedFunction, Types, instanceOf } = require("../type");
 const pointInterface = require("./point-interface");
 
 //Polygon class
@@ -13,13 +13,14 @@ class Polygon extends Shape {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
-        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
-    ], function (json, parse = true, throwErrors = false) {
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
                 json = JSON.parse(json);
             }
-            let [polygon, { points }] = Shape.fromJson(json, false, true, new Polygon());
+            let [polygon, { points }] = Shape.fromJson(json, false, true, caMappings, new Polygon());
             polygon.points = points;
             return polygon;
         }

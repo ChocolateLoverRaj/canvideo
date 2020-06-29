@@ -1,7 +1,7 @@
 //Manage animatable properties
 
 //Dependencies
-const { Types, typedFunction, keyValueObject, interface, either, Interface } = require("../type");
+const { Types, typedFunction, keyValueObject, interface, either, Interface, instanceOf } = require("../type");
 const { methodsToBindType } = require("../properties/properties-type");
 const Animation = require("./animation");
 const Precomputed = require("./precomputed");
@@ -173,12 +173,13 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         }
     }
     //Add the importJson method to the animations
-    animations.importJson = function (json, parse = true) {
-        if (typeof json === 'string' && parse === true) {
+    animations.importJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, caMappings = new Map()) {
+        if (parse) {
             json = JSON.parse(json);
-        }
-        else if (parse !== false) {
-            throw new TypeError("Cannot parse non string json.");
         }
         if (json instanceof Array) {
             for (var { startTime, duration, isBuiltin, name, lasts, data } of json) {
@@ -202,8 +203,13 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                         throw new TypeError(`There is not builtin animation called: ${name}.`);
                     }
                 }
+                else if (caMappings.has(name)) {
+                    animation.isCustom = true;
+                    animation.animator = caMappings.get(name)(data, false, true);
+                    animation.animator.lasts = lasts;
+                }
                 else {
-                    //TODO handle custom animations.
+                    throw new TypeError(`Unknown custom animation name: ${name}.`);
                 }
                 animations.push(animation);
             }
@@ -212,7 +218,7 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
             throw new TypeError("animations is not an array.");
         }
         return animations;
-    }
+    });
     Object.defineProperty(o, "animate", {
         enumerable: true,
         configurable: false,
@@ -225,18 +231,15 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     duration,
                     animator,
                     isCalculator: typeof animator === 'function',
-                    isCustom: false
+                    isCustom: true
                 };
                 if (typeof animator === 'object') {
-                    for (let builtIn of builtInAnimations) {
-                        if (animator instanceof builtIn) {
+                    for (let builtin of builtInAnimations) {
+                        if (Object.getPrototypeOf(animator) === builtin.prototype) {
                             animation.isCustom = false;
                             break;
                         }
                     }
-                }
-                else {
-                    animation.isCustom = true;
                 }
                 animations.push(animation);
                 return this;

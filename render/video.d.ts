@@ -3,6 +3,8 @@ import { EventEmitter } from 'events';
 import { PNGStream } from 'canvas';
 
 import { SceneJson } from "./scene";
+import csMappings from "../shapes/cs-mappings";
+import { caMappings } from '../animations/animanaged';
 
 export declare function setTempPath(path: string): Promise<string>;
 
@@ -139,10 +141,10 @@ declare interface VideoJson {
 }
 
 export declare class Video extends EventEmitter {
-    static fromJson(json: string, parse?: true, throwErrors?: false): Video | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Video;
-    static fromJson(json: any, parse: false, throwErrors?: false): Video | false;
-    static fromJson(json: any, parse: false, throwErrors: true): Video;
+    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Video | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Video;
+    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Video | false;
+    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Video;
 
     constructor(width: number, height: number, fps: number);
     constructor(size: RegularSize, fps: number);

@@ -2,7 +2,7 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Overloader, Types, arrayOf, typedFunction } = require("../type");
+const { Overloader, Types, arrayOf, typedFunction, instanceOf } = require("../type");
 const pointInterface = require("./point-interface");
 
 //Number line class
@@ -13,8 +13,9 @@ class NumberLine extends Shape {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
-        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
-    ], function (json, parse = true, throwErrors = false) {
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
                 json = JSON.parse(json);
@@ -22,7 +23,7 @@ class NumberLine extends Shape {
             let [numberLine, {
                 startNumber, endNumber,
                 x, y,
-                width, height }] = Shape.fromJson(json, false, true, new NumberLine(0, 1, 0, 0, 1, 1));
+                width, height }] = Shape.fromJson(json, false, true, caMappings, new NumberLine(0, 1, 0, 0, 1, 1));
             numberLine.startNumber = startNumber, numberLine.endNumber = endNumber;
             numberLine.x = x, numberLine.y = y;
             numberLine.width = width, numberLine.height = height;

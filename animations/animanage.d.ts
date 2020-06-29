@@ -14,7 +14,7 @@ declare interface Properties {
     [string | number]: property;
 }
 
-export const propertiesType: type;
-export const methodsToBindType: type;
+export declare const propertiesType: type;
+export declare const methodsToBindType: type;
 
 export declare function animanage<T extends object, P extends object>(o: T, properties: Properties, methodsToBind: methods): T & Animanaged<T, P>;

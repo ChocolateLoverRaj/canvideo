@@ -2,7 +2,7 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Types, Interface, either, arrayOf, typedFunction } = require("../type");
+const { Types, Interface, either, arrayOf, typedFunction, instanceOf } = require("../type");
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)
@@ -42,8 +42,9 @@ class Rectangle extends Shape {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
-        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
-    ], function (json, parse = true, throwErrors = false) {
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
                 json = JSON.parse(json);
@@ -56,7 +57,7 @@ class Rectangle extends Shape {
                     topRight,
                     bottomLeft,
                     bottomRight
-                } }] = Shape.fromJson(json, false, true, new Rectangle(0, 0, 0, 0));
+                } }] = Shape.fromJson(json, false, true, caMappings, new Rectangle(0, 0, 0, 0));
             circle.x = x, circle.y = y;
             circle.width = width, circle.height = height;
             circle.cornerRound = {

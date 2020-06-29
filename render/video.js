@@ -11,7 +11,7 @@ const ffmpeg = require('fluent-ffmpeg');
 
 //My Modules
 const { Overloader, Types, Interface, either, typedFunction, instanceOf } = require("../type");
-const { sizeType, regularSizeInterface, shortSizeInterface, sizeInterface } = require("./size");
+const { sizeType, regularSizeInterface, shortSizeInterface } = require("./size");
 const typify = require("../properties/typify");
 const defaultify = require("../lib/default-properties");
 const Scene = require("./scene");
@@ -118,27 +118,17 @@ const ExportSteps = {
 
 //Video class
 class Video extends EventEmitter {
-    static fromJson(json, parse = true, throwErrors = false) {
-        if (typeof throwErrors !== 'boolean') {
-            throw new TypeError("throwErrors must be a boolean.");
-        }
-        if (typeof json === 'string' && parse === true) {
-            try {
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
+        try {
+            if (parse) {
                 json = JSON.parse(json);
             }
-            catch (e) {
-                if (throwErrors) {
-                    throw e;
-                }
-                else {
-                    return false;
-                }
-            }
-        }
-        else if (parse !== false) {
-            throw new TypeError("json and parse arguments do not fit together.");
-        }
-        try {
             if (typeof json === 'object') {
                 const propertiesToAdd = new Set()
                     .add("width")
@@ -152,12 +142,12 @@ class Video extends EventEmitter {
                     }
                 }
                 var video = new Video(width, height, fps);
-                if(scenes instanceof Array){
-                    for(var i = 0; i < scenes.length; i++){
-                        video.add(Scene.fromJson(scenes[i], false, true));
+                if (scenes instanceof Array) {
+                    for (var i = 0; i < scenes.length; i++) {
+                        video.add(Scene.fromJson(scenes[i], false, true, csMappings, caMappings));
                     }
                 }
-                else{
+                else {
                     throw new TypeError("video.scenes is not an array.");
                 }
                 return video;
@@ -174,7 +164,7 @@ class Video extends EventEmitter {
                 return false;
             }
         }
-    }
+    });
 
     constructor() {
         super();

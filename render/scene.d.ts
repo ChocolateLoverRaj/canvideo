@@ -4,6 +4,8 @@ import { default as Shape } from "./drawable";
 import Camera from "./camera";
 import setColor from "./color/set";
 import GetColor from "./color/get";
+import csMappings from "../shapes/cs-mappings";
+import { caMappings } from "../animations/animanaged";
 
 declare interface Drawable {
     startTime: number;
@@ -40,10 +42,10 @@ export declare interface SceneJson {
 }
 
 export declare class Scene {
-    static fromJson(json: string, parse?: true, throwErrors?: false): Scene | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Scene;
-    static fromJson(json: any, parse: false, throwErrors?: false): Scene | false;
-    static fromJson(json: any, parse: false, throwErrors: true): Scene;
+    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Scene | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Scene;
+    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Scene | false;
+    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Scene;
 
     constructor();
 

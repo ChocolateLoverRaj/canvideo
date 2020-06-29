@@ -1,7 +1,8 @@
 import MyCtx from "../render/my-ctx";
-import {Shape, ShapeProperties, ShapeJson} from "./shape";
+import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import { caMappings } from "../animations/animanaged";
 
-declare interface RectangleProperties extends ShapeProperties<RectangleProperties>{
+declare interface RectangleProperties extends ShapeProperties<RectangleProperties> {
     x: number;
     y: number;
     width: number;
@@ -15,11 +16,11 @@ declare interface RectangleProperties extends ShapeProperties<RectanglePropertie
     cornerRound: setCornerRound | GetCornerRound;
     topCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
     bottomCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
-    leftCornerRound: setHorizontalCornerRound |  GetHorizontalCornerRound;
+    leftCornerRound: setHorizontalCornerRound | GetHorizontalCornerRound;
     rightCornerRound: setHorizontalCornerRound | GetHorizontalCornerRound;
 }
 
-declare interface RectangleJson extends ShapeJson<RectangleProperties>{
+declare interface RectangleJson extends ShapeJson<RectangleProperties> {
     x: number;
     y: number;
     width: number;
@@ -61,13 +62,15 @@ declare interface GetHorizontalCornerRound {
 }
 declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Array<number> & { length: 2 };
 
+declare type rectangleCaMappings = caMappings<RectangleProperties>;
+
 declare class Rectangle extends Shape<Rectangle>{
     static shapeName: "rectangle";
 
-    static fromJson(json: string, parse?: true, throwErrors?: false): Rectangle | false;
-    static fromJson(json: any, parse: false, throwErrors?: false): Rectangle | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Rectangle;
-    static fromJson(json: any, parse: false, throwErrors: true): Rectangle;
+    static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: rectangleCaMappings): Rectangle | false;
+    static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: rectangleCaMappings): Rectangle | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: rectangleCaMappings): Rectangle;
+    static fromJson(json: any, parse: false, throwErrors: true, caMappings?: rectangleCaMappings): Rectangle;
 
     constructor(x: number, y: number, width: number, height: number, cornerRound?: setCornerRound);
 
@@ -86,7 +89,7 @@ declare class Rectangle extends Shape<Rectangle>{
     cornerRound: setCornerRound | GetCornerRound;
     topCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
     bottomCornerRound: setVerticalCornerRound | GetVerticalCornerRound;
-    leftCornerRound: setHorizontalCornerRound |  GetHorizontalCornerRound;
+    leftCornerRound: setHorizontalCornerRound | GetHorizontalCornerRound;
     rightCornerRound: setHorizontalCornerRound | GetHorizontalCornerRound;
 
     setTopLeftCornerRound(cornerRound: number): this;

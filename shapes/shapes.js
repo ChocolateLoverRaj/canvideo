@@ -8,7 +8,7 @@ const Circle = require("./circle");
 const Polygon = require("./polygon");
 const NumberLine = require("./number-line");
 const Path = require("./path");
-const {typedFunction, Types} = require("../type");
+const {typedFunction, Types, instanceOf} = require("../type");
 
 //Shapes module
 const shapes = { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path };
@@ -45,8 +45,18 @@ shapes.fromJson = typedFunction([
         name: "throwErrors",
         type: Types.BOOLEAN,
         optional: true
+    },
+    {
+        name: "csMappings",
+        type: instanceOf(Map),
+        optional: true
+    },
+    {
+        name: "caMappings",
+        type: instanceOf(Map),
+        optional: true
     }
-], function(name, json, parse = true, throwErrors = false){
+], function(name, json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()){
     if(typeof json === 'string' && parse){
         try{
             json = JSON.parse(json);
@@ -66,7 +76,12 @@ shapes.fromJson = typedFunction([
     try{
         for(var shape of shapes.list){
             if(name === shape.shapeName){
-                return shape.fromJson(json, false, true);
+                switch(name){
+                    case Group.shapeName:
+                        return shape.fromJson(json, false, true, caMappings, csMappings);
+                    default:
+                        return shape.fromJson(json, false, true, caMappings);
+                }
             }
         }
         throw new TypeError(`Unknown shape: ${name}.`);

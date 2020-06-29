@@ -11,7 +11,8 @@ const {
     typedFunction,
     Types,
     Overloader,
-    Interface } = require("../type");
+    Interface,
+    instanceOf } = require("../type");
 const Camera = require("./camera");
 const { sizeInterface } = require("./size");
 const colorType = require("./color");
@@ -36,10 +37,11 @@ class Scene {
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "csMappings", type: instanceOf(Map), optional: true }
-    ],function  (json, parse = true, throwErrors = false) {
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
         try {
-            if(parse){
+            if (parse) {
                 json = JSON.parse(json);
             }
             if (typeof json === 'object') {
@@ -56,10 +58,15 @@ class Scene {
                 if (drawables instanceof Array) {
                     for (var i = 0; i < drawables.length; i++) {
                         let { startTime, endTime, layer, shape: { isBuiltin, name, data } } = drawables[i];
-                        if(isBuiltin){
-                            scene.add(startTime, endTime - startTime, layer, shapes.fromJson(name, data, false, true));
+                        if (isBuiltin) {
+                            scene.add(startTime, endTime - startTime, layer, shapes.fromJson(name, data, false, true, csMappings, caMappings));
                         }
-                        else if(cs)
+                        else if (csMappings.has(name)) {
+                            scene.add(startTime, endTime - startTime, layer, csMappings.get(name)(data, false, true, csMappings, caMappings));
+                        }
+                        else {
+                            throw new TypeError(`Unmapped custom shape name: ${name}.`);
+                        }
                     }
                 }
                 else {

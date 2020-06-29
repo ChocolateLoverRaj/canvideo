@@ -1,5 +1,6 @@
 import Drawable from "../render/drawable";
 import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import { caMappings } from "../animations/animanaged";
 
 declare interface GroupProperties extends ShapeProperties<GroupProperties> {
     children: Array<Drawable>;
@@ -30,13 +31,15 @@ declare interface GroupJson extends ShapeJson<GroupProperties> {
     children: Array<ChildJson>;
 }
 
+declare type groupCaMappings = caMappings<GroupProperties>;
+
 declare class Group extends Shape<Group, GroupProperties>{
     static shapeName: "group";
 
-    static fromJson(json: string, parse?: true, throwErrors?: false): Group | false;
-    static fromJson(json: any, parse: false, throwErrors?: false): Group | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Group;
-    static fromJson(json: any, parse: false, throwErrors: true): Group;
+    static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: groupCaMappings): Group | false;
+    static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: groupCaMappings): Group | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: groupCaMappings): Group;
+    static fromJson(json: any, parse: false, throwErrors: true, caMappings?: groupCaMappings): Group;
     
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
 

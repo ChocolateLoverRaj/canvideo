@@ -1,7 +1,9 @@
 export interface Animator<Properties extends object> {
     calculate(progress: number): Properties;
     lasts?: boolean;
-    name?: string;
+    animationName?: string;
+    toJson(stringify?: true): string;
+    toJson(stringify: false): AnimationJson;
 }
 
 export type calculator<Properties extends object> = (progress: number) => Properties;

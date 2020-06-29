@@ -2,7 +2,7 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Types, arrayOf, Overloader, typedFunction } = require("../type");
+const { Types, arrayOf, Overloader, typedFunction, instanceOf } = require("../type");
 const pointInterface = require("./point-interface");
 
 //Circle class
@@ -13,13 +13,14 @@ class Circle extends Shape {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
-        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
-    ], function (json, parse = true, throwErrors = false) {
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
                 json = JSON.parse(json);
             }
-            let [circle, { cx, cy, r }] = Shape.fromJson(json, false, true, new Circle(0, 0, 1));
+            let [circle, { cx, cy, r }] = Shape.fromJson(json, false, true, caMappings, new Circle(0, 0, 1));
             circle.cx = cx;
             circle.cy = cy;
             circle.r = r;

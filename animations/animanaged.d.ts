@@ -24,12 +24,15 @@ export declare interface AnimationJson {
 
 export declare type SetJson<Properties> = [number, Properties];
 
+declare type fromJson<Properties> = (json?: any & object, parse?: any & false, throwErrors?: any & true) => animator<Properties>;
+export declare type caMappings<Properties> = Map<string, fromJson<Properties>>;
+
 declare abstract class Animations<Properties> extends Array<Animation<Properties>>{
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): object;
 
-    importJson(json: string, parse?: true): this;
-    importJson(json: any, parse: false): this;
+    importJson(json: string, parse?: true, caMappings?: caMappings<Properties>): this;
+    importJson(json: any, parse: false, caMappings?: caMappings<Properties>): this;
 }
 
 declare abstract class Sets<Properties> extends Array<Set<Properties>>{

@@ -23,8 +23,9 @@ class Shape {
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true },
         { name: "shape", type: instanceOf(Shape), optional: true }
-    ], function (json, parse = true, throwErrors = false, shape) {
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map(), shape) {
         let shapeGiven = false;
         if (shape instanceof Shape) {
             shapeGiven = true;
@@ -33,7 +34,7 @@ class Shape {
             shape = new Shape();
         }
         try {
-            if(parse){
+            if (parse) {
                 json = JSON.parse(json);
             }
             var { fillColor, strokeColor, strokeWidth, animations, sets } = json;
@@ -43,7 +44,7 @@ class Shape {
             if (strokeColor) {
                 shape.stroke(strokeColor, strokeWidth);
             }
-            shape.animations.importJson(animations, false);
+            shape.animations.importJson(animations, false, caMappings);
             shape.sets.importJson(sets, false);
             return shapeGiven ? [shape, json] : shape;
         }

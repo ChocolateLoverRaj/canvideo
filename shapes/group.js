@@ -7,7 +7,7 @@ const NumberLine = require("./number-line");
 const Path = require("./path");
 const Polygon = require("./polygon");
 const Rectangle = require("./rectangle");
-const { arrayOf, Types, Overloader, Interface, typedFunction } = require("../type");
+const { arrayOf, Types, Overloader, Interface, typedFunction, instanceOf } = require("../type");
 const shapeInterface = require("./shape-interface");
 const pointInterface = require("./point-interface");
 
@@ -36,50 +36,65 @@ class Group extends Shape {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
-        { name: "throwErrors", type: Types.BOOLEAN, optional: true }], function (json, parse = true, throwErrors = false) {
-            try {
-                if (parse) {
-                    json = JSON.parse(json);
-                }
-                let [group, {
-                    x, y,
-                    originalWidth, originalHeight,
-                    refX, refY,
-                    width, height,
-                    children }] = Shape.fromJson(json, false, true, new Group());
-                group.x = x, group.y = y;
-                group.originalWidth = originalWidth, group.originalHeight = originalHeight;
-                group.refX = refX, group.refY = refY;
-                group.width = width, group.height = height;
-                for (let { isBuiltin, name, data } of children) {
-                    if (isBuiltin) {
-                        var addedChild = false;
-                        for (let shape of shapesList) {
-                            if (name === shape.shapeName) {
-                                group.add(shape.fromJson(data, false, true));
-                                addedChild = true;
-                                break;
-                            }
-                        }
-                        if (!addedChild) {
-                            throw new TypeError(`No builtin shape with name: ${name}.`);
-                        }
-                    }
-                    else{
-                        //TODO handle non builtin shapes.
-                    }
-                }
-                return group;
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
             }
-            catch (e) {
-                if (throwErrors) {
-                    throw e;
+            let [group, {
+                x, y,
+                originalWidth, originalHeight,
+                refX, refY,
+                width, height,
+                children }] = Shape.fromJson(json, false, true, csMappings, new Group());
+            group.x = x, group.y = y;
+            group.originalWidth = originalWidth, group.originalHeight = originalHeight;
+            group.refX = refX, group.refY = refY;
+            group.width = width, group.height = height;
+            for (let { isBuiltin, name, data } of children) {
+                if (isBuiltin) {
+                    var addedChild = false;
+                    for (let shape of shapesList) {
+                        if (name === shape.shapeName) {
+                            switch (name) {
+                                case Group.shapeName:
+                                    group.add(shape.fromJson(data, false, true, csMappings, caMappings));
+                                    break;
+                                default:
+                                    group.add(shape.fromJson(data, false, true, caMappings));
+                                    break;
+                            }
+                            addedChild = true;
+                            break;
+                        }
+                    }
+                    if (!addedChild) {
+                        throw new TypeError(`No builtin shape with name: ${name}.`);
+                    }
                 }
                 else {
-                    return false;
+                    if (csMapping.has(name)) {
+                        group.add(csMapping.get(name).fromJson(data, false, true));
+                    }
+                    else {
+                        throw new TypeError(`No custom shape mappings for name: ${name}.`);
+                    }
                 }
             }
-        });
+            return group;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
 
     constructor(x = 0, y = 0, originalWidth = 400, originalHeight = 400, refX = 0, refY = 0) {
         super({

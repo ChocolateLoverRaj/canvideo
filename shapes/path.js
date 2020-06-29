@@ -2,7 +2,7 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Types, typedFunction, arrayOf } = require("../type");
+const { Types, typedFunction, arrayOf, instanceOf } = require("../type");
 
 //Path class
 class Path extends Shape {
@@ -12,13 +12,16 @@ class Path extends Shape {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
-        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
-    ], function (json, parse = true, throwErrors = false) {
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
                 json = JSON.parse(json);
             }
-            let [path, { doFill, strokeDash, strokeDashOffset, operations }] = Shape.fromJson(json, false, true, new Path());
+            let [path, { 
+                doFill, strokeDash, strokeDashOffset, operations 
+            }] = Shape.fromJson(json, false, true, caMappings, new Path());
             path.strokeDash = strokeDash;
             path.strokeDashOffset = strokeDashOffset;
             if(typeof doFill === 'boolean'){
