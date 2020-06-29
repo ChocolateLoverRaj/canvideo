@@ -1,10 +1,49 @@
 import Drawable from "../render/drawable";
-import Shape from "./shape";
-import MyCtx from "../render/my-ctx";
+import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import { caMappings } from "../animations/animanaged";
 
-declare class Group extends Shape<Group>{
+declare interface GroupProperties extends ShapeProperties<GroupProperties> {
+    children: Array<Drawable>;
+    x: number;
+    y: number;
+    originalWidth: number;
+    originalHeight: number;
+    refX: number;
+    refY: number;
+    width: number;
+    height: number;
+}
+
+declare interface ChildJson {
+    name: string | undefined;
+    data: object;
+}
+
+declare interface GroupJson extends ShapeJson<GroupProperties> {
+    x: number;
+    y: number;
+    originalWidth: number;
+    originalHeight: number;
+    refX: number;
+    refY: number;
+    width: number;
+    height: number;
+    children: Array<ChildJson>;
+}
+
+declare type groupCaMappings = caMappings<GroupProperties>;
+
+declare class Group extends Shape<Group, GroupProperties>{
+    static shapeName: "group";
+
+    static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: groupCaMappings): Group | false;
+    static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: groupCaMappings): Group | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: groupCaMappings): Group;
+    static fromJson(json: any, parse: false, throwErrors: true, caMappings?: groupCaMappings): Group;
+    
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
 
+    shapeName: "group";
     children: Array<Drawable>;
     x: number;
     y: number;
@@ -41,7 +80,8 @@ declare class Group extends Shape<Group>{
 
     add(drawable: Drawable): this;
 
-    draw(ctx: MyCtx): this;
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): GroupJson;
 }
 
 export = Group;

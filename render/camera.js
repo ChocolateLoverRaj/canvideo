@@ -1,11 +1,36 @@
 //Camera for scenes
 
 //Dependencies
-const { Types } = require("../type");
-const { animanage } = require("../properties/animanage");
+const { Types, typedFunction } = require("../type");
+const { animanage } = require("../animations/animanage");
 
 //Camera class
 class Camera {
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
+    ], function (json, parse = true, throwErrors = false) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let { scaleX, scaleY, refX, refY, x, y } = json;
+            return new Camera()
+                .setScale(scaleX, scaleY)
+                .setRef(refX, refY)
+                .setPosition(x, y);
+        }
+        catch(e){
+            if(throwErrors){
+                throw e;
+            }
+            else{
+                return false;
+            }
+        }
+    });
+
     constructor() {
         animanage(this, {
             scaleX: Types.NUMBER,
@@ -61,6 +86,20 @@ class Camera {
     setPosition(x, y) {
         this.x = x, this.y = y;
         return this;
+    }
+
+    toJson(stringify = true) {
+        let { scaleX, scaleY, refX, refY, x, y } = this;
+        let o = { scaleX, scaleY, refX, refY, x, y };
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 }
 

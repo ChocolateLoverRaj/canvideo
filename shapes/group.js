@@ -2,7 +2,12 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { arrayOf, Types, Overloader, Interface } = require("../type");
+const Circle = require("./circle");
+const NumberLine = require("./number-line");
+const Path = require("./path");
+const Polygon = require("./polygon");
+const Rectangle = require("./rectangle");
+const { arrayOf, Types, Overloader, Interface, typedFunction, instanceOf } = require("../type");
 const shapeInterface = require("./shape-interface");
 const pointInterface = require("./point-interface");
 
@@ -12,8 +17,85 @@ const sizeInterface = new Interface(false)
     .required("height", Types.POSITIVE_NUMBER)
     .toType();
 
+//Check if a shape is builtin
+//This is because requiring ./shapes.js will cause circular dependencies
+const isBuiltin = a => {
+    for (let shape of shapesList) {
+        if (Object.getPrototypeOf(a) === shape.prototype) {
+            return true;
+        }
+    }
+    return false;
+}
+
 //Group class
 class Group extends Shape {
+    static shapeName = "group";
+    shapeName = "group";
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let [group, {
+                x, y,
+                originalWidth, originalHeight,
+                refX, refY,
+                width, height,
+                children }] = Shape.fromJson(json, false, true, csMappings, new Group());
+            group.x = x, group.y = y;
+            group.originalWidth = originalWidth, group.originalHeight = originalHeight;
+            group.refX = refX, group.refY = refY;
+            group.width = width, group.height = height;
+            for (let { isBuiltin, name, data } of children) {
+                if (isBuiltin) {
+                    var addedChild = false;
+                    for (let shape of shapesList) {
+                        if (name === shape.shapeName) {
+                            switch (name) {
+                                case Group.shapeName:
+                                    group.add(shape.fromJson(data, false, true, csMappings, caMappings));
+                                    break;
+                                default:
+                                    group.add(shape.fromJson(data, false, true, caMappings));
+                                    break;
+                            }
+                            addedChild = true;
+                            break;
+                        }
+                    }
+                    if (!addedChild) {
+                        throw new TypeError(`No builtin shape with name: ${name}.`);
+                    }
+                }
+                else {
+                    if (csMapping.has(name)) {
+                        group.add(csMapping.get(name).fromJson(data, false, true));
+                    }
+                    else {
+                        throw new TypeError(`No custom shape mappings for name: ${name}.`);
+                    }
+                }
+            }
+            return group;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor(x = 0, y = 0, originalWidth = 400, originalHeight = 400, refX = 0, refY = 0) {
         super({
             children: {
@@ -28,7 +110,7 @@ class Group extends Shape {
             refY: Types.NUMBER,
             width: Types.POSITIVE_NUMBER,
             height: Types.POSITIVE_NUMBER
-        }, []);
+        });
 
         this.x = x;
         this.y = y;
@@ -49,15 +131,15 @@ class Group extends Shape {
     }
     setOriginalSize() {
         new Overloader()
-            .overload([{type: Types.POSITIVE_NUMBER}, {type: Types.POSITIVE_NUMBER}], function(width, height){
+            .overload([{ type: Types.POSITIVE_NUMBER }, { type: Types.POSITIVE_NUMBER }], function (width, height) {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
-            .overload([{type: sizeInterface}], function({width, height}){
+            .overload([{ type: sizeInterface }], function ({ width, height }) {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
-            .overload([{type: arrayOf(Types.POSITIVE_NUMBER, 2)}], function([width, height]){
+            .overload([{ type: arrayOf(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
@@ -74,15 +156,15 @@ class Group extends Shape {
     }
     setSize() {
         new Overloader()
-            .overload([{type: Types.POSITIVE_NUMBER}, {type: Types.POSITIVE_NUMBER}], function(width, height){
+            .overload([{ type: Types.POSITIVE_NUMBER }, { type: Types.POSITIVE_NUMBER }], function (width, height) {
                 this.width = width;
                 this.height = height;
             })
-            .overload([{type: sizeInterface}], function({width, height}){
+            .overload([{ type: sizeInterface }], function ({ width, height }) {
                 this.width = width;
                 this.height = height;
             })
-            .overload([{type: arrayOf(Types.POSITIVE_NUMBER, 2)}], function([width, height]){
+            .overload([{ type: arrayOf(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
                 this.width = width;
                 this.height = height;
             })
@@ -168,7 +250,42 @@ class Group extends Shape {
         }
         return this;
     }
+
+    toJson(stringify = true, fps = 60) {
+        let o = {
+            ...super.toJson(false, fps),
+            x: this.x,
+            y: this.y,
+            originalWidth: this.originalWidth,
+            originalHeight: this.originalHeight,
+            width: this.width,
+            height: this.height,
+            refX: this.refX,
+            refY: this.refY,
+            children: []
+        };
+        for (var i = 0; i < this.children.length; i++) {
+            let child = this.children[i];
+            o.children.push({
+                isBuiltin: isBuiltin(child),
+                name: child.shapeName,
+                data: this.children[i].toJson(false, fps)
+            });
+        }
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
+    }
 };
+
+//List of shapes
+const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
 
 //Export the group class
 module.exports = Group;

@@ -1,4 +1,4 @@
-import property = require("../property");
+import property = require("../properties/property");
 
 export interface Properties {
     [key: string | number]: property;

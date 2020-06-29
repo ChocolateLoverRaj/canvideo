@@ -102,7 +102,7 @@ recaman.setCamera(new Camera()
 );
 
 console.log("starting");
-new Video(1000, 1000, 60)//TODO remember to fix slow down issue.
+new Video(1000, 1000, 60)
     .add(recaman)
     .setTempPath("../generated/")
     .export("../generated/recaman.mp4", { keepImages: true })

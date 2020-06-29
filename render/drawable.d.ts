@@ -1,8 +1,8 @@
-import { CanvasRenderingContext2D } from 'canvas';
+import MyCtx from "./my-ctx";
 
 declare interface Drawable {
-    at: (frameNumber: number) => {
-        draw: (ctx: CanvasRenderingContext2D) => any;
+    at(frameNumber: number): {
+        draw(ctx: MyCtx): any;
     }
 }
 

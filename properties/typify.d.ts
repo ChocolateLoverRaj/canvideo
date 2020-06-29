@@ -1,9 +1,5 @@
-import property from "./property";
+import { properties } from "./properties";
 
-declare interface Properties{
-    [key: string]: property;
-}
-
-declare function typify(o: Object, properties: Properties): void;
+declare function typify(o: Object, properties: properties): void;
 
 export = typify;

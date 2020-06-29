@@ -2,11 +2,40 @@
 
 //Dependencies
 const Shape = require("./shape");
-const { Types, arrayOf, Overloader } = require("../type");
+const { Types, arrayOf, Overloader, typedFunction, instanceOf } = require("../type");
 const pointInterface = require("./point-interface");
 
 //Circle class
 class Circle extends Shape {
+    static shapeName = "circle";
+    shapeName = "circle";
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
+    ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
+        try {
+            if (parse) {
+                json = JSON.parse(json);
+            }
+            let [circle, { cx, cy, r }] = Shape.fromJson(json, false, true, caMappings, new Circle(0, 0, 1));
+            circle.cx = cx;
+            circle.cy = cy;
+            circle.r = r;
+            return circle;
+        }
+        catch (e) {
+            if (throwErrors) {
+                throw e;
+            }
+            else {
+                return false;
+            }
+        }
+    });
+
     constructor(cx, cy, r) {
         super({
             cx: Types.NUMBER,
@@ -54,6 +83,24 @@ class Circle extends Shape {
         }
 
         return this;
+    }
+
+    toJson(stringify = true, fps = 60) {
+        let o = {
+            ...super.toJson(false, fps),
+            cx: this.cx,
+            cy: this.cy,
+            r: this.r
+        };
+        if (stringify === true) {
+            return JSON.stringify(o);
+        }
+        else if (stringify === false) {
+            return o;
+        }
+        else {
+            throw new TypeError("stringify must be a boolean.");
+        }
     }
 }
 

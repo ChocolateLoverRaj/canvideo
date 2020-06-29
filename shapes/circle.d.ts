@@ -1,9 +1,32 @@
 import MyCtx from "../render/my-ctx";
-import Shape from "./shape";
+import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import { caMappings } from "../animations/animanaged";
 
-declare class Circle extends Shape<Circle> {
+declare interface CircleProperties extends ShapeProperties<CircleProperties> {
+    cx: number;
+    cy: number;
+    r: number;
+}
+
+declare interface CircleJson extends ShapeJson<CircleProperties> {
+    cx: number;
+    cy: number;
+    r: number;
+}
+
+declare type circleCaMappings = caMappings<CircleProperties>;
+
+declare class Circle extends Shape<Circle, CircleProperties> {
+    static shapeName: "circle";
+
+    static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: circleCaMappings): Circle | false;
+    static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: circleCaMappings): Circle | false;
+    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: circleCaMappings): Circle;
+    static fromJson(json: any, parse: false, throwErrors: true, caMappings?: circleCaMappings): Circle;
+
     constructor(cx: number, cy: number, r: number);
 
+    shapeName: "circle";
     cx: number;
     cy: number;
     r: number;
@@ -15,6 +38,9 @@ declare class Circle extends Shape<Circle> {
     setC(c: [number, number]): this;
 
     draw(ctx: MyCtx): this;
+
+    toJson(stringify?: true, fps?: number): string;
+    toJson(stringify: false, fps?: number): CircleJson;
 }
 
 export = Circle;

@@ -1,6 +1,6 @@
 import type = require("../type/type");
 
-const propertiesType1: type;
+declare const propertiesType1: type;
 const propertiesType2: type;
 const propertiesType: type;
 const methodsToBindType: type;
