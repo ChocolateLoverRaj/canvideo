@@ -6,7 +6,7 @@
 //Dependencies
 const fs = require('fs');
 //'../index' is used because this example is in the canvideo folder. Change it to 'canvideo';
-const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group, Shape } = require("../index");
+const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group, Shape, Camera } = require("../index");
 
 //This shows how custom classes can also be saved and imported to and from JSON.
 //Here we have a simple class that is basically a shape class that saves some sort of data.
@@ -73,6 +73,9 @@ var video = new Video(400, 400, 12)
             .set(5, { y: 300 })
         )
         .add(0, 10, new Stuff("Hello, who is this?"))
+        .setCamera(new Camera()
+            .setPosition(100, 200)
+        )
     );
 
 //Export to JSON and write to file.
@@ -89,6 +92,8 @@ var csMappings = new Map().set("stuff", Stuff.fromJson);
 
 //The last argument is caMappings, which stands for custom animation mappings.
 //It is a map where the keys are names and the values are fromJson functions.
+//Here we add a key called 'randomColor', which is a function that returns randomColor.
+//This is because randomColor has no data, and only the animation name is needed.
 var caMappings = new Map().set("randomColor", () => randomColor);
 
 var videoFromJson = Video.fromJson(read, true, true, csMappings, caMappings);

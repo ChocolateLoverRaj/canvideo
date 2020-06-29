@@ -45,16 +45,10 @@ class Scene {
                 json = JSON.parse(json);
             }
             if (typeof json === 'object') {
-                var { backgroundColor, drawables } = json;
-                const propertiesToAdd = new Set()
-                    .add("backgroundColor")
-                    .add("drawables");
-                for (var k in json) {
-                    if (!propertiesToAdd.has(k)) {
-                        throw new TypeError(`Unknown property: ${k}.`);
-                    }
-                }
-                var scene = new Scene().setBackgroundColor(backgroundColor);
+                var { backgroundColor, camera, drawables } = json;
+                var scene = new Scene()
+                    .setBackgroundColor(backgroundColor)
+                    .setCamera(Camera.fromJson(camera, false, true));
                 if (drawables instanceof Array) {
                     for (var i = 0; i < drawables.length; i++) {
                         let { startTime, endTime, layer, shape: { isBuiltin, name, data } } = drawables[i];
@@ -72,7 +66,6 @@ class Scene {
                 else {
                     throw new TypeError("scene.drawables is not an array.");
                 }
-                //TODO make a way of turning a Camera to json and creating a Camera from json.
                 return scene;
             }
             else {
@@ -283,7 +276,8 @@ class Scene {
     toJson(stringify = true, fps = 60) {
         let o = {
             backgroundColor: this.backgroundColor.hexString,
-            drawables: []
+            drawables: [],
+            camera: this.camera.toJson(false)
         };
         for (var i = 0; i < this.drawables.length; i++) {
             let { startTime, endTime, layer, shape } = this.drawables[i];
