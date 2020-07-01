@@ -465,6 +465,7 @@ class Video extends EventEmitter {
                             })
                             .input(path.join(tempPath, "canvideo %01d.png"))
                             .inputFPS(this.fps)
+                            .input(path.join(__dirname, "../generated/test.srt"))
                             .save(outputPath)
                             .outputFps(this.fps)
                             .videoCodec('libx264')

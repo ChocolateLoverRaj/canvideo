@@ -7,6 +7,7 @@ const Camera = require("./render/camera");
 const { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path } = require("./shapes/shapes");
 const Animation = require("./animations/animation");
 const Precomputed = require("./animations/precomputed");
+const Caption = require("./caption");
 
 //Export everything
 module.exports = {
@@ -24,5 +25,6 @@ module.exports = {
     NumberLine,
     Path,
     Animation,
-    Precomputed
+    Precomputed,
+    Caption
 };
