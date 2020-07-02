@@ -1,8 +1,6 @@
 import { EventEmitter } from 'events';
 
-import { PNGStream } from 'canvas';
-
-import { SceneJson } from "./scene";
+import { SceneJson, Scene } from "./scene";
 import csMappings from "../shapes/cs-mappings";
 import { caMappings } from '../animations/animanaged';
 
@@ -46,10 +44,6 @@ declare interface RegularSquashedOptions {
 declare interface ShortSquashedOptions {
     size: ShortSize;
     fps: number;
-}
-
-declare interface Scene {
-    render: (at: number, size: RegularSize) => PNGStream;
 }
 
 declare interface ExportOptions {

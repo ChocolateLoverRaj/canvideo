@@ -1,6 +1,6 @@
 import { PNGStream } from "canvas";
 
-import { default as Shape } from "./drawable";
+import Shape from "../shapes/shape";
 import Camera from "./camera";
 import setColor from "./color/set";
 import GetColor from "./color/get";

@@ -1,9 +1,8 @@
-import Drawable from "../render/drawable";
 import { Shape, ShapeProperties, ShapeJson } from "./shape";
 import { caMappings } from "../animations/animanaged";
 
 declare interface GroupProperties extends ShapeProperties<GroupProperties> {
-    children: Array<Drawable>;
+    children: Array<Shape>;
     x: number;
     y: number;
     originalWidth: number;
@@ -44,7 +43,7 @@ declare class Group extends Shape<Group, GroupProperties>{
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
 
     shapeName: "group";
-    children: Array<Drawable>;
+    children: Array<Shape>;
     x: number;
     y: number;
     originalWidth: number;
@@ -78,7 +77,7 @@ declare class Group extends Shape<Group, GroupProperties>{
     setSize(size: { width: number, height: number }): this;
     setSize(size: [number, number]): this;
 
-    add(drawable: Drawable): this;
+    add(drawable: Shape): this;
 
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): GroupJson;

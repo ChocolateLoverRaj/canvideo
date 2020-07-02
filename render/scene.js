@@ -16,10 +16,10 @@ const {
 const Camera = require("./camera");
 const { sizeInterface } = require("./size");
 const colorType = require("./color");
-const shapeInterface = require("../shapes/shape-interface");
 const typify = require("../properties/typify");
 const cameraInterface = require("./camera-interface");
 const shapes = require("../shapes/shapes");
+const Shape = require("../shapes/shape");
 
 //Config
 const defaultDuration = 5;
@@ -138,13 +138,13 @@ class Scene {
 
         new Overloader()
             .overload([
-                { type: shapeInterface }
+                { type: instanceOf(Shape) }
             ], function (shape) {
                 drawable.shape = shape;
             })
             .overload([
                 { type: Types.NON_NEGATIVE_NUMBER },
-                { type: shapeInterface }
+                { type: instanceOf(Shape) }
             ], function (startTime, shape) {
                 drawable.startTime = startTime;
                 drawable.shape = shape;
@@ -152,7 +152,7 @@ class Scene {
             .overload([
                 { type: Types.NON_NEGATIVE_NUMBER },
                 { type: Types.POSITIVE_NUMBER },
-                { type: shapeInterface }
+                { type: instanceOf(Shape) }
             ], function (startTime, duration, shape) {
                 drawable.startTime = startTime;
                 drawable.endTime = startTime + duration;
@@ -162,7 +162,7 @@ class Scene {
                 { type: Types.NON_NEGATIVE_NUMBER },
                 { type: Types.POSITIVE_NUMBER },
                 { type: Types.NON_NEGATIVE_INTEGER },
-                { type: shapeInterface }
+                { type: instanceOf(Shape) }
             ], function (startTime, duration, layer, shape) {
                 drawable.startTime = startTime;
                 drawable.endTime = startTime + duration;
@@ -171,7 +171,7 @@ class Scene {
             })
             .overload([
                 { type: addInterface },
-                { type: shapeInterface }
+                { type: instanceOf(Shape) }
             ], function ({ startTime, duration, layer }, shape) {
                 drawable.startTime = startTime || 0;
                 drawable.endTime = drawable.startTime + (duration || Infinity);

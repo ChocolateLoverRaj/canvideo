@@ -10,7 +10,7 @@ const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 
 //My Modules
-const { Overloader, Types, Interface, either, typedFunction, instanceOf } = require("../type");
+const { Overloader, Types, Interface, typedFunction, instanceOf } = require("../type");
 const { sizeType, regularSizeInterface, shortSizeInterface } = require("./size");
 const typify = require("../properties/typify");
 const defaultify = require("../lib/default-properties");
@@ -223,20 +223,10 @@ class Video extends EventEmitter {
     }
 
     add() {
-        return typedFunction([{ name: "scene", type: Types.OBJECT }], function (scene) {
-            if (typeof scene.render === 'function') {
-                if (typeof scene.duration === 'number') {
-                    this.scenes.push(scene);
-                }
-                else {
-                    throw new TypeError("Scene must have a duration.");
-                }
-            }
-            else {
-                throw new TypeError("Scene must have a render function.");
-            }
-            return this;
+        typedFunction([{ name: "scene", type: instanceOf(Scene) }], function (scene) {
+            this.scenes.push(scene);
         }).call(this, ...arguments);
+        return this;
     }
 
     setWidth(width) {
