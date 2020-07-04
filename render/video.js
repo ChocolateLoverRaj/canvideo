@@ -5,6 +5,7 @@
 const fs = require('fs');
 const { EventEmitter } = require('events');
 const path = require('path');
+const { exec } = require('child_process');
 
 //Npm Modules
 const ffmpeg = require('fluent-ffmpeg');
@@ -50,9 +51,9 @@ const exportOptionsInterface = new Interface(false)
     .optional("keepImages", Types.BOOLEAN)
     .optional("maxStreams", Types.POSITIVE_INTEGER)
     .toType();
-//Temp path
-var globalTempPath;
 
+//Temp path
+var tempPath;
 //Make sure directory exists
 function directoryExists(path) {
     return new Promise((resolve, reject) => {
@@ -80,41 +81,93 @@ function directoryExists(path) {
 
 //Set the global tempPath
 function setTempPath(path) {
-    globalTempPath = directoryExists(path);
+    tempPath = directoryExists(path);
 }
 
 //Check that ffmpeg path is good
-function checkFfmpegPath() {
+async function checkFfmpegPath() {
     return new Promise((resolve, reject) => {
-        ffmpeg.getAvailableFormats((err, formats) => {
-            if (!err && formats) {
-                resolve(true);
+        var command = exec(`${ffmpegPath} -version`);
+        command.once("exit", code => {
+            if (code === 0) {
+                resolve();
             }
             else {
-                resolve(false);
+                reject(`Check command failed: ${ffmpegPath} -version.`);
             }
         });
     });
-}
+};
 
 //Set ffmpeg path
+var ffmpegPath = "ffmpeg";
 var setFfmpegPath = function (path) {
-    ffmpeg.setFfmpegPath(path);
-    return checkFfmpegPath()
-        .then(good => {
-            if (!good) {
-                throw new ReferenceError(`ffmpegPath: ${path}, is not a valid ffmpegPath.`);
-            }
-        });
+    ffmpegPath = path;
 };
 
-//Export steps enum
-const ExportSteps = {
-    RENDER_FRAMES: 0,
-    GENERATE_VIDEO: 1,
-    DELETE_FRAMES: 2,
-    FINISHED: 3
+//Export enums
+//The export process is split into stages.
+//Each stage has some tasks that it depends on.
+//After those tasks are done, it starts the tasks that depend on the stage to be done.
+
+//Visualization
+
+// START                 CREATE_FILES                     GENERATE_VIDEO       DELETE_FRAMES       FINISH
+// | --> CHECK_TEMP_PATH |                                |                    |                   |
+//                       | --> DELETE_EXTRA_FRAMES        |                    |                   |
+//                       | --> RENDER_NEW_FRAMES          |                    |                   |
+//                       | --> GENERATE_EMBEDDED_CAPTIONS |                    |                   |
+//                       |                                | --> GENERATE_VIDEO |                   |
+//                       |                                                     | --> DELETE_FRAMES |
+//                       | --> GENERATE_SEPARATE_CAPTIONS                                          |
+
+//Export stages enum
+const ExportStages = {
+    START: "START",
+    CREATE_FILES: "CREATE_FILES",
+    GENERATE_VIDEO: "GENERATE_VIDEO",
+    DELETE_FRAMES: "DELETE_FRAMES",
+    FINISH: "FINISH"
 };
+
+//Export tasks enum
+const ExportTasks = {
+    CHECK_TEMP_PATH: {
+        name: "CHECK_TEMP_PATH",
+        start: ExportStages.START,
+        end: ExportStages.CREATE_FILES
+    },
+    DELETE_EXTRA_FRAMES: {
+        name: "DELETE_EXTRA_FRAMES",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.GENERATE_VIDEO
+    },
+    RENDER_NEW_FRAMES: {
+        name: "RENDER_NEW_FRAMES",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.GENERATE_VIDEO
+    },
+    GENERATE_SEPARATE_CAPTIONS: {
+        name: "GENERATE_SEPARATE_CAPTIONS",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.FINISH
+    },
+    GENERATE_EMBEDDED_CAPTIONS: {
+        name: "GENERATE_EMBEDDED_CAPTIONS",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.GENERATE_VIDEO
+    },
+    GENERATE_VIDEO: {
+        name: "GENERATE_VIDEO",
+        start: ExportStages.GENERATE_VIDEO,
+        end: ExportStages.DELETE_FRAMES
+    },
+    DELETE_FRAMES: {
+        name: "DELETE_FRAMES",
+        start: ExportStages.DELETE_FRAMES,
+        end: ExportStages.FINISH
+    }
+}
 
 //Video class
 class Video extends EventEmitter {
@@ -289,90 +342,41 @@ class Video extends EventEmitter {
     }
 
     export() {
-        var start = function (outputPath, { keepImages, maxStreams }) {
-            var tempPathToUse = this.tempPath || globalTempPath;
+        const start = (outputPath, { keepImages, maxStreams }) => {
+            var tempPathToUse = this.tempPath || tempPath;
             if (tempPathToUse) {
                 var frameCount = Math.ceil(this.duration * this.fps);
-                var framesFinished = 0;
-                var framesAdded = 0;
-                var framesDeleted = 0;
-                var stepsFinished = 0;
-                var totalSteps = 3;
-                var emitter = new EventEmitter()
-                    .on("frame_progress", progress => {
-                        this.emit("frame_progress", progress, emitter);
-                        this.emit("any_progress", progress, ExportSteps.RENDER_FRAMES);
-                    })
-                    .on("frame_start", frameNumber => {
-                        this.emit("frame_start", frameNumber, emitter);
-                    })
-                    .on("frame_finish", frameNumber => {
-                        this.emit("frame_finish", frameNumber, emitter);
-                        emitter.emit("frame_progress", {
-                            progress: ++framesFinished / frameCount,
-                            count: framesFinished,
-                            total: frameCount
-                        });
-                    })
-                    .on("frame_delete", frameNumber => {
-                        this.emit("frame_delete", frameNumber, emitter);
-                    })
 
-                    .on("generate_progress", progress => {
-                        this.emit("generate_progress", progress, emitter);
-                        this.emit("any_progress", progress, ExportSteps.GENERATE_VIDEO);
-                    })
-                    .on("generate_part", framesGenerated => {
-                        this.emit("generate_part", framesGenerated, emitter);
-                        emitter.emit("generate_progress", {
-                            progress: (framesAdded += framesGenerated) / frameCount,
-                            count: framesAdded,
-                            total: frameCount
-                        });
-                    })
+                var emitter = new EventEmitter();
+                emitter.checkTempPath = new EventEmitter();
+                emitter.deleteExtraFrames = new EventEmitter();
 
-                    .on("delete_progress", progress => {
-                        this.emit("delete_progress", progress, emitter);
-                        this.emit("any_progress", progress, ExportSteps.DELETE_FRAMES);
-                    })
-                    .on("delete_finish", frameNumber => {
-                        this.emit("delete_finish", frameNumber, emitter);
-                        emitter.emit("delete_progress", {
-                            progress: ++framesDeleted / frameCount,
-                            count: framesDeleted,
-                            total: frameCount
-                        });
-                    })
-
-                    .on("step_progress", progress => {
-                        emitter.currentStep++;
-                        this.emit("stage_progress", progress, emitter);
-                    })
-                    .on("step_finish", step => {
-                        this.emit("step_finish", step, emitter);
-                        emitter.emit("step_progress", {
-                            progress: ++stepsFinished / totalSteps,
-                            count: stepsFinished,
-                            total: totalSteps
-                        });
-                    })
-
-                    .on("any_progress", (progress, step) => {
-                        this.emit("any_progress", progress, step, emitter);
-                    })
-                    .on("finish", () => {
-                        this.emit("finish", emitter);
-                    })
-                    .on('error', err => {
-                        this.emit('error', err, emitter);
-                    });
                 emitter.totalFrames = frameCount;
                 emitter.currentStep = 0;
                 emitter.video = this;
 
-                var tempPath;
-                async function deleteOld() {
-                    var files = await fsPromises.readdir(tempPath);
+                const checkTempPath = async () => {
+                    emitter.checkTempPath.emit("start");
+                    emitter.emit("checkTempPath_start");
+                    this.emit("checkTempPath_start", emitter);
+
+                    tempPathToUse = await tempPathToUse;
+
+                    emitter.checkTempPath.emit("finish");
+                    emitter.emit("checkTempPath_finish");
+                    this.emit("checkTempPath_finish", emitter);
+                }
+
+                const deleteExtraFrames = async () => {
+                    emitter.deleteExtraFrames.emit("start");
+                    emitter.emit("deleteExtraFrames_start");
+                    this.emit("deleteExtraFrames_start");
+
+                    var files = await fsPromises.readdir(tempPathToUse);
+                    emitter.deleteExtraFrames.emit("readDir");
+                    emitter.emit("deleteExtraFrames_readDir");
+                    this.emit("deleteExtraFrames_readDir");
+
                     var deletePromises = [];
                     for (var i = 0; i < files.length; i++) {
                         let file = files[i];
@@ -381,15 +385,25 @@ class Video extends EventEmitter {
                             //012345678<
                             let frameNumber = parseInt(file.substring(9, file.indexOf('.')));
                             if (frameNumber >= frameCount) {
-                                deletePromises.push(fsPromises.unlink(path.join(tempPath, file))
+                                emitter.deleteExtraFrames.emit("deleteStart", frameNumber);
+                                emitter.emit("deleteExtraFrames_deleteStart", frameNumber);
+                                this.emit("deleteExtraFrames_deleteStart", frameNumber);
+
+                                deletePromises.push(fsPromises.unlink(path.join(tempPathToUse, file))
                                     .then(() => {
-                                        emitter.emit("frame_delete", frameNumber);
+                                        emitter.deleteExtraFrames.emit("deleteFinish", frameNumber);
+                                        emitter.emit("deleteExtraFrames_deleteFinish", frameNumber);
+                                        this.emit("deleteExtraFrames_deleteFinish", frameNumber);
                                     })
                                 );
                             }
                         }
                     }
-                    return Promise.all(deletePromises);
+                    return Promise.all(deletePromises).then(() => {
+                        emitter.deleteExtraFrames.emit("finish");
+                        emitter.emit("deleteExtraFrames_finish");
+                        this.emit("deleteExtraFrames_finish");
+                    });
                 };
 
                 var framePaths = [];
@@ -441,7 +455,7 @@ class Video extends EventEmitter {
                     });
                 };
 
-                var generateVideo = function () {
+                const generateVideo = async () => {
                     return new Promise((resolve, reject) => {
                         ffmpeg()
                             .once('end', () => {
@@ -455,7 +469,6 @@ class Video extends EventEmitter {
                             })
                             .input(path.join(tempPath, "canvideo %01d.png"))
                             .inputFPS(this.fps)
-                            .input(path.join(__dirname, "../generated/test.srt"))
                             .save(outputPath)
                             .outputFps(this.fps)
                             .videoCodec('libx264')
@@ -466,7 +479,7 @@ class Video extends EventEmitter {
                             ])
                             .noAudio();
                     });
-                }.bind(this);
+                };
 
                 async function deleteFrames() {
                     if (keepImages) {
@@ -486,44 +499,43 @@ class Video extends EventEmitter {
                     }
                 };
 
-                async function startSteps() {
-                    //Start steps
-                    //Wait for tempPath to be available and check that ffmpegPath is valid
-                    await Promise.all([
-                        tempPathToUse.then(path => {
-                            tempPath = path;
-                        }),
-                        checkFfmpegPath().then(good => {
-                            if (!good) {
-                                emitter.emit('error', "Invalid ffmpeg path. Use the setFfmpegPath function to set the path.");
-                            }
-                        })
-                    ]);
+                const startStages = async () => {
+                    //START
+                    emitter.emit("stage", ExportStages.START);
+                    this.emit("stage", ExportStages.START, emitter);
+                    //CHECK_TEMP_PATH
+                    emitter.emit("taskStart", ExportTasks.CHECK_TEMP_PATH);
+                    this.emit("taskStart", ExportTasks.CHECK_TEMP_PATH, emitter);
+                    await checkTempPath();
+                    emitter.emit("taskFinish", ExportTasks.CHECK_TEMP_PATH);
+                    this.emit("taskFinish", ExportTasks.CHECK_TEMP_PATH, emitter);
 
-                    //Delete old frames and render new ones simultaneously
-                    await Promise.all([deleteOld(), renderNew()]);
-                    emitter.emit("step_finish", ExportSteps.RENDER_FRAMES);
+                    //CREATE_FILES
+                    var generateVideo = [];
+                    emitter.emit("stage", ExportStages.CREATE_FILES);
+                    this.emit("stage", ExportStages.CREATE_FILES, emitter);
+                    //DELETE_EXTRA_FRAMES
+                    emitter.emit("taskStart", ExportTasks.DELETE_EXTRA_FRAMES);
+                    this.emit("taskStart", ExportTasks.DELETE_EXTRA_FRAMES, emitter);
+                    generateVideo.push(deleteExtraFrames().then(() => {
+                        emitter.emit("taskFinish", ExportTasks.DELETE_EXTRA_FRAMES);
+                        this.emit("taskFinish", ExportTasks.DELETE_EXTRA_FRAMES, emitter);
+                    }));
+                    await Promise.all(generateVideo);
 
-                    //Actually generate video
-                    await generateVideo();
-                    emitter.emit("step_finish", ExportSteps.GENERATE_VIDEO);
-
-                    //Delete frames
-                    await deleteFrames();
-                    emitter.emit("step_finish", ExportSteps.DELETE_FRAMES);
-
-                    //And then we're done
-                    emitter.emit("finish");
+                    //GENERATE_VIDEO
+                    emitter.emit("stage", ExportStages.GENERATE_VIDEO);
+                    this.emit("stage", ExportStages.GENERATE_VIDEO, emitter);
                 };
 
-                //Start steps asynchronously and synchronously return emitter
-                startSteps();
+                //Start steps and synchronously return emitter
+                setImmediate(startStages);
                 return emitter;
             }
             else {
                 throw new ReferenceError("tempPath must be set before exporting.");
             }
-        }.bind(this);
+        };
 
         function checkOutputPath(outputPath) {
             if (path.extname(outputPath) !== '.mp4') {
@@ -569,10 +581,10 @@ class Video extends EventEmitter {
                     return handleReturning(outputPath, options, returnPromise);
                 })
                 .overload([{ type: Types.STRING }, { type: Types.FUNCTION }], function (outputPath, callback) {
-                    handleCallback(outputPath, { keepImages: false }, callback);
+                    return handleCallback(outputPath, { keepImages: false }, callback);
                 })
                 .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, options, callback) {
-                    handleCallback(outputPath, options, callback);
+                    return handleCallback(outputPath, options, callback);
                 })
                 .overloader.apply(this, arguments);
         }
@@ -583,4 +595,9 @@ class Video extends EventEmitter {
 }
 
 //Export the module
-module.exports = { setTempPath, setFfmpegPath, Video, ExportSteps };
+module.exports = {
+    tempPath, setTempPath,
+    ffmpegPath, setFfmpegPath, checkFfmpegPath,
+    ExportStages, ExportTasks,
+    Video
+};

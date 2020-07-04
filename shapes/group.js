@@ -8,7 +8,6 @@ const Path = require("./path");
 const Polygon = require("./polygon");
 const Rectangle = require("./rectangle");
 const { arrayOf, Types, Overloader, Interface, typedFunction, instanceOf } = require("../type");
-const shapeInterface = require("./shape-interface");
 const pointInterface = require("./point-interface");
 
 //Size interface
@@ -100,7 +99,7 @@ class Group extends Shape {
         super({
             children: {
                 initial: [],
-                type: arrayOf(shapeInterface)
+                type: arrayOf(instanceOf(Shape))
             },
             x: Types.NUMBER,
             y: Types.NUMBER,

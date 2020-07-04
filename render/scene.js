@@ -20,6 +20,7 @@ const typify = require("../properties/typify");
 const cameraInterface = require("./camera-interface");
 const shapes = require("../shapes/shapes");
 const Shape = require("../shapes/shape");
+const Caption = require("../caption");
 
 //Config
 const defaultDuration = 5;
@@ -106,6 +107,7 @@ class Scene {
         this._camera = new Camera();
         this._duration = 0;
         this.autoDuration = 0;
+        this.captions = new Map();
     }
 
     set camera(camera) {
@@ -136,11 +138,22 @@ class Scene {
             layer: 0
         }
 
+        const addShape = () => {
+            this.autoDuration = Math.max(this.autoDuration, drawable.endTime);
+            this.drawables.push(drawable);
+        };
+
+        const addCaption = (id, caption) => {
+            this.captions.set(id, caption);
+        };
+
         new Overloader()
+            //Add Shape overloads
             .overload([
                 { type: instanceOf(Shape) }
             ], function (shape) {
                 drawable.shape = shape;
+                addShape();
             })
             .overload([
                 { type: Types.NON_NEGATIVE_NUMBER },
@@ -148,6 +161,7 @@ class Scene {
             ], function (startTime, shape) {
                 drawable.startTime = startTime;
                 drawable.shape = shape;
+                addShape();
             })
             .overload([
                 { type: Types.NON_NEGATIVE_NUMBER },
@@ -157,6 +171,7 @@ class Scene {
                 drawable.startTime = startTime;
                 drawable.endTime = startTime + duration;
                 drawable.shape = shape;
+                addShape();
             })
             .overload([
                 { type: Types.NON_NEGATIVE_NUMBER },
@@ -168,6 +183,7 @@ class Scene {
                 drawable.endTime = startTime + duration;
                 drawable.layer = layer;
                 drawable.shape = shape;
+                addShape();
             })
             .overload([
                 { type: addInterface },
@@ -177,11 +193,27 @@ class Scene {
                 drawable.endTime = drawable.startTime + (duration || Infinity);
                 drawable.layer = layer || 0;
                 drawable.shape = shape;
+                addShape();
             })
-            .overloader.call(this, ...arguments);
 
-        this.autoDuration = Math.max(this.autoDuration, drawable.endTime);
-        this.drawables.push(drawable);
+            //Add caption overloads
+            .overload([
+                { type: instanceOf(Caption) }
+            ], function (caption) {
+                var n = 0;
+                var id;
+                do {
+                    id = `Caption Track ${n}`;
+                    n++;
+                }
+                while (this.captions.has(id));
+                addCaption(id, caption);
+            })
+            .overload([
+                { type: Types.STRING },
+                { type: instanceOf(Caption) }
+            ], addCaption)
+            .overloader.call(this, ...arguments);
         return this;
     };
 

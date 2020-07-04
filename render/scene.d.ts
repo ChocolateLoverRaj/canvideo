@@ -7,11 +7,13 @@ import GetColor from "./color/get";
 import csMappings from "../shapes/cs-mappings";
 import { caMappings } from "../animations/animanaged";
 
+declare type shape = Shape<any, any>;
+
 declare interface Drawable {
     startTime: number;
     endTime: number;
     layer: number;
-    shape: Shape;
+    shape: shape;
 }
 
 declare interface AddOptions {
@@ -54,11 +56,11 @@ export declare class Scene {
     duration: number;
     readonly autoDuration: number;
 
-    add(drawable: Shape): this;
-    add(startTime: number, drawable: Shape): this;
-    add(startTime: number, duration: number, drawable: Shape): this;
-    add(startTime: number, duration: number, layer: number, drawable: Shape): this;
-    add(addOptions: AddOptions, drawable: Shape): this;
+    add(drawable: shape): this;
+    add(startTime: number, drawable: shape): this;
+    add(startTime: number, duration: number, drawable: shape): this;
+    add(startTime: number, duration: number, layer: number, drawable: shape): this;
+    add(addOptions: AddOptions, drawable: shape): this;
 
     set backgroundColor(color: setColor): this;
     get backgroundColor(): GetColor;

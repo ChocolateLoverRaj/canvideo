@@ -74,3 +74,5 @@ class Caption {
         }
     }
 }
+
+module.exports = Caption;
