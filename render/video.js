@@ -16,6 +16,9 @@ const { sizeType, regularSizeInterface, shortSizeInterface } = require("./size")
 const typify = require("../properties/typify");
 const defaultify = require("../lib/default-properties");
 const Scene = require("./scene");
+const { getMaxListeners } = require('process');
+const either = require('../type/either');
+const Caption = require('../caption');
 
 //Dependency stuff
 const fsPromises = fs.promises;
@@ -168,6 +171,16 @@ const ExportTasks = {
         end: ExportStages.FINISH
     }
 }
+
+//Output interface
+const outputInterface = new Interface(false)
+    .required("video", Types.STRING)
+    .optional("captions", either(Types.STRING, instanceOf(Map)))
+    .optional("embeddedCaptions", either(Types.BOOLEAN, instanceOf(Set)))
+    .toType();
+
+//Output type
+const outputType = either(Types.STRING, outputInterface);
 
 //Video class
 class Video extends EventEmitter {
@@ -342,40 +355,61 @@ class Video extends EventEmitter {
     }
 
     export() {
-        const start = (outputPath, { keepImages, maxStreams }) => {
+        const start = (output, { keepImages, maxStreams }) => {
+            var outputVideo, outputCaptions, embeddedCaptions;
+            if (typeof output === 'string') {
+                outputVideo = output;
+                outputCaptions = new Map();
+                embeddedCaptions = new Set();
+            }
+            else {
+                outputVideo = output.video;
+                outputCaptions = output.captions || new Map();
+                if (typeof outputCaptions === 'string') {
+                    let outputCaptionsDir = outputCaptions;
+                    outputCaptions = new Map();
+                    for (let { captions } of this.scenes) {
+                        for (let id of captions.keys()) {
+                            if (!outputCaptions.has(id)) {
+                                outputCaptions.set(id, path.resolve(path.join(outputCaptionsDir, id + ".vtt")));
+                            }
+                        }
+                    }
+                }
+                embeddedCaptions = output.embeddedCaptions || false;
+            }
+
             var tempPathToUse = this.tempPath || tempPath;
             if (tempPathToUse) {
                 var frameCount = Math.ceil(this.duration * this.fps);
 
                 var emitter = new EventEmitter();
-                emitter.checkTempPath = new EventEmitter();
-                emitter.deleteExtraFrames = new EventEmitter();
 
                 emitter.totalFrames = frameCount;
-                emitter.currentStep = 0;
                 emitter.video = this;
 
+                const getTaskEmitter = task => {
+                    let taskEmitter = emitter[task] = new EventEmitter();
+                    return (name, ...params) => {
+                        taskEmitter.emit(name);
+                        emitter.emit(`${task}_${name}`, ...params);
+                        this.emit(`${task}_${name}`, [...params, emitter]);
+                    };
+                };
+
                 const checkTempPath = async () => {
-                    emitter.checkTempPath.emit("start");
-                    emitter.emit("checkTempPath_start");
-                    this.emit("checkTempPath_start", emitter);
-
+                    let emit = getTaskEmitter("checkTempPath");
+                    emit("start");
                     tempPathToUse = await tempPathToUse;
-
-                    emitter.checkTempPath.emit("finish");
-                    emitter.emit("checkTempPath_finish");
-                    this.emit("checkTempPath_finish", emitter);
+                    emit("finish");
                 }
 
                 const deleteExtraFrames = async () => {
-                    emitter.deleteExtraFrames.emit("start");
-                    emitter.emit("deleteExtraFrames_start");
-                    this.emit("deleteExtraFrames_start");
+                    let emit = getTaskEmitter("deleteExtraFrames");
+                    emit("start");
 
                     var files = await fsPromises.readdir(tempPathToUse);
-                    emitter.deleteExtraFrames.emit("readDir");
-                    emitter.emit("deleteExtraFrames_readDir");
-                    this.emit("deleteExtraFrames_readDir");
+                    emit("readDir");
 
                     var deletePromises = [];
                     for (var i = 0; i < files.length; i++) {
@@ -385,30 +419,82 @@ class Video extends EventEmitter {
                             //012345678<
                             let frameNumber = parseInt(file.substring(9, file.indexOf('.')));
                             if (frameNumber >= frameCount) {
-                                emitter.deleteExtraFrames.emit("deleteStart", frameNumber);
-                                emitter.emit("deleteExtraFrames_deleteStart", frameNumber);
-                                this.emit("deleteExtraFrames_deleteStart", frameNumber);
-
+                                emit("deleteStart", frameNumber);
                                 deletePromises.push(fsPromises.unlink(path.join(tempPathToUse, file))
                                     .then(() => {
-                                        emitter.deleteExtraFrames.emit("deleteFinish", frameNumber);
-                                        emitter.emit("deleteExtraFrames_deleteFinish", frameNumber);
-                                        this.emit("deleteExtraFrames_deleteFinish", frameNumber);
+                                        emit("deleteFinish", frameNumber);
                                     })
                                 );
                             }
                         }
                     }
                     return Promise.all(deletePromises).then(() => {
-                        emitter.deleteExtraFrames.emit("finish");
-                        emitter.emit("deleteExtraFrames_finish");
-                        this.emit("deleteExtraFrames_finish");
+                        emit("finish");
                     });
                 };
 
+                const embeddedCaptionsWrites = new Map();
+                const generateEmbeddedCaptions = async () => {
+                    let emit = getTaskEmitter("generateEmbeddedCaptions");
+                    emit("start");
+                    if (embeddedCaptions) {
+                        let captionsStrings = new Map();
+                        let currentTime = 0;
+                        for (let { captions, duration } of this.scenes) {
+                            for (let [id, caption] of captions) {
+                                if (embeddedCaptions === true || embeddedCaptions.has(id)) {
+                                    if (captionsStrings.has(id)) {
+                                        captionsStrings.set(id, captionsStrings.get(id) + caption.toVtt(false, currentTime));
+                                    }
+                                    else {
+                                        captionsStrings.set(id, caption.toVtt(true, currentTime));
+                                    }
+                                }
+                            }
+                            currentTime += duration;
+                        };
+                        let writePromises = [];
+                        for (let [id, captionString] of captionsStrings) {
+                            let captionOutput;
+                            if (outputCaptions.has(id)) {
+                                captionOutput = outputCaptions.get(id);
+                            }
+                            else {
+                                captionOutput = path.resolve(path.join(tempPathToUse, `./canvideo ${id}`));
+                            }
+                            var captionsWrite = fsPromises.writeFile(captionOutput, captionString).then(() => {
+                                emit("writeFinish", id);
+                            });
+                            embeddedCaptionsWrites.set(id, captionsWrite);
+                            emit("writeStart", id);
+                            writePromises.push(captionsWrite);
+                        }
+                        await Promise.all(writePromises);
+                    }
+                    emit("finish");
+                };
+
+                const generateSeparateCaptions = async () => {
+                    let writePromises = [];
+                    let captionsToWrite = new Map();
+                    for(let [id, captionsPath] of outputCaptions){
+                        if(embeddedCaptionsWrites.has(id)){
+                            writePromises.push(embeddedCaptionsWrites.get(id));
+                            console.log(id, embeddedCaptionsWrites.get(id));
+                        }
+                        else{
+                            captionsToWrite.set(id, captionsPath);
+                        }
+                    };
+                    //TODO work on writing the missing captions.
+                };
+
                 var framePaths = [];
-                const renderNew = async () => {
+                const renderNewFrames = async () => {
                     return new Promise((resolve, reject) => {
+                        let emit = getTaskEmitter("renderNewFrames");
+                        emit("start");
+
                         var sceneStart = 0;
                         var currentScene = 0;
                         var maxAtOnce = Math.min(frameCount, maxStreams);
@@ -416,6 +502,7 @@ class Video extends EventEmitter {
                         var framesLeft = frameCount;
                         const doneSavingFrame = () => {
                             if (--framesLeft === 0) {
+                                emit("finish");
                                 resolve();
                             }
                             else if (nextInLine < frameCount) {
@@ -424,19 +511,18 @@ class Video extends EventEmitter {
                         }
                         const saveFrame = () => {
                             let frame = nextInLine;
-                            let imagePath = path.join(tempPath, `canvideo ${frame}.png`);
+                            let imagePath = path.join(tempPathToUse, `canvideo ${frame}.png`);
                             framePaths.push(imagePath);
-                            emitter.emit("frame_start", frame);
+                            emit("renderStart", frame);
                             var timeInScene = frame * this.spf - sceneStart;
                             var pngStream = this.scenes[currentScene].render(timeInScene, { width: this.width, height: this.height });
                             pngStream
                                 .on('end', () => {
                                     pngStream.destroy();
-                                    emitter.emit("frame_finish", frame);
+                                    emit("renderFinish", frame);
                                     doneSavingFrame();
                                 })
                                 .on('error', err => {
-                                    emitter.emit('error', err);
                                     reject(err);
                                 })
                                 .pipe(fs.createWriteStream(imagePath, { autoClose: true }));
@@ -469,7 +555,7 @@ class Video extends EventEmitter {
                             })
                             .input(path.join(tempPath, "canvideo %01d.png"))
                             .inputFPS(this.fps)
-                            .save(outputPath)
+                            .save(output)
                             .outputFps(this.fps)
                             .videoCodec('libx264')
                             .withOption([
@@ -499,33 +585,47 @@ class Video extends EventEmitter {
                     }
                 };
 
+                const emit = (name, ...params) => {
+                    emitter.emit(name, ...params);
+                    this.emit(name, [...params, emitter]);
+                }
+
                 const startStages = async () => {
                     //START
-                    emitter.emit("stage", ExportStages.START);
-                    this.emit("stage", ExportStages.START, emitter);
+                    emit("stage", ExportStages.START);
                     //CHECK_TEMP_PATH
-                    emitter.emit("taskStart", ExportTasks.CHECK_TEMP_PATH);
-                    this.emit("taskStart", ExportTasks.CHECK_TEMP_PATH, emitter);
+                    emit("taskStart", ExportTasks.CHECK_TEMP_PATH);
                     await checkTempPath();
-                    emitter.emit("taskFinish", ExportTasks.CHECK_TEMP_PATH);
-                    this.emit("taskFinish", ExportTasks.CHECK_TEMP_PATH, emitter);
+                    emit("taskFinish", ExportTasks.CHECK_TEMP_PATH);
 
                     //CREATE_FILES
-                    var generateVideo = [];
-                    emitter.emit("stage", ExportStages.CREATE_FILES);
-                    this.emit("stage", ExportStages.CREATE_FILES, emitter);
+                    let generateVideo = [];
+                    let finish = []; 
+                    emit("stage", ExportStages.CREATE_FILES);
                     //DELETE_EXTRA_FRAMES
-                    emitter.emit("taskStart", ExportTasks.DELETE_EXTRA_FRAMES);
-                    this.emit("taskStart", ExportTasks.DELETE_EXTRA_FRAMES, emitter);
+                    emit("taskStart", ExportTasks.DELETE_EXTRA_FRAMES);
                     generateVideo.push(deleteExtraFrames().then(() => {
-                        emitter.emit("taskFinish", ExportTasks.DELETE_EXTRA_FRAMES);
-                        this.emit("taskFinish", ExportTasks.DELETE_EXTRA_FRAMES, emitter);
+                        emit("taskFinish", ExportTasks.DELETE_EXTRA_FRAMES);
+                    }));
+                    //RENDER_NEW_FRAMES
+                    emit("taskStart", ExportTasks.RENDER_NEW_FRAMES);
+                    generateVideo.push(renderNewFrames().then(() => {
+                        emit("taskFinish", ExportTasks.RENDER_NEW_FRAMES);
+                    }));
+                    //GENERATE_EMBEDDED_CAPTIONS
+                    emit("taskStart", ExportTasks.GENERATE_EMBEDDED_CAPTIONS);
+                    generateVideo.push(generateEmbeddedCaptions().then(() => {
+                        emit("taskFinish", ExportTasks.GENERATE_EMBEDDED_CAPTIONS);
+                    }));
+                    //GENERATE_SEPARATE_CAPTIONS
+                    emit("taskStart", ExportTasks.GENERATE_SEPARATE_CAPTIONS);
+                    finish.push(generateSeparateCaptions().then(() => {
+                        emit("taskFinish", ExportTasks.GENERATE_SEPARATE_CAPTIONS);
                     }));
                     await Promise.all(generateVideo);
 
                     //GENERATE_VIDEO
-                    emitter.emit("stage", ExportStages.GENERATE_VIDEO);
-                    this.emit("stage", ExportStages.GENERATE_VIDEO, emitter);
+                    emit("stage", ExportStages.GENERATE_VIDEO);
                 };
 
                 //Start steps and synchronously return emitter
@@ -547,9 +647,8 @@ class Video extends EventEmitter {
             keepImages: false,
             maxStreams: 100
         }
-        var handleReturning = function (outputPath, options, returnPromise) {
+        const handleReturning = (outputPath, options, returnPromise) => {
             options = defaultify(options, defaultOptions);
-            checkOutputPath(outputPath);
             if (returnPromise) {
                 return new Promise((resolve, reject) => {
                     start(outputPath, options)
@@ -563,27 +662,26 @@ class Video extends EventEmitter {
                 start(outputPath, options);
                 return this;
             }
-        }.bind(this);
+        };
 
-        var handleCallback = function (outputPath, options, callback) {
+        const handleCallback = (outputPath, options, callback) => {
             options = defaultify(options, defaultOptions);
-            checkOutputPath(outputPath);
             callback(start(outputPath, options));
             return this;
-        }.bind(this);
+        };
 
         if (this.duration > 0) {
             return new Overloader()
-                .overload([{ type: Types.STRING }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
+                .overload([{ type: outputType }, { type: Types.BOOLEAN, optional: true }], function (outputPath, returnPromise = false) {
                     return handleReturning(outputPath, { keepImages: false }, returnPromise);
                 })
-                .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.BOOLEAN, optional: true }], function (outputPath, options, returnPromise = false) {
+                .overload([{ type: outputType }, { type: exportOptionsInterface }, { type: Types.BOOLEAN, optional: true }], function (outputPath, options, returnPromise = false) {
                     return handleReturning(outputPath, options, returnPromise);
                 })
-                .overload([{ type: Types.STRING }, { type: Types.FUNCTION }], function (outputPath, callback) {
+                .overload([{ type: outputType }, { type: Types.FUNCTION }], function (outputPath, callback) {
                     return handleCallback(outputPath, { keepImages: false }, callback);
                 })
-                .overload([{ type: Types.STRING }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, options, callback) {
+                .overload([{ type: outputType }, { type: exportOptionsInterface }, { type: Types.FUNCTION }], function (outputPath, options, callback) {
                     return handleCallback(outputPath, options, callback);
                 })
                 .overloader.apply(this, arguments);

@@ -2,7 +2,7 @@ const { Video, Scene, Rectangle, Caption } = require("../index");
 
 const video = new Video(400, 400, 1)
     .add(new Scene()
-        .add(0, 3, new Rectangle(0, 0, 200, 200)
+        .add(0, 5, new Rectangle(0, 0, 200, 200)
             .fill("red")
         )
         .add(new Caption()
@@ -12,9 +12,17 @@ const video = new Video(400, 400, 1)
             .add(1, 4, "Hola.")
         )
     )
+    .add(new Scene()
+        .add(0, 2, new Rectangle(100, 100, 200, 200)
+            .fill("orange")
+        )
+        .add(new Caption()
+            .add(0, 2, "The End.")
+        )
+    )
     .setTempPath("../generated")
-    .export("../generated/c.mp4", { keepImages: true }, videoExport => {
-        let m = videoExport.deleteExtraFrames;
+    .export({ video: "../generated/c.mp4", embeddedCaptions: new Set(["spanish"]), captions: "../generated/captions" }, { keepImages: true }, videoExport => {
+        let m = videoExport.renderNewFrames;
 
         videoExport
             .on("stage", stage => {
@@ -27,20 +35,17 @@ const video = new Video(400, 400, 1)
                 console.log("taskFinish", task.name);
             });
 
-        m
-            .on("deleteExtraFrames_start", () => {
+        videoExport
+            .on("generateEmbeddedCaptions_start", () => {
                 console.log("start");
             })
-            .on("deleteExtraFrames_readDir", () => {
-                console.log("readDir");
+            .on("generateEmbeddedCaptions_writeStart", (frameNumber) => {
+                console.log("writeStart", frameNumber);
             })
-            .on("deleteExtraFrames_deleteStart", (frameNumber) => {
-                console.log("deleteStart", frameNumber);
+            .on("generateEmbeddedCaptions_writeFinish", (frameNumber) => {
+                console.log("writeFinish", frameNumber);
             })
-            .on("deleteExtraFrames_deleteFinish", (frameNumber) => {
-                console.log("deleteFinish", frameNumber);
-            })
-            .on("deleteExtraFrames_finish", () => {
+            .on("generateEmbeddedCaptions_finish", () => {
                 console.log("finish");
             })
     });
