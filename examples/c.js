@@ -24,7 +24,7 @@ const video = new Video(400, 400, 24)
     .export({
         video: "../generated/c.mp4",
         embeddedCaptions: true,
-    }, { keepImages: true }, videoExport => {
+    }, { keepImages: false }, videoExport => {
         let m = videoExport.renderNewFrames;
 
         videoExport
@@ -39,16 +39,16 @@ const video = new Video(400, 400, 24)
             });
 
         videoExport
-            .on("generateSeparateCaptions_start", () => {
+            .on("deleteFrames_start", () => {
                 console.log("start");
             })
-            .on("generateSeparateCaptions_writeStart", (frameNumber) => {
-                console.log("writeStart", frameNumber);
+            .on("deleteFrames_deleteStart", frame => {
+                console.log("deleteStart", frame);
             })
-            .on("generateSeparateCaptions_writeFinish", (frameNumber) => {
-                console.log("writeFinish", frameNumber);
+            .on("deleteFrames_deleteFinish", frame => {
+                console.log("deleteFinish", frame);
             })
-            .on("generateSeparateCaptions_finish", () => {
+            .on("deleteFrames_finish", () => {
                 console.log("finish");
             })
     });

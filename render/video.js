@@ -394,16 +394,30 @@ class Video extends EventEmitter {
 
                 var emitter = new EventEmitter();
 
+                emitter.checkTempPath = new EventEmitter();
+                emitter.deleteExtraFrames = new EventEmitter();
+                emitter.renderNewFrames = new EventEmitter();
+                emitter.generateEmbeddedCaptions = new EventEmitter();
+                emitter.generateVideo = new EventEmitter();
+                emitter.deleteFrames = new EventEmitter();
+                emitter.deleteCaptions = new EventEmitter();
+                emitter.generateSeparateCaptions = new EventEmitter();
+
                 emitter.totalFrames = frameCount;
                 emitter.video = this;
 
                 const getTaskEmitter = task => {
-                    let taskEmitter = emitter[task] = new EventEmitter();
-                    return (name, ...params) => {
-                        taskEmitter.emit(name);
-                        emitter.emit(`${task}_${name}`, ...params);
-                        this.emit(`${task}_${name}`, [...params, emitter]);
-                    };
+                    if (emitter.hasOwnProperty(task)) {
+                        let taskEmitter = emitter[task];
+                        return (name, ...params) => {
+                            taskEmitter.emit(name);
+                            emitter.emit(`${task}_${name}`, ...params);
+                            this.emit(`${task}_${name}`, [...params, emitter]);
+                        };
+                    }
+                    else {
+                        throw new ReferenceError(`emitter doesn't have task: ${task}.`);
+                    }
                 };
 
                 const checkTempPath = async () => {
@@ -624,39 +638,54 @@ class Video extends EventEmitter {
                         ffmpegCommand += " -c:s mov_text -an -vcodec libx264 -pix_fmt yuv420p -progress pipe:1 -y";
                         //Add output path
                         ffmpegCommand += ` "${outputVideo}"`;
-                        //Return a promise because of special async logic.
-                        return new Promise((resolve, reject) => {
+                        //Await a promise because of special async logic.
+                        await new Promise((resolve, reject) => {
                             let command = exec(ffmpegCommand);
                             command.stdout.on('data', data => {
-                                console.log(data);
+                                //This is the progress chunk
+                                //Get the frame, total_size, and progress
+                                let frames = parseInt(/(?<=frame=)\S.*/.exec(data)[0]);
+                                let size = parseInt(/(?<=total_size=)\S.*/.exec(data)[0]);
+                                let finished = /(?<=progress=)\S.*/.exec(data)[0] === 'end' ? true : false;
+                                emit("progress", {
+                                    frames,
+                                    totalFrames: frameCount,
+                                    size,
+                                    progress: frames / frameCount,
+                                    finished
+                                });
+                                if (finished) {
+                                    emit("generateFinish");
+                                    resolve();
+                                }
                             });
                             command.once('exit', code => {
                                 if (code !== 0) {
-                                    throw new Error("ffmpeg process exited with non 0 code.");
+                                    reject("ffmpeg process exited with non 0 code.");
                                 }
                             });
                         });
                     }
-                    emit("generateFinish");
                     emit("finish");
                 };
 
                 async function deleteFrames() {
-                    if (keepImages) {
-                        return false;
-                    }
-                    else {
+                    let emit = getTaskEmitter("deleteFrames");
+                    emit("start");
+                    if (!keepImages) {
                         var deletePromises = [];
                         for (var i = 0; i < framePaths.length; i++) {
                             let frameNumber = i;
+                            emit("deleteStart", frameNumber);
                             deletePromises.push(fsPromises.unlink(framePaths[frameNumber])
                                 .then(() => {
-                                    emitter.emit("delete_finish", frameNumber);
+                                    emit("deleteFinish", frameNumber);
                                 })
                             );
                         }
-                        return Promise.all(deletePromises);
+                        await Promise.all(deletePromises);
                     }
+                    emit("finish");
                 };
 
                 const emit = (name, ...params) => {
@@ -704,6 +733,14 @@ class Video extends EventEmitter {
                     emit("taskStart", ExportTasks.GENERATE_VIDEO);
                     await generateVideo();
                     emit("taskFinish", ExportTasks.GENERATE_VIDEO);
+
+                    //DELETE_TEMPORARY
+                    emit("stage", ExportStages.DELETE_TEMPORARY);
+                    //DELETE_FRAMES
+                    emit("taskStart", ExportTasks.DELETE_FRAMES);
+                    finishPromises.push(deleteFrames().then(() => {
+                        emit("taskFinish", ExportTasks.DELETE_FRAMES);
+                    }));
                 };
 
                 //Start steps and synchronously return emitter
