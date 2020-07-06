@@ -21,7 +21,11 @@ const video = new Video(400, 400, 1)
         )
     )
     .setTempPath("../generated")
-    .export({ video: "../generated/c.mp4", embeddedCaptions: new Set(["spanish"]), captions: "../generated/captions" }, { keepImages: true }, videoExport => {
+    .export({
+        video: "../generated/c.mp4",
+        embeddedCaptions: new Set(["Caption Track 0"]),
+        captions: "../generated/captions/"
+    }, { keepImages: true }, videoExport => {
         let m = videoExport.renderNewFrames;
 
         videoExport
@@ -36,16 +40,16 @@ const video = new Video(400, 400, 1)
             });
 
         videoExport
-            .on("generateEmbeddedCaptions_start", () => {
+            .on("generateSeparateCaptions_start", () => {
                 console.log("start");
             })
-            .on("generateEmbeddedCaptions_writeStart", (frameNumber) => {
+            .on("generateSeparateCaptions_writeStart", (frameNumber) => {
                 console.log("writeStart", frameNumber);
             })
-            .on("generateEmbeddedCaptions_writeFinish", (frameNumber) => {
+            .on("generateSeparateCaptions_writeFinish", (frameNumber) => {
                 console.log("writeFinish", frameNumber);
             })
-            .on("generateEmbeddedCaptions_finish", () => {
+            .on("generateSeparateCaptions_finish", () => {
                 console.log("finish");
             })
     });

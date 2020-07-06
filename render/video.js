@@ -88,14 +88,17 @@ function setTempPath(path) {
 }
 
 //Check that ffmpeg path is good
+var ffmpegPathStatus;
 async function checkFfmpegPath() {
     return new Promise((resolve, reject) => {
         var command = exec(`${ffmpegPath} -version`);
         command.once("exit", code => {
             if (code === 0) {
+                ffmpegPathStatus = true;
                 resolve();
             }
             else {
+                ffmpegPathStatus = false;
                 reject(`Check command failed: ${ffmpegPath} -version.`);
             }
         });
@@ -106,6 +109,7 @@ async function checkFfmpegPath() {
 var ffmpegPath = "ffmpeg";
 var setFfmpegPath = function (path) {
     ffmpegPath = path;
+    ffmpegPathStatus = undefined;
 };
 
 //Export enums
@@ -115,21 +119,22 @@ var setFfmpegPath = function (path) {
 
 //Visualization
 
-// START                 CREATE_FILES                     GENERATE_VIDEO       DELETE_FRAMES       FINISH
-// | --> CHECK_TEMP_PATH |                                |                    |                   |
-//                       | --> DELETE_EXTRA_FRAMES        |                    |                   |
-//                       | --> RENDER_NEW_FRAMES          |                    |                   |
-//                       | --> GENERATE_EMBEDDED_CAPTIONS |                    |                   |
-//                       |                                | --> GENERATE_VIDEO |                   |
-//                       |                                                     | --> DELETE_FRAMES |
-//                       | --> GENERATE_SEPARATE_CAPTIONS                                          |
+// START                 CREATE_FILES                     GENERATE_VIDEO       DELETE_TEMPORARY      FINISH
+// | --> CHECK_TEMP_PATH |                                |                    |                     |
+//                       | --> DELETE_EXTRA_FRAMES        |                    |                     |
+//                       | --> RENDER_NEW_FRAMES          |                    |                     |
+//                       | --> GENERATE_EMBEDDED_CAPTIONS |                    |                     |
+//                                                        | --> GENERATE_VIDEO |                     |
+//                                                                             | --> DELETE_FRAMES   |
+//                                                                             | --> DELETE_CAPTIONS |
+//                       | --> GENERATE_SEPARATE_CAPTIONS                                            |
 
 //Export stages enum
 const ExportStages = {
     START: "START",
     CREATE_FILES: "CREATE_FILES",
     GENERATE_VIDEO: "GENERATE_VIDEO",
-    DELETE_FRAMES: "DELETE_FRAMES",
+    DELETE_TEMPORARY: "DELETE_FRAMES",
     FINISH: "FINISH"
 };
 
@@ -163,11 +168,16 @@ const ExportTasks = {
     GENERATE_VIDEO: {
         name: "GENERATE_VIDEO",
         start: ExportStages.GENERATE_VIDEO,
-        end: ExportStages.DELETE_FRAMES
+        end: ExportStages.DELETE_TEMPORARY
     },
     DELETE_FRAMES: {
         name: "DELETE_FRAMES",
-        start: ExportStages.DELETE_FRAMES,
+        start: ExportStages.DELETE_TEMPORARY,
+        end: ExportStages.FINISH
+    },
+    DELETE_CAPTIONS:{
+        name: "DELETE_CAPTIONS",
+        start: ExportStages.DELETE_TEMPORARY,
         end: ExportStages.FINISH
     }
 }
@@ -433,6 +443,7 @@ class Video extends EventEmitter {
                     });
                 };
 
+                const captionFiles = new Set();
                 const embeddedCaptionsWrites = new Map();
                 const generateEmbeddedCaptions = async () => {
                     let emit = getTaskEmitter("generateEmbeddedCaptions");
@@ -453,6 +464,14 @@ class Video extends EventEmitter {
                             }
                             currentTime += duration;
                         };
+                        //Check that there are no caption ids that don't exist
+                        if (typeof embeddedCaptions === 'object') {
+                            for (let id of embeddedCaptions.keys()) {
+                                if(!captionsStrings.has(id)){
+                                    throw new ReferenceError(`No captions with id: ${id}, found.`);
+                                }
+                            }
+                        }
                         let writePromises = [];
                         for (let [id, captionString] of captionsStrings) {
                             let captionOutput;
@@ -468,6 +487,7 @@ class Video extends EventEmitter {
                             embeddedCaptionsWrites.set(id, captionsWrite);
                             emit("writeStart", id);
                             writePromises.push(captionsWrite);
+                            captionFiles.add(captionOutput);
                         }
                         await Promise.all(writePromises);
                     }
@@ -475,18 +495,47 @@ class Video extends EventEmitter {
                 };
 
                 const generateSeparateCaptions = async () => {
+                    let emit = getTaskEmitter("generateSeparateCaptions");
+                    emit("start");
                     let writePromises = [];
                     let captionsToWrite = new Map();
-                    for(let [id, captionsPath] of outputCaptions){
-                        if(embeddedCaptionsWrites.has(id)){
-                            writePromises.push(embeddedCaptionsWrites.get(id));
-                            console.log(id, embeddedCaptionsWrites.get(id));
+                    for (let [id, captionsPath] of outputCaptions) {
+                        if (path.extname(captionsPath) !== ".vtt") {
+                            throw new URIError("Unrecognized caption file format. Currently, only .vtt is supported.");
                         }
-                        else{
+                        if (embeddedCaptionsWrites.has(id)) {
+                            writePromises.push(embeddedCaptionsWrites.get(id));
+                        }
+                        else {
                             captionsToWrite.set(id, captionsPath);
                         }
                     };
-                    //TODO work on writing the missing captions.
+                    let captionsStrings = new Map();
+                    let currentTime = 0;
+                    for (let { captions, duration } of this.scenes) {
+                        for (let [id, caption] of captions) {
+                            if (captionsToWrite.has(id)) {
+                                if (captionsStrings.has(id)) {
+                                    captionsStrings.set(id, captionsStrings.get(id) + caption.toVtt(false, currentTime));
+                                }
+                                else {
+                                    captionsStrings.set(id, caption.toVtt(true, currentTime));
+                                }
+                            }
+                        }
+                        currentTime += duration;
+                    };
+                    for (let [id, captionString] of captionsStrings) {
+                        let captionOutput = captionsToWrite.get(id);
+                        var captionsWrite = fsPromises.writeFile(captionOutput, captionString).then(() => {
+                            emit("writeFinish", id);
+                        });
+                        emit("writeStart", id);
+                        writePromises.push(captionsWrite);
+                        captionFiles.add(captionOutput);
+                    }
+                    await Promise.all(writePromises);
+                    emit("finish");
                 };
 
                 var framePaths = [];
@@ -543,27 +592,15 @@ class Video extends EventEmitter {
 
                 const generateVideo = async () => {
                     return new Promise((resolve, reject) => {
-                        ffmpeg()
-                            .once('end', () => {
-                                resolve();
-                            })
-                            .on('progress', ({ frames }) => {
-                                emitter.emit("generate_part", frames - framesAdded);
-                            })
-                            .on('error', err => {
-                                reject(err);
-                            })
-                            .input(path.join(tempPath, "canvideo %01d.png"))
-                            .inputFPS(this.fps)
-                            .save(output)
-                            .outputFps(this.fps)
-                            .videoCodec('libx264')
-                            .withOption([
-                                '-threads 1',
-                                '-pix_fmt yuv420p',
-                                '-movflags faststart'
-                            ])
-                            .noAudio();
+                        if(ffmpegPathStatus === true){
+                            console.log("good ffmpeg path");
+                        }
+                        else if(ffmpegPathStatus === false){
+                            console.log("bad ffmpeg path");
+                        }
+                        else{
+                            console.log("I need to check ffmpeg path.");
+                        }
                     });
                 };
 
@@ -600,7 +637,7 @@ class Video extends EventEmitter {
 
                     //CREATE_FILES
                     let generateVideo = [];
-                    let finish = []; 
+                    let finish = [];
                     emit("stage", ExportStages.CREATE_FILES);
                     //DELETE_EXTRA_FRAMES
                     emit("taskStart", ExportTasks.DELETE_EXTRA_FRAMES);
