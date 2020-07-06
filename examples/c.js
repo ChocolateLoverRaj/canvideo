@@ -1,6 +1,6 @@
 const { Video, Scene, Rectangle, Caption } = require("../index");
 
-const video = new Video(400, 400, 1)
+const video = new Video(400, 400, 24)
     .add(new Scene()
         .add(0, 5, new Rectangle(0, 0, 200, 200)
             .fill("red")
@@ -13,7 +13,7 @@ const video = new Video(400, 400, 1)
         )
     )
     .add(new Scene()
-        .add(0, 2, new Rectangle(100, 100, 200, 200)
+        .add(0, 5, new Rectangle(100, 100, 200, 200)
             .fill("orange")
         )
         .add(new Caption()
@@ -23,8 +23,7 @@ const video = new Video(400, 400, 1)
     .setTempPath("../generated")
     .export({
         video: "../generated/c.mp4",
-        embeddedCaptions: new Set(["Caption Track 0"]),
-        captions: "../generated/captions/"
+        embeddedCaptions: true,
     }, { keepImages: true }, videoExport => {
         let m = videoExport.renderNewFrames;
 
