@@ -3,7 +3,7 @@
 //Dependencies
 const {
     tempPath, setTempPath,
-    ffmpegPath, setFfmpegPath, checkFfmpegPath,
+    setFfmpegPath, getFfmpegPath, checkFfmpegPath,
     ExportStages, ExportTasks,
     Video } = require("./render/video");
 const Scene = require("./render/scene");
@@ -16,7 +16,7 @@ const Caption = require("./caption");
 //Export everything
 module.exports = {
     tempPath, setTempPath,
-    ffmpegPath, setFfmpegPath, checkFfmpegPath,
+    setFfmpegPath, getFfmpegPath, checkFfmpegPath,
     ExportStages, ExportTasks,
     Video,
     Scene,

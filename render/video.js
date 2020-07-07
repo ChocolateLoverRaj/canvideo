@@ -8,19 +8,14 @@ const path = require('path');
 const { exec } = require('child_process');
 
 //My Modules
-const { Overloader, Types, Interface, typedFunction, instanceOf } = require("../type");
+const { Overloader, Types, Interface, typedFunction, instanceOf, either } = require("../type");
 const { sizeType, regularSizeInterface, shortSizeInterface } = require("./size");
 const typify = require("../properties/typify");
 const defaultify = require("../lib/default-properties");
 const Scene = require("./scene");
-const { getMaxListeners } = require('process');
-const either = require('../type/either');
-const Caption = require('../caption');
 
 //Dependency stuff
 const fsPromises = fs.promises;
-
-//Setup ffmpeg
 
 //Image regex
 const imageRegex = /canvideo \d+\.png/i;
@@ -102,7 +97,7 @@ async function checkFfmpegPath() {
     });
 };
 
-//Set ffmpeg path
+//Set and get ffmpeg path
 var ffmpegPath = "ffmpeg";
 var setFfmpegPath = function (path) {
     if (path !== ffmpegPath) {
@@ -110,6 +105,7 @@ var setFfmpegPath = function (path) {
         ffmpegPathStatus = undefined;
     }
 };
+const getFfmpegPath = () => ffmpegPath;
 
 //Export enums
 //The export process is split into stages.
@@ -458,6 +454,7 @@ class Video extends EventEmitter {
 
                 const embeddedCaptionsWrites = new Map();
                 const embeddedCaptionFiles = new Set();
+                const tempCaptionFiles = new Map();
                 const generateEmbeddedCaptions = async () => {
                     let emit = getTaskEmitter("generateEmbeddedCaptions");
                     emit("start");
@@ -493,6 +490,7 @@ class Video extends EventEmitter {
                             }
                             else {
                                 captionOutput = path.resolve(path.join(tempPathToUse, `./canvideo ${id}`));
+                                tempCaptionFiles.set(id, captionOutput);
                             }
                             var captionsWrite = fsPromises.writeFile(captionOutput, captionString).then(() => {
                                 emit("writeFinish", id);
@@ -669,7 +667,7 @@ class Video extends EventEmitter {
                     emit("finish");
                 };
 
-                async function deleteFrames() {
+                const deleteFrames = async () => {
                     let emit = getTaskEmitter("deleteFrames");
                     emit("start");
                     if (!keepImages) {
@@ -685,6 +683,20 @@ class Video extends EventEmitter {
                         }
                         await Promise.all(deletePromises);
                     }
+                    emit("finish");
+                };
+
+                const deleteCaptions = async () => {
+                    let emit = getTaskEmitter("deleteCaptions");
+                    emit("start");
+                    let deletePromises = [];
+                    for (let [id, tempCaptionFile] of tempCaptionFiles) {
+                        emit("deleteStart", id);
+                        deletePromises.push(fsPromises.unlink(tempCaptionFile).then(() => {
+                            emit("deleteFinish", id);
+                        }));
+                    }
+                    await Promise.all(deletePromises);
                     emit("finish");
                 };
 
@@ -741,6 +753,15 @@ class Video extends EventEmitter {
                     finishPromises.push(deleteFrames().then(() => {
                         emit("taskFinish", ExportTasks.DELETE_FRAMES);
                     }));
+                    //DELETE_CAPTIONS
+                    emit("taskStart", ExportTasks.DELETE_CAPTIONS);
+                    finishPromises.push(deleteCaptions().then(() => {
+                        emit("taskFinish", ExportTasks.DELETE_CAPTIONS);
+                    }));
+                    await Promise.all(finishPromises);
+
+                    //FINISH
+                    emit("stage", ExportStages.FINISH);
                 };
 
                 //Start steps and synchronously return emitter
@@ -810,7 +831,7 @@ class Video extends EventEmitter {
 //Export the module
 module.exports = {
     tempPath, setTempPath,
-    setFfmpegPath, checkFfmpegPath,
+    setFfmpegPath, getFfmpegPath, checkFfmpegPath,
     ExportStages, ExportTasks,
     Video
 };

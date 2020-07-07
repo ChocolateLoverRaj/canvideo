@@ -39,16 +39,16 @@ const video = new Video(400, 400, 24)
             });
 
         videoExport
-            .on("deleteFrames_start", () => {
+            .on("deleteCaptions_start", () => {
                 console.log("start");
             })
-            .on("deleteFrames_deleteStart", frame => {
+            .on("deleteCaptions_deleteStart", frame => {
                 console.log("deleteStart", frame);
             })
-            .on("deleteFrames_deleteFinish", frame => {
+            .on("deleteCaptions_deleteFinish", frame => {
                 console.log("deleteFinish", frame);
             })
-            .on("deleteFrames_finish", () => {
+            .on("deleteCaptions_finish", () => {
                 console.log("finish");
             })
     });

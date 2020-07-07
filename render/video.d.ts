@@ -4,9 +4,12 @@ import { SceneJson, Scene } from "./scene";
 import csMappings from "../shapes/cs-mappings";
 import { caMappings } from '../animations/animanaged';
 
+export declare var tempPath: string;
 export declare function setTempPath(path: string): Promise<string>;
 
-export declare function setFfmpegPath(path: string): Promise<boolean>;
+export declare function setFfmpegPath(path: string): void;
+export declare function getFfmpegPath(): string;
+export declare function checkFfmpegPath(): Promise<void>;
 
 declare interface Progress {
     progress: number;
@@ -14,11 +17,29 @@ declare interface Progress {
     total: number;
 }
 
-export declare enum ExportSteps {
-    RENDER_FRAMES = 0,
-    GENERATE_VIDEO = 1,
-    DELETE_FRAMES = 2,
-    FINISHED = 3
+export declare enum ExportStages {
+    START = "START",
+    CREATE_FILES = "CREATE_FILES",
+    GENERATE_VIDEO = "GENERATE_VIDEO",
+    DELETE_TEMPORARY = "DELETE_FRAMES",
+    FINISH = "FINISH"
+}
+
+declare interface ExportTask {
+    name: string;
+    start: ExportStages;
+    end: ExportStages;
+}
+
+export declare abstract class ExportTasks {
+    static CHECK_TEMP_PATH: ExportTask;
+    static DELETE_EXTRA_FRAMES: ExportTask;
+    static RENDER_NEW_FRAMES: ExportTask;
+    static GENERATE_SEPARATE_CAPTIONS: ExportTask;
+    static GENERATE_EMBEDDED_CAPTIONS: ExportTask;
+    static GENERATE_VIDEO: ExportTask;
+    static DELETE_FRAMES: ExportTask;
+    static DELETE_CAPTIONS: ExportTask;
 }
 
 declare interface RegularSize {
@@ -134,6 +155,12 @@ declare interface VideoJson {
     scenes: Array<SceneJson>;
 }
 
+declare type output = string | {
+    video: string;
+    captions?: string | Map<string, string>;
+    embeddedCaptions?: boolean | Set<string>;
+};
+
 export declare class Video extends EventEmitter {
     static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Video | false;
     static fromJson(json: string, parse?: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Video;
@@ -173,12 +200,12 @@ export declare class Video extends EventEmitter {
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): VideoJson;
 
-    export(outputPath: string, returnPromise?: false): this;
-    export(outputPath: string, returnPromise: true): Promise<undefined>;
-    export(outputPath: string, options: ExportOptions, returnPromise?: false): this;
-    export(outputPath: string, options: ExportOptions, returnPromise: true): Promise<undefined>;
-    export(outputPath: string, callback: (videoExport?: VideoExport) => void): this;
-    export(outputPath: string, options: ExportOptions, callback: (videoExport?: VideoExport) => void): this;
+    export(output: output, returnPromise?: false): this;
+    export(output: output, returnPromise: true): Promise<undefined>;
+    export(output: output, options: ExportOptions, returnPromise?: false): this;
+    export(output: output, options: ExportOptions, returnPromise: true): Promise<undefined>;
+    export(output: output, callback: (videoExport?: VideoExport) => void): this;
+    export(output: output, options: ExportOptions, callback: (videoExport?: VideoExport) => void): this;
 
     addListener(event: "frame_progress", listener: (progress?: Progress, videoExport?: VideoExport) => void): this;
     addListener(event: "frame_start", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
