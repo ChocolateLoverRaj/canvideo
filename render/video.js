@@ -495,11 +495,11 @@ class Video extends EventEmitter {
                                 captionOutput = path.resolve(path.join(tempPathToUse, `./canvideo ${id}.vtt`));
                                 tempCaptionFiles.set(id, captionOutput);
                             }
+                            emit("writeStart", id);
                             var captionsWrite = fsPromises.writeFile(captionOutput, captionString).then(() => {
                                 emit("writeFinish", id);
                             });
                             embeddedCaptionsWrites.set(id, captionsWrite);
-                            emit("writeStart", id);
                             writePromises.push(captionsWrite);
                             embeddedCaptionFiles.add(captionOutput);
                         }
@@ -647,7 +647,7 @@ class Video extends EventEmitter {
                             let frames = parseInt(/(?<=frame=)\S.*/.exec(data)[0]);
                             let size = parseInt(/(?<=total_size=)\S.*/.exec(data)[0]);
                             let finished = /(?<=progress=)\S.*/.exec(data)[0] === 'end' ? true : false;
-                            emit("progress", {
+                            emit("generateProgress", {
                                 frames,
                                 totalFrames: frameCount,
                                 size,
