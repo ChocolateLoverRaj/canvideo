@@ -29,7 +29,7 @@ const video = new Video(400, 400, 24)
 
         videoExport
             .on("stage", stage => {
-                console.log("stage", stage);
+                console.log("stage", videoExport.currentStage);
             })
             .on("taskStart", task => {
                 console.log("taskStart", task.name);
@@ -39,16 +39,7 @@ const video = new Video(400, 400, 24)
             });
 
         videoExport
-            .on("deleteCaptions_start", () => {
-                console.log("start");
-            })
-            .on("deleteCaptions_deleteStart", frame => {
-                console.log("deleteStart", frame);
-            })
-            .on("deleteCaptions_deleteFinish", frame => {
-                console.log("deleteFinish", frame);
-            })
-            .on("deleteCaptions_finish", () => {
-                console.log("finish");
+            .on("finish", () => {
+                console.log("finish")
             })
     });

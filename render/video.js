@@ -390,6 +390,9 @@ class Video extends EventEmitter {
 
                 var emitter = new EventEmitter();
 
+                emitter.currentStage = ExportStages.START;
+                emitter.currentTasks = new Set();
+
                 emitter.checkTempPath = new EventEmitter();
                 emitter.deleteExtraFrames = new EventEmitter();
                 emitter.renderNewFrames = new EventEmitter();
@@ -489,7 +492,7 @@ class Video extends EventEmitter {
                                 captionOutput = outputCaptions.get(id);
                             }
                             else {
-                                captionOutput = path.resolve(path.join(tempPathToUse, `./canvideo ${id}`));
+                                captionOutput = path.resolve(path.join(tempPathToUse, `./canvideo ${id}.vtt`));
                                 tempCaptionFiles.set(id, captionOutput);
                             }
                             var captionsWrite = fsPromises.writeFile(captionOutput, captionString).then(() => {
@@ -614,56 +617,54 @@ class Video extends EventEmitter {
                     }
                     emit("checkFfmpegPathFinish");
                     emit("generateStart");
-                    if (outputVideo) {
-                        //Check that outputVideo is .mp4
-                        checkVideoPath(outputVideo);
-                        //Command to generate video
-                        let ffmpegCommand = `${ffmpegPath}`;
-                        //Add fps
-                        ffmpegCommand += ` -r ${this.fps}`;
-                        //Add frame input.
-                        ffmpegCommand += ` -i "${path.join(tempPathToUse, "./canvideo %01d.png")}"`;
-                        //Add captions.
-                        for (let captionFile of embeddedCaptionFiles) {
-                            ffmpegCommand += ` -i "${captionFile}"`;
-                        }
-                        //Add mappings
-                        ffmpegCommand += " -map 0:v";
-                        for (var i = 1; i <= embeddedCaptionFiles.size; i++) {
-                            ffmpegCommand += ` -map ${i}:s`;
-                        }
-                        //Add more options
-                        ffmpegCommand += " -c:s mov_text -an -vcodec libx264 -pix_fmt yuv420p -progress pipe:1 -y";
-                        //Add output path
-                        ffmpegCommand += ` "${outputVideo}"`;
-                        //Await a promise because of special async logic.
-                        await new Promise((resolve, reject) => {
-                            let command = exec(ffmpegCommand);
-                            command.stdout.on('data', data => {
-                                //This is the progress chunk
-                                //Get the frame, total_size, and progress
-                                let frames = parseInt(/(?<=frame=)\S.*/.exec(data)[0]);
-                                let size = parseInt(/(?<=total_size=)\S.*/.exec(data)[0]);
-                                let finished = /(?<=progress=)\S.*/.exec(data)[0] === 'end' ? true : false;
-                                emit("progress", {
-                                    frames,
-                                    totalFrames: frameCount,
-                                    size,
-                                    progress: frames / frameCount,
-                                    finished
-                                });
-                                if (finished) {
-                                    emit("generateFinish");
-                                    resolve();
-                                }
-                            });
-                            command.once('exit', code => {
-                                if (code !== 0) {
-                                    reject("ffmpeg process exited with non 0 code.");
-                                }
+                    //Check that outputVideo is .mp4
+                    checkVideoPath(outputVideo);
+                    //Command to generate video
+                    let ffmpegCommand = `${ffmpegPath}`;
+                    //Add fps
+                    ffmpegCommand += ` -r ${this.fps}`;
+                    //Add frame input.
+                    ffmpegCommand += ` -i "${path.join(tempPathToUse, "./canvideo %01d.png")}"`;
+                    //Add captions.
+                    for (let captionFile of embeddedCaptionFiles) {
+                        ffmpegCommand += ` -i "${captionFile}"`;
+                    }
+                    //Add mappings
+                    ffmpegCommand += " -map 0:v";
+                    for (var i = 1; i <= embeddedCaptionFiles.size; i++) {
+                        ffmpegCommand += ` -map ${i}:s`;
+                    }
+                    //Add more options
+                    ffmpegCommand += " -c:s mov_text -an -vcodec libx264 -pix_fmt yuv420p -progress pipe:1 -y";
+                    //Add output path
+                    ffmpegCommand += ` "${outputVideo}"`;
+                    //Await a promise because of special async logic.
+                    await new Promise((resolve, reject) => {
+                        let command = exec(ffmpegCommand);
+                        command.stdout.on('data', data => {
+                            //This is the progress chunk
+                            //Get the frame, total_size, and progress
+                            let frames = parseInt(/(?<=frame=)\S.*/.exec(data)[0]);
+                            let size = parseInt(/(?<=total_size=)\S.*/.exec(data)[0]);
+                            let finished = /(?<=progress=)\S.*/.exec(data)[0] === 'end' ? true : false;
+                            emit("progress", {
+                                frames,
+                                totalFrames: frameCount,
+                                size,
+                                progress: frames / frameCount,
+                                finished
                             });
                         });
-                    }
+                        command.once('exit', code => {
+                            if (code === 0) {
+                                emit("generateFinish");
+                                resolve();
+                            }
+                            else {
+                                reject("ffmpeg process exited with non 0 code.");
+                            }
+                        });
+                    });
                     emit("finish");
                 };
 
@@ -691,6 +692,7 @@ class Video extends EventEmitter {
                     emit("start");
                     let deletePromises = [];
                     for (let [id, tempCaptionFile] of tempCaptionFiles) {
+                        console.log("t", tempCaptionFile)
                         emit("deleteStart", id);
                         deletePromises.push(fsPromises.unlink(tempCaptionFile).then(() => {
                             emit("deleteFinish", id);
@@ -702,70 +704,93 @@ class Video extends EventEmitter {
 
                 const emit = (name, ...params) => {
                     emitter.emit(name, ...params);
-                    this.emit(name, [...params, emitter]);
+                    this.emit(name, ...params, emitter);
+                }
+
+                const stage = stage => {
+                    emitter.currentStage = stage;
+                    emit("stage", stage);
+                };
+
+                const taskStart = task => {
+                    emitter.currentTasks.add(task);
+                    emit("taskStart", task);
+                }
+
+                const taskFinish = task => {
+                    emitter.currentTasks.delete(task);
+                    emit("taskFinish", task);
                 }
 
                 const startStages = async () => {
                     //START
-                    emit("stage", ExportStages.START);
+                    stage(ExportStages.START);
                     //CHECK_TEMP_PATH
-                    emit("taskStart", ExportTasks.CHECK_TEMP_PATH);
+                    taskStart(ExportTasks.CHECK_TEMP_PATH);
                     await checkTempPath();
-                    emit("taskFinish", ExportTasks.CHECK_TEMP_PATH);
+                    taskFinish(ExportTasks.CHECK_TEMP_PATH);
 
                     //CREATE_FILES
                     let generateVideoPromises = [];
                     let finishPromises = [];
-                    emit("stage", ExportStages.CREATE_FILES);
+                    stage(ExportStages.CREATE_FILES);
                     //DELETE_EXTRA_FRAMES
-                    emit("taskStart", ExportTasks.DELETE_EXTRA_FRAMES);
+                    taskStart(ExportTasks.DELETE_EXTRA_FRAMES);
                     generateVideoPromises.push(deleteExtraFrames().then(() => {
-                        emit("taskFinish", ExportTasks.DELETE_EXTRA_FRAMES);
+                        taskFinish(ExportTasks.DELETE_EXTRA_FRAMES);
                     }));
                     //RENDER_NEW_FRAMES
-                    emit("taskStart", ExportTasks.RENDER_NEW_FRAMES);
+                    taskStart(ExportTasks.RENDER_NEW_FRAMES);
                     generateVideoPromises.push(renderNewFrames().then(() => {
-                        emit("taskFinish", ExportTasks.RENDER_NEW_FRAMES);
+                        taskFinish(ExportTasks.RENDER_NEW_FRAMES);
                     }));
                     //GENERATE_EMBEDDED_CAPTIONS
-                    emit("taskStart", ExportTasks.GENERATE_EMBEDDED_CAPTIONS);
+                    taskStart(ExportTasks.GENERATE_EMBEDDED_CAPTIONS);
                     generateVideoPromises.push(generateEmbeddedCaptions().then(() => {
-                        emit("taskFinish", ExportTasks.GENERATE_EMBEDDED_CAPTIONS);
+                        taskFinish(ExportTasks.GENERATE_EMBEDDED_CAPTIONS);
                     }));
                     //GENERATE_SEPARATE_CAPTIONS
-                    emit("taskStart", ExportTasks.GENERATE_SEPARATE_CAPTIONS);
+                    taskStart(ExportTasks.GENERATE_SEPARATE_CAPTIONS);
                     finishPromises.push(generateSeparateCaptions().then(() => {
-                        emit("taskFinish", ExportTasks.GENERATE_SEPARATE_CAPTIONS);
+                        taskFinish(ExportTasks.GENERATE_SEPARATE_CAPTIONS);
                     }));
                     await Promise.all(generateVideoPromises);
 
                     //GENERATE_VIDEO
-                    emit("stage", ExportStages.GENERATE_VIDEO);
+                    stage(ExportStages.GENERATE_VIDEO);
                     //GENERATE_VIDEO
-                    emit("taskStart", ExportTasks.GENERATE_VIDEO);
+                    taskStart(ExportTasks.GENERATE_VIDEO);
                     await generateVideo();
-                    emit("taskFinish", ExportTasks.GENERATE_VIDEO);
+                    taskFinish(ExportTasks.GENERATE_VIDEO);
 
                     //DELETE_TEMPORARY
-                    emit("stage", ExportStages.DELETE_TEMPORARY);
+                    stage(ExportStages.DELETE_TEMPORARY);
                     //DELETE_FRAMES
-                    emit("taskStart", ExportTasks.DELETE_FRAMES);
+                    taskStart(ExportTasks.DELETE_FRAMES);
                     finishPromises.push(deleteFrames().then(() => {
-                        emit("taskFinish", ExportTasks.DELETE_FRAMES);
+                        taskFinish(ExportTasks.DELETE_FRAMES);
                     }));
                     //DELETE_CAPTIONS
-                    emit("taskStart", ExportTasks.DELETE_CAPTIONS);
+                    taskStart(ExportTasks.DELETE_CAPTIONS);
                     finishPromises.push(deleteCaptions().then(() => {
-                        emit("taskFinish", ExportTasks.DELETE_CAPTIONS);
+                        taskFinish(ExportTasks.DELETE_CAPTIONS);
                     }));
                     await Promise.all(finishPromises);
 
                     //FINISH
-                    emit("stage", ExportStages.FINISH);
+                    stage(ExportStages.FINISH);
                 };
 
                 //Start steps and synchronously return emitter
-                setImmediate(startStages);
+                setImmediate(() => {
+                    startStages()
+                        .then(() => {
+                            emit("finish");
+                        })
+                        .catch(err => {
+                            emit('error', err);
+                        });
+                });
                 return emitter;
             }
             else {

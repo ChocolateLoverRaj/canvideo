@@ -73,6 +73,18 @@ declare interface ExportOptions {
 }
 
 declare abstract class VideoExport extends EventEmitter {
+    currentStage: ExportStages;
+    currentTasks: Set<ExportTask>;
+
+    checkTempPath: EventEmitter;
+    deleteExtraFrames: EventEmitter;
+    renderNewFrames: EventEmitter;
+    generateEmbeddedCaptions: EventEmitter;
+    generateVideo: EventEmitter;
+    deleteFrames: EventEmitter;
+    deleteCaptions: EventEmitter;
+    generateSeparateCaptions: EventEmitter;
+
     totalFrames: number;
     currentStep: ExportSteps;
     video: Video;
