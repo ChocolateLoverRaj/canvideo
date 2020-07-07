@@ -64,7 +64,7 @@ declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Arra
 
 declare type rectangleCaMappings = caMappings<RectangleProperties>;
 
-declare class Rectangle extends Shape<Rectangle>{
+declare class Rectangle extends Shape<Rectangle, RectangleProperties>{
     static shapeName: "rectangle";
 
     static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: rectangleCaMappings): Rectangle | false;

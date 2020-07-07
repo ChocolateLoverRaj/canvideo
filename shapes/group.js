@@ -8,7 +8,6 @@ const Path = require("./path");
 const Polygon = require("./polygon");
 const Rectangle = require("./rectangle");
 const { arrayOf, Types, Overloader, Interface, typedFunction, instanceOf } = require("../type");
-const shapeInterface = require("./shape-interface");
 const pointInterface = require("./point-interface");
 
 //Size interface
@@ -100,7 +99,7 @@ class Group extends Shape {
         super({
             children: {
                 initial: [],
-                type: arrayOf(shapeInterface)
+                type: arrayOf(instanceOf(Shape))
             },
             x: Types.NUMBER,
             y: Types.NUMBER,
@@ -235,13 +234,8 @@ class Group extends Shape {
             ctx.translate(scaleTranslate[0], scaleTranslate[1]);
             ctx.scale(scaleX, scaleY);
 
-            let child = this.children[i].at(ctx.now);
-            if (typeof child.draw === 'function') {
-                this.children[i].draw(ctx);
-            }
-            else {
-                throw new TypeError("Drawable must have draw function.");
-            }
+            //Call the child's draw function
+            this.children[i].at(ctx.now).draw(ctx);
 
             //Undo transformations
             ctx.scale(1 / scaleX, 1 / scaleY);

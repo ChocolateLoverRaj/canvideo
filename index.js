@@ -1,19 +1,24 @@
 //Main file that gets exported as npm module
 
 //Dependencies
-const { setTempPath, setFfmpegPath, Video, ExportSteps } = require("./render/video");
+const {
+    tempPath, setTempPath,
+    setFfmpegPath, getFfmpegPath, checkFfmpegPath,
+    ExportStages, ExportTasks,
+    Video } = require("./render/video");
 const Scene = require("./render/scene");
 const Camera = require("./render/camera");
 const { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path } = require("./shapes/shapes");
 const Animation = require("./animations/animation");
 const Precomputed = require("./animations/precomputed");
+const Caption = require("./caption");
 
 //Export everything
 module.exports = {
-    setTempPath,
-    setFfmpegPath,
+    tempPath, setTempPath,
+    setFfmpegPath, getFfmpegPath, checkFfmpegPath,
+    ExportStages, ExportTasks,
     Video,
-    ExportSteps,
     Scene,
     Camera,
     Shape,
@@ -24,5 +29,6 @@ module.exports = {
     NumberLine,
     Path,
     Animation,
-    Precomputed
+    Precomputed,
+    Caption
 };
