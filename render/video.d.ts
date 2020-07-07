@@ -73,7 +73,7 @@ declare interface ExportOptions {
 }
 
 declare namespace VideoExport {
-    declare abstract class CheckTempPath extends EventEmitter {
+    abstract class CheckTempPath extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "finish", listener: () => void): this;
 
@@ -90,7 +90,7 @@ declare namespace VideoExport {
         prependOnceListener(event: "finish", listener: () => void): this;
     }
 
-    declare abstract class DeleteExtraFrames extends EventEmitter {
+    abstract class DeleteExtraFrames extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "readDir", listener: () => void): this;
         addListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
@@ -122,7 +122,7 @@ declare namespace VideoExport {
         prependOncListener(event: "finish", listener: () => void): this;
     }
 
-    declare abstract class RenderNewFrames extends EventEmitter {
+    abstract class RenderNewFrames extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "renderStart", listener: (frameNumber?: number) => void): this;
         addListener(event: "renderFinish", listener: (frameNumber?: number) => void): this;
@@ -149,7 +149,7 @@ declare namespace VideoExport {
         prependOnceListener(event: "finish", listener: () => void): this;
     }
 
-    declare abstract class GenerateEmbeddedCaptions extends EventEmitter {
+    abstract class GenerateEmbeddedCaptions extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "writeStart", listener: (id?: string) => void): this;
         addListener(event: "writeFinish", listener: (id?: string) => void): this;
@@ -176,14 +176,14 @@ declare namespace VideoExport {
         prependOnceListener(event: "finish", listener: () => void): this;
     }
 
-    declare interface GenerateVideoProgress {
+    interface GenerateVideoProgress {
         frames: number;
         totalFrames: number;
         size: number;
         progress: number;
         finished: boolean;
     }
-    declare abstract class GenerateVideo extends EventEmitter {
+    abstract class GenerateVideo extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "checkFfmpegPathStart", listener: () => void): this;
         addListener(event: "checkFfmpegPathFinish", listener: () => void): this;
@@ -225,7 +225,7 @@ declare namespace VideoExport {
         prependOnceListener(event: "finish", listener: () => void): this;
     }
 
-    declare abstract class DeleteFrames extends EventEmitter {
+    abstract class DeleteFrames extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
         addListener(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
@@ -252,7 +252,7 @@ declare namespace VideoExport {
         prependOnceListener(event: "finish", listener: () => void): this;
     }
 
-    declare abstract class DeleteCaptions extends EventEmitter {
+    abstract class DeleteCaptions extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "deleteStart", listener: (id?: string) => void): this;
         addListener(event: "deleteFinish", listener: (id?: string) => void): this;
@@ -279,7 +279,7 @@ declare namespace VideoExport {
         prependOnceListener(event: "finish", listener: () => void): this;
     }
 
-    declare abstract class GenerateSeparateCaptions extends EventEmitter {
+    abstract class GenerateSeparateCaptions extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "writeStart", listener: (id?: string) => void): this;
         addListener(event: "writeFinish", listener: (id?: string) => void): this;
@@ -562,10 +562,10 @@ declare type output = string | {
 };
 
 export declare class Video extends EventEmitter {
-    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Video | false;
-    static fromJson(json: string, parse?: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Video;
-    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Video | false;
-    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Video;
+    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;
+    static fromJson(json: string, parse: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): Video;
+    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;
+    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): Video;
 
     constructor(width: number, height: number, fps: number);
     constructor(size: RegularSize, fps: number);
