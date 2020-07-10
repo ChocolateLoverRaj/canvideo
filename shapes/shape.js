@@ -116,7 +116,7 @@ class Shape {
 
             properties = Object.assign(properties, shapeProperties);
 
-            const shapeMethodsToBind = ["draw"];
+            const shapeMethodsToBind = ["draw", "getHash"];
             methodsToBind = [...new Set([...shapeMethodsToBind, ...methodsToBind])];
 
             animanage(this, properties, methodsToBind);
@@ -145,6 +145,13 @@ class Shape {
             }
             return this;
         }).apply(this, arguments);
+    }
+    getHash(){
+        let hash = '';
+        hash += `${this.fillColor.hexString},`;
+        hash += `${this.strokeColor.hexString},`;
+        hash += `${this.strokeWidth}`;
+        return hash;
     }
 
     toJson(stringify = true, fps = 60) {

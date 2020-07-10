@@ -293,12 +293,52 @@ class Scene {
             };
 
             //Draw filtered and sorted drawables
-            this.drawables.filter(shapeIsInFrame).sort(sortLayer).map(draw);
+            this.drawables.filter(shapeIsInFrame).sort(sortLayer).forEach(draw);
 
             //Return dataUrl
             return canvas.createPNGStream();
         }).apply(this, arguments);
     };
+
+    hashAt(t) {
+        if (!(t >= 0 && t < this.duration)) {
+            throw new TypeError("Time is out of range.");
+        }
+
+        //Filter only shapes to draw
+        const shapeIsInFrame = ({ startTime, endTime }) => t >= startTime && t < endTime;
+
+        //Sort by layer
+        const sortLayer = (a, b) => a.layer - b.layer;
+
+        //Get the drawable hash
+        const hash = ({ shape }) => ({
+            shape,
+            hash: shape.at(t).getHash()
+        });
+
+        //Map the shapes to their hashes
+        return this.drawables.filter(shapeIsInFrame).sort(sortLayer).map(hash);
+    }
+
+    *getRender(fps) {
+        if (!(0 < fps < Infinity)) {
+            throw new TypeError("fps must be a number between 0 and Infinity.");
+        }
+        let hashes = new Map();
+        for (var f = 0; f < this.duration * fps; f++) {
+            let t = f / fps;
+            let hash = this.hashAt(t);
+            if (hashes.has(hash)) {
+                console.log(`Frame ${f} is the same as ${hashes.get(hash)}. The hash is: ${hash}.`);
+            }
+            else {
+                hashes.set(hash, f);
+            }
+            yield [f, t];
+        }
+        console.log(hashes);
+    }
 
     setDuration(duration) {
         this.duration = duration;
