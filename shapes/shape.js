@@ -146,11 +146,12 @@ class Shape {
             return this;
         }).apply(this, arguments);
     }
+    //TODO add a getHash method on all shapes.
     getHash(){
         let hash = '';
         hash += `${this.fillColor.hexString},`;
         hash += `${this.strokeColor.hexString},`;
-        hash += `${this.strokeWidth}`;
+        hash += `${this.strokeWidth},`;
         return hash;
     }
 

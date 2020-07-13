@@ -692,7 +692,6 @@ class Video extends EventEmitter {
                     emit("start");
                     let deletePromises = [];
                     for (let [id, tempCaptionFile] of tempCaptionFiles) {
-                        console.log("t", tempCaptionFile)
                         emit("deleteStart", id);
                         deletePromises.push(fsPromises.unlink(tempCaptionFile).then(() => {
                             emit("deleteFinish", id);
@@ -1049,12 +1048,56 @@ class Video extends EventEmitter {
                     let emit = getTaskEmitter("renderNewFrames");
                     emit("start");
 
-                    for (let scene of this.scenes) {
-                        let render = scene.getRender(this.fps);
-                        for (let [f, t] of render) {
-                            console.log("frame", f, "time", t);
+                    let instructions = '';
+
+                    const writePromises = new Set();
+                    const addWritePromise = writePromise => {
+                        writePromises.add(writePromise);
+                        writePromise.finally(() => {
+                            writePromises.delete(writePromise);
+                        });
+                    };
+                    const throttle = async () => {
+                        if (writePromises.size === maxStreams) {
+                            await Promise.race([...writePromises]);
                         }
                     }
+
+                    let f = 0;
+                    for (let scene of this.scenes) {
+                        let render = scene.getRender(this.fps, this);
+                        let frameOffset = f;
+                        for (let canvas of render) {
+                            let currentFrame = f;
+
+                            await throttle();
+
+                            emit("renderStart", f);
+                            addWritePromise(new Promise((resolve, reject) => {
+                                const addFrame = (frame) => {
+                                    instructions += `file '${path.join(tempPathToUse, `./canvideo ${frame}`)}'\n`;
+                                };
+
+                                if (typeof canvas === 'number') {
+                                    addFrame(frameOffset + canvas);
+                                    resolve();
+                                }
+                                else {
+                                    addFrame(currentFrame);
+                                    canvas.createPNGStream()
+                                        .once('end', resolve)
+                                        .pipe(fs.createWriteStream(path.join(tempPathToUse, `./canvideo ${currentFrame}.png`)));
+                                }
+                            }));
+                            f++;
+                        }
+                    }
+                    await Promise.all([...writePromises]);
+                    emit("renderFinish");
+                    emit("instructionsStart");
+                    fsPromises.writeFile(path.join(tempPathToUse, "./canvideo instructions.txt"), instructions);
+                    emit("instructionsFinish");
+                    emit("finish");
                 };
 
                 const generateVideo = async () => {
@@ -1146,7 +1189,6 @@ class Video extends EventEmitter {
                     emit("start");
                     let deletePromises = [];
                     for (let [id, tempCaptionFile] of tempCaptionFiles) {
-                        console.log("t", tempCaptionFile)
                         emit("deleteStart", id);
                         deletePromises.push(fsPromises.unlink(tempCaptionFile).then(() => {
                             emit("deleteFinish", id);

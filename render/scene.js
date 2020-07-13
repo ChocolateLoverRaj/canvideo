@@ -321,23 +321,92 @@ class Scene {
         return this.drawables.filter(shapeIsInFrame).sort(sortLayer).map(hash);
     }
 
-    *getRender(fps) {
+    *getRender(fps, { width, height }) {
         if (!(0 < fps < Infinity)) {
             throw new TypeError("fps must be a number between 0 and Infinity.");
         }
+        if (!(width > 0 && width < Infinity) || width & 1) {
+            throw new TypeError("Invalid width.");
+        }
+        if (!(height > 0 && height < Infinity) || height & 1) {
+            throw new TypeError("Invalid width.");
+        }
         let hashes = new Map();
-        for (var f = 0; f < this.duration * fps; f++) {
+        for (let f = 0; f < this.duration * fps; f++) {
             let t = f / fps;
             let hash = this.hashAt(t);
-            if (hashes.has(hash)) {
-                console.log(`Frame ${f} is the same as ${hashes.get(hash)}. The hash is: ${hash}.`);
+
+            let same = false;
+            let sameAs;
+            console.log("for loop started")
+            //FIXME infinite for loop!
+            PastFrames:
+            for (let i = 0; i < f; i++) {
+                if (hashes.has(i)) {
+                    let already = hashes.get(i);
+                    if (already.length === hash.length) {
+                        for (let j = 0; j < hash.length; i++) {
+                            let { shape: aShape, hash: aHash } = already[j];
+                            let { shape: nShape, hash: nHash } = hash[j];
+                            if (aShape === nShape && aHash === nHash) {
+                                same = true, sameAs = i;
+                                break PastFrames;
+                            }
+                        }
+                    }
+                }
+            }
+            console.log("for loop done")
+            if (same) {
+                yield sameAs;
             }
             else {
-                hashes.set(hash, f);
+                //Set the hash
+                hashes.set(f, hash);
+
+                //Create a new canvas
+                let canvas = createCanvas(width, height);
+                let ctx = canvas.getContext('2d');
+
+                //Draw the background
+                ctx.fillStyle = this.backgroundColor.hexString;
+                ctx.fillRect(0, 0, width, height);
+
+                //Set the default settings
+                ctx.fillStyle = "black";
+                ctx.strokeStyle = "none";
+                ctx.lineWidth = 1;
+
+                //Set the necessary transforms
+                var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(t);
+                //Translate relative to camera position
+                ctx.translate(-x, -y);
+                //Translate to make scale relative to ref
+                ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
+                //Scale
+                ctx.scale(scaleX, scaleY);
+
+                //Filter only shapes to draw
+                const shapeIsInFrame = ({ startTime, endTime }) => {
+                    return t >= startTime && t < endTime;
+                };
+
+                //Sort by layer
+                const sortLayer = (a, b) => {
+                    return a.layer - b.layer;
+                };
+
+                //Draw the drawables
+                const draw = ({ shape }) => shape.at(t).draw(ctx);
+
+                //Draw filtered and sorted drawables
+                this.drawables.filter(shapeIsInFrame).sort(sortLayer).forEach(draw);
+
+                //Return the canvas
+                yield canvas;
             }
-            yield [f, t];
         }
-        console.log(hashes);
+        console.log("hashes map", hashes);
     }
 
     setDuration(duration) {

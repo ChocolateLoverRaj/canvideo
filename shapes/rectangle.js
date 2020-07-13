@@ -367,6 +367,18 @@ class Rectangle extends Shape {
 
         return this;
     }
+    getHash(){
+        let hash = super.getHash();
+        hash += `${this.x},`;
+        hash += `${this.y},`;
+        hash += `${this.width},`;
+        hash += `${this.height},`;
+        hash += `${this.topLeftCornerRound},`;
+        hash += `${this.topRightCornerRound},`;
+        hash += `${this.bottomLeftCornerRound},`;
+        hash += `${this.bottomRightCornerRound},`;
+        return hash;
+    }
 
     toJson(stringify = true, fps = 60) {
         let o = {
