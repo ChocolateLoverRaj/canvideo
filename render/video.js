@@ -1044,6 +1044,7 @@ class Video extends EventEmitter {
                 };
 
                 var framePaths = [];
+                var instructionsPath;
                 const renderNewFrames = async () => {
                     let emit = getTaskEmitter("renderNewFrames");
                     emit("start");
@@ -1075,7 +1076,7 @@ class Video extends EventEmitter {
                             emit("renderStart", f);
                             addWritePromise(new Promise((resolve, reject) => {
                                 const addFrame = (frame) => {
-                                    instructions += `file '${path.join(tempPathToUse, `./canvideo ${frame}`)}'\n`;
+                                    instructions += `file '${path.join(tempPathToUse, `./canvideo ${frame}.png`)}'\n`;
                                 };
 
                                 if (typeof canvas === 'number') {
@@ -1084,9 +1085,11 @@ class Video extends EventEmitter {
                                 }
                                 else {
                                     addFrame(currentFrame);
+                                    let framePath = path.join(tempPathToUse, `./canvideo ${currentFrame}.png`);
+                                    framePaths.push(framePath);
                                     canvas.createPNGStream()
                                         .once('end', resolve)
-                                        .pipe(fs.createWriteStream(path.join(tempPathToUse, `./canvideo ${currentFrame}.png`)));
+                                        .pipe(fs.createWriteStream(framePath));
                                 }
                             }));
                             f++;
@@ -1095,7 +1098,8 @@ class Video extends EventEmitter {
                     await Promise.all([...writePromises]);
                     emit("renderFinish");
                     emit("instructionsStart");
-                    fsPromises.writeFile(path.join(tempPathToUse, "./canvideo instructions.txt"), instructions);
+                    instructionsPath = path.join(tempPathToUse, "./canvideo instructions.txt")
+                    fsPromises.writeFile(instructionsPath, instructions);
                     emit("instructionsFinish");
                     emit("finish");
                 };
@@ -1121,7 +1125,7 @@ class Video extends EventEmitter {
                     //Add fps
                     ffmpegCommand += ` -r ${this.fps}`;
                     //Add frame input.
-                    ffmpegCommand += ` -i "${path.join(tempPathToUse, "./canvideo %01d.png")}"`;
+                    ffmpegCommand += ` -f concat -safe 0 -i "${path.join(tempPathToUse, "./canvideo instructions.txt")}"`;
                     //Add captions.
                     for (let captionFile of embeddedCaptionFiles) {
                         ffmpegCommand += ` -i "${captionFile}"`;
@@ -1168,8 +1172,12 @@ class Video extends EventEmitter {
                 const deleteFrames = async () => {
                     let emit = getTaskEmitter("deleteFrames");
                     emit("start");
+                    var deletePromises = [];
+                    emit("deleteInstructionsStart");
+                    deletePromises.push(fsPromises.unlink(instructionsPath).then(() => {
+                        emit("deleteInstructionsFinish");
+                    }));
                     if (!keepImages) {
-                        var deletePromises = [];
                         for (var i = 0; i < framePaths.length; i++) {
                             let frameNumber = i;
                             emit("deleteStart", frameNumber);
@@ -1179,8 +1187,8 @@ class Video extends EventEmitter {
                                 })
                             );
                         }
-                        await Promise.all(deletePromises);
                     }
+                    await Promise.all(deletePromises);
                     emit("finish");
                 };
 
@@ -1309,7 +1317,7 @@ class Video extends EventEmitter {
             if (returnPromise) {
                 return new Promise((resolve, reject) => {
                     start(outputPath, options)
-                        .on("finished", () => {
+                        .on("finish", () => {
                             resolve();
                         })
                         .on('error', reject);

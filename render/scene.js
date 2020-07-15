@@ -311,17 +311,20 @@ class Scene {
         //Sort by layer
         const sortLayer = (a, b) => a.layer - b.layer;
 
-        //Get the drawable hash
-        const hash = ({ shape }) => ({
-            shape,
-            hash: shape.at(t).getHash()
-        });
-
         //Map the shapes to their hashes
-        return this.drawables.filter(shapeIsInFrame).sort(sortLayer).map(hash);
+        let drawables = this.drawables.filter(shapeIsInFrame).sort(sortLayer);
+        let hash = [];
+        for (let i = 0; i < drawables.length; i++) {
+            let { shape } = drawables[i];
+            hash.push({
+                shape,
+                hash: shape.at(t).getHash()
+            });
+        }
+        return hash;
     }
 
-    *getRender(fps, { width, height }) {
+    *getRender(fps, { width, height }, minCacheShapes = 1) {//TODO change minCacheShapes default to 150
         if (!(0 < fps < Infinity)) {
             throw new TypeError("fps must be a number between 0 and Infinity.");
         }
@@ -331,21 +334,60 @@ class Scene {
         if (!(height > 0 && height < Infinity) || height & 1) {
             throw new TypeError("Invalid width.");
         }
+        if (!(Number.isSafeInteger(minCacheShapes) && minCacheShapes > 0 || minCacheShapes === false)) {
+            throw new TypeError("If specified, minCacheShapes should be a safe positive integer.");
+        }
         let hashes = new Map();
-        for (let f = 0; f < this.duration * fps; f++) {
+        let partHashes = new Map();
+        let frameCount = this.duration * fps;
+        for (let f = 0; f < frameCount; f++) {
             let t = f / fps;
             let hash = this.hashAt(t);
 
+            //Filter only shapes to draw
+            const shapeIsInFrame = ({ startTime, endTime }) => {
+                return t >= startTime && t < endTime;
+            };
+
+            //Sort by layer
+            const sortLayer = (a, b) => {
+                return a.layer - b.layer;
+            };
+
+            //Get sorted and filtered shapes
+            const filterShapes = () => this.drawables.filter(shapeIsInFrame).sort(sortLayer);
+
+            //Get a transformed canvas, ready to draw on.
+            const transformedCanvas = () => {
+                //Create a new canvas
+                let canvas = createCanvas(width, height);
+                let ctx = canvas.getContext('2d');
+
+                //Set the default settings
+                ctx.fillStyle = "black";
+                ctx.strokeStyle = "none";
+                ctx.lineWidth = 1;
+
+                //Set the necessary transforms
+                var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(t);
+                //Translate relative to camera position
+                ctx.translate(-x, -y);
+                //Translate to make scale relative to ref
+                ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
+                //Scale
+                ctx.scale(scaleX, scaleY);
+
+                return canvas;
+            };
+
             let same = false;
             let sameAs;
-            console.log("for loop started")
-            //FIXME infinite for loop!
             PastFrames:
             for (let i = 0; i < f; i++) {
                 if (hashes.has(i)) {
                     let already = hashes.get(i);
                     if (already.length === hash.length) {
-                        for (let j = 0; j < hash.length; i++) {
+                        for (let j = 0; j < hash.length; j++) {
                             let { shape: aShape, hash: aHash } = already[j];
                             let { shape: nShape, hash: nHash } = hash[j];
                             if (aShape === nShape && aHash === nHash) {
@@ -356,13 +398,54 @@ class Scene {
                     }
                 }
             }
-            console.log("for loop done")
             if (same) {
                 yield sameAs;
             }
             else {
                 //Set the hash
                 hashes.set(f, hash);
+
+                //Check to see if we should cache anything
+                console.log("frame", f);
+                if (minCacheShapes && hash.length >= minCacheShapes) {
+                    for (let i = f + 1; i < frameCount; i++) {
+                        let frameHash = this.hashAt(i / fps);
+                        let lastStartShape = frameHash.length - minCacheShapes;
+                        let included = new Set();
+                        if (frameHash.length >= minCacheShapes) {
+                            for (let j = 0; j <= hash.length - minCacheShapes; j++) {
+                                let { shape: nowShape, hash: nowHash } = hash[j];
+                                for (let k = 0; k <= lastStartShape; k++) {
+                                    if(included.has(k)){
+                                        continue;
+                                    }
+                                    if (nowShape === frameHash[k].shape && nowHash === frameHash[k].hash) {
+                                        included.add(k);
+                                        let common = 1;
+                                        for(k++; k <= lastStartShape && j + common < hash.length; k++) {
+                                            if(included.has(k)){
+                                                continue;
+                                            }
+                                            let { shape: nowShape, hash: nowHash } = hash[j + common];
+                                            if (nowShape === frameHash[k].shape && nowHash === frameHash[k].hash) {
+                                                included.add(k);
+                                                common++;
+                                            }
+                                            else {
+                                                break;
+                                            }
+                                        }
+                                        console.log("common", f, i, j, common);
+                                        if(common >= minCacheShapes){
+                                            //TODO actually store a canvas
+                                            
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 //Create a new canvas
                 let canvas = createCanvas(width, height);
@@ -386,27 +469,15 @@ class Scene {
                 //Scale
                 ctx.scale(scaleX, scaleY);
 
-                //Filter only shapes to draw
-                const shapeIsInFrame = ({ startTime, endTime }) => {
-                    return t >= startTime && t < endTime;
-                };
-
-                //Sort by layer
-                const sortLayer = (a, b) => {
-                    return a.layer - b.layer;
-                };
-
-                //Draw the drawables
-                const draw = ({ shape }) => shape.at(t).draw(ctx);
-
                 //Draw filtered and sorted drawables
-                this.drawables.filter(shapeIsInFrame).sort(sortLayer).forEach(draw);
+                for (let i = 0; i < hash.length; i++) {
+                    hash[i].shape.at(t).draw(ctx);
+                }
 
                 //Return the canvas
                 yield canvas;
             }
         }
-        console.log("hashes map", hashes);
     }
 
     setDuration(duration) {
