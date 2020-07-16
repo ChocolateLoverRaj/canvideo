@@ -6,6 +6,7 @@ import setColor from "./color/set";
 import GetColor from "./color/get";
 import csMappings from "../shapes/cs-mappings";
 import { caMappings } from "../animations/animanaged";
+import Caption from "../caption";
 
 declare type shape = Shape<any, any>;
 
@@ -61,6 +62,9 @@ export declare class Scene {
     add(startTime: number, duration: number, drawable: shape): this;
     add(startTime: number, duration: number, layer: number, drawable: shape): this;
     add(addOptions: AddOptions, drawable: shape): this;
+
+    add(caption: Caption): this;
+    add(id: string, caption: Caption): this;
 
     set backgroundColor(color: setColor): this;
     get backgroundColor(): GetColor;

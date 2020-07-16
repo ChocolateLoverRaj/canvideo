@@ -1,5 +1,8 @@
 //Create captions and generate .vtt files
 
+//Dependencies
+const { typedFunction, Types } = require("./type");
+
 //Zero pad a number to the left
 function zeroPad(n, length) {
     let s = n.toString();
@@ -26,6 +29,31 @@ const tooLargeTime =
 //Caption class
 class Caption {
     static vttHeader = 'WEBVTT\n';
+
+    static fromJson = typedFunction([
+        { name: "json", type: Types.ANY },
+        { name: "parse", type: Types.BOOLEAN, optional: true },
+        { name: "throwErrors", type: Types.BOOLEAN, optional: true }
+    ], function (json, parse = true, throwErrors = false) {
+        try{
+            if(parse){
+                json = JSON.parse(json);
+            }
+            let caption = new Caption();
+            for(let {start, end, text} of json){
+                caption.add(start, end, text);
+            }
+            return caption;
+        }
+        catch(e){
+            if(throwErrors){
+                throw e;
+            }
+            else{
+                return false;
+            }
+        }
+    });
 
     constructor() {
         this.texts = [];
@@ -71,6 +99,22 @@ class Caption {
         }
         else {
             throw new TypeError("Invalid arguements.");
+        }
+    }
+
+    toJson(stringify = true) {
+        if (typeof stringify !== 'boolean') {
+            throw new TypeError("stringify must be a boolean.");
+        }
+        let texts = [];
+        for (let text of this.texts) {
+            texts.push(text);
+        }
+        if (stringify) {
+            return JSON.stringify(texts);
+        }
+        else {
+            return texts;
         }
     }
 }
