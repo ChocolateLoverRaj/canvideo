@@ -98,7 +98,7 @@ class Caption {
             return vtt;
         }
         else {
-            throw new TypeError("Invalid arguements.");
+            throw new TypeError("Invalid arguments.");
         }
     }
 
