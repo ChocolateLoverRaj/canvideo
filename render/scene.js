@@ -227,78 +227,55 @@ class Scene {
         return this;
     };
 
-    render() {
-        const atType = a => {
-            let err = Types.NON_NEGATIVE_NUMBER(a);
-            if (!err) {
-                if (a < this.duration) {
-                    return false;
-                }
-                else {
-                    return `must be less than the scene duration: ${this.duration}.`;
-                }
-            }
-            else {
-                return err;
-            }
+    render(at, { width, height }) {
+        if (!(0 < at < this.duration)) {
+            throw new TypeError("At is out of range.");
         }
-        return typedFunction([
-            { name: "at", type: atType },
-            { name: "size", type: sizeInterface }
-        ], function (at, { width, height }) {
-            //Create a new canvas
-            var canvas = createCanvas(width, height);
-            var ctx = canvas.getContext('2d');
+        if (!(width > 0 && width < Infinity) || width & 1) {
+            throw new TypeError("Invalid width.");
+        }
+        if (!(height > 0 && height < Infinity) || height & 1) {
+            throw new TypeError("Invalid width.");
+        }
 
-            //Set ctx special properties
-            ctx.now = at;
+        //Create a new canvas
+        let canvas = createCanvas(width, height);
+        let ctx = canvas.getContext('2d');
 
-            //Draw the background
-            ctx.fillStyle = this.backgroundColor.hexString;
-            ctx.fillRect(0, 0, width, height);
+        //Draw the background
+        ctx.fillStyle = this.backgroundColor.hexString;
+        ctx.fillRect(0, 0, width, height);
 
-            //Set the default settings
-            ctx.fillStyle = "black";
-            ctx.strokeStyle = "none";
-            ctx.lineWidth = 1;
+        //Set the default settings
+        ctx.fillStyle = "black";
+        ctx.strokeStyle = "none";
+        ctx.lineWidth = 1;
 
-            //Set the necessary transforms
-            var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(at);
-            //Translate relative to camera position
-            ctx.translate(-x, -y);
-            //Translate to make scale relative to ref
-            ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
-            //Scale
-            ctx.scale(scaleX, scaleY);
+        //Set the necessary transforms
+        var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(at);
+        //Translate relative to camera position
+        ctx.translate(-x, -y);
+        //Translate to make scale relative to ref
+        ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
+        //Scale
+        ctx.scale(scaleX, scaleY);
 
-            //Filter only shapes to draw
-            function shapeIsInFrame({ startTime, endTime }) {
-                return at >= startTime && at < endTime;
-            };
+        //Filter only shapes to draw
+        const shapeIsInFrame = ({ startTime, endTime }) => at >= startTime && at < endTime;
 
-            //Sort by layer
-            function sortLayer(a, b) {
-                return a.layer - b.layer;
-            };
+        //Sort by layer
+        const sortLayer = (a, b) => a.layer - b.layer;
 
-            //Draw the drawables
-            function draw({ shape }) {
-                var shape = shape.at(at);
-                if (typeof shape.draw === 'function') {
-                    shape.draw(ctx);
-                }
-                else {
-                    throw new TypeError(`All drawables must have a draw method.`);
-                }
-            };
+        //Map the shapes to their hashes
+        let drawables = this.drawables.filter(shapeIsInFrame).sort(sortLayer);
 
-            //Draw filtered and sorted drawables
-            this.drawables.filter(shapeIsInFrame).sort(sortLayer).map(draw);
+        //Draw filtered and sorted drawables
+        for (let i = 0; i < drawables.length; i++) {
+            drawables[i].shape.at(at).draw(ctx);
+        }
 
-            //Return dataUrl
-            return canvas.createPNGStream();
-        }).apply(this, arguments);
-    };
+        return canvas;
+    }
 
     setDuration(duration) {
         this.duration = duration;
