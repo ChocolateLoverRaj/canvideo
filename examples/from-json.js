@@ -6,7 +6,7 @@
 //Dependencies
 const fs = require('fs');
 //'../index' is used because this example is in the canvideo folder. Change it to 'canvideo';
-const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group, Shape, Camera } = require("../index");
+const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group, Shape, Camera, Caption } = require("../index");
 
 //This shows how custom classes can also be saved and imported to and from JSON.
 //Here we have a simple class that is basically a shape class that saves some sort of data.
@@ -72,6 +72,15 @@ var video = new Video(400, 400, 12)
             )
             .set(5, { y: 300 })
         )
+        //You can also add captions to scenes
+        .add("english", new Caption()
+            .add(0, 3, "Hello.")
+            .add(4, 6, "There are two blue balls.")
+        )
+        .add("spanish", new Caption()
+            .add(0, 3, "Hola.")
+            .add(4, 6, "Hay dos pelotas azules.")
+        )
         .add(0, 10, new Stuff("Hello, who is this?"))
         .setCamera(new Camera()
             .setPosition(100, 200)
@@ -79,10 +88,11 @@ var video = new Video(400, 400, 12)
     );
 
 //Export to JSON and write to file.
-fs.writeFileSync("./f.json", video.toJson());
+//Note: the file is formatted for readability, but actual method doesn't pretty print the JSON.
+fs.writeFileSync("./from-json.json", video.toJson());
 
 //Read JSON
-var read = fs.readFileSync("./f.json", "utf-8");
+var read = fs.readFileSync("./from-json.json", "utf-8");
 
 //fromJson is a static method in the Video class that returns a Video.
 

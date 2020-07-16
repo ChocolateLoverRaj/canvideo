@@ -46,7 +46,7 @@ class Scene {
                 json = JSON.parse(json);
             }
             if (typeof json === 'object') {
-                var { backgroundColor, camera, drawables } = json;
+                var { backgroundColor, camera, drawables, captions } = json;
                 var scene = new Scene()
                     .setBackgroundColor(backgroundColor)
                     .setCamera(Camera.fromJson(camera, false, true));
@@ -66,6 +66,9 @@ class Scene {
                 }
                 else {
                     throw new TypeError("scene.drawables is not an array.");
+                }
+                for (let id in captions) {
+                    scene.add(id, Caption.fromJson(captions[id], false, true));
                 }
                 return scene;
             }
@@ -286,6 +289,7 @@ class Scene {
         let o = {
             backgroundColor: this.backgroundColor.hexString,
             drawables: [],
+            captions: {},
             camera: this.camera.toJson(false)
         };
         for (var i = 0; i < this.drawables.length; i++) {
@@ -300,6 +304,9 @@ class Scene {
                     data: shape.toJson(false, fps)
                 }
             });
+        }
+        for (let [id, caption] of this.captions) {
+            o.captions[id] = caption.toJson(false);
         }
         if (stringify === true) {
             return JSON.stringify(o);
