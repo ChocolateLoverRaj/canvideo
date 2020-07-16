@@ -23,7 +23,6 @@
   "homepage": "https://github.com/ChocolateLoverRaj/canvideo#readme",
   "dependencies": {
     "canvas": "^2.6.1",
-    "fluent-ffmpeg": "^2.1.2",
     "tinycolor2": "^1.4.1"
   },
   "devDependencies": {
