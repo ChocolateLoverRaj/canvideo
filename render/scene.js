@@ -227,106 +227,9 @@ class Scene {
         return this;
     };
 
-    render() {
-        const atType = a => {
-            let err = Types.NON_NEGATIVE_NUMBER(a);
-            if (!err) {
-                if (a < this.duration) {
-                    return false;
-                }
-                else {
-                    return `must be less than the scene duration: ${this.duration}.`;
-                }
-            }
-            else {
-                return err;
-            }
-        }
-        return typedFunction([
-            { name: "at", type: atType },
-            { name: "size", type: sizeInterface }
-        ], function (at, { width, height }) {
-            //Create a new canvas
-            var canvas = createCanvas(width, height);
-            var ctx = canvas.getContext('2d');
-
-            //Set ctx special properties
-            ctx.now = at;
-
-            //Draw the background
-            ctx.fillStyle = this.backgroundColor.hexString;
-            ctx.fillRect(0, 0, width, height);
-
-            //Set the default settings
-            ctx.fillStyle = "black";
-            ctx.strokeStyle = "none";
-            ctx.lineWidth = 1;
-
-            //Set the necessary transforms
-            var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(at);
-            //Translate relative to camera position
-            ctx.translate(-x, -y);
-            //Translate to make scale relative to ref
-            ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
-            //Scale
-            ctx.scale(scaleX, scaleY);
-
-            //Filter only shapes to draw
-            function shapeIsInFrame({ startTime, endTime }) {
-                return at >= startTime && at < endTime;
-            };
-
-            //Sort by layer
-            function sortLayer(a, b) {
-                return a.layer - b.layer;
-            };
-
-            //Draw the drawables
-            function draw({ shape }) {
-                var shape = shape.at(at);
-                if (typeof shape.draw === 'function') {
-                    shape.draw(ctx);
-                }
-                else {
-                    throw new TypeError(`All drawables must have a draw method.`);
-                }
-            };
-
-            //Draw filtered and sorted drawables
-            this.drawables.filter(shapeIsInFrame).sort(sortLayer).forEach(draw);
-
-            //Return dataUrl
-            return canvas.createPNGStream();
-        }).apply(this, arguments);
-    };
-
-    hashAt(t) {
-        if (!(t >= 0 && t < this.duration)) {
-            throw new TypeError("Time is out of range.");
-        }
-
-        //Filter only shapes to draw
-        const shapeIsInFrame = ({ startTime, endTime }) => t >= startTime && t < endTime;
-
-        //Sort by layer
-        const sortLayer = (a, b) => a.layer - b.layer;
-
-        //Map the shapes to their hashes
-        let drawables = this.drawables.filter(shapeIsInFrame).sort(sortLayer);
-        let hash = [];
-        for (let i = 0; i < drawables.length; i++) {
-            let { shape } = drawables[i];
-            hash.push({
-                shape,
-                hash: shape.at(t).getHash()
-            });
-        }
-        return hash;
-    }
-
-    *getRender(fps, { width, height }, minCacheShapes = 1) {//TODO change minCacheShapes default to 150
-        if (!(0 < fps < Infinity)) {
-            throw new TypeError("fps must be a number between 0 and Infinity.");
+    render(at, { width, height }) {
+        if (!(0 < at < this.duration)) {
+            throw new TypeError("At is out of range.");
         }
         if (!(width > 0 && width < Infinity) || width & 1) {
             throw new TypeError("Invalid width.");
@@ -334,150 +237,44 @@ class Scene {
         if (!(height > 0 && height < Infinity) || height & 1) {
             throw new TypeError("Invalid width.");
         }
-        if (!(Number.isSafeInteger(minCacheShapes) && minCacheShapes > 0 || minCacheShapes === false)) {
-            throw new TypeError("If specified, minCacheShapes should be a safe positive integer.");
+
+        //Create a new canvas
+        let canvas = createCanvas(width, height);
+        let ctx = canvas.getContext('2d');
+
+        //Draw the background
+        ctx.fillStyle = this.backgroundColor.hexString;
+        ctx.fillRect(0, 0, width, height);
+
+        //Set the default settings
+        ctx.fillStyle = "black";
+        ctx.strokeStyle = "none";
+        ctx.lineWidth = 1;
+
+        //Set the necessary transforms
+        var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(at);
+        //Translate relative to camera position
+        ctx.translate(-x, -y);
+        //Translate to make scale relative to ref
+        ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
+        //Scale
+        ctx.scale(scaleX, scaleY);
+
+        //Filter only shapes to draw
+        const shapeIsInFrame = ({ startTime, endTime }) => at >= startTime && at < endTime;
+
+        //Sort by layer
+        const sortLayer = (a, b) => a.layer - b.layer;
+
+        //Map the shapes to their hashes
+        let drawables = this.drawables.filter(shapeIsInFrame).sort(sortLayer);
+
+        //Draw filtered and sorted drawables
+        for (let i = 0; i < drawables.length; i++) {
+            drawables[i].shape.at(at).draw(ctx);
         }
-        let hashes = new Map();
-        let partHashes = new Map();
-        let frameCount = this.duration * fps;
-        for (let f = 0; f < frameCount; f++) {
-            let t = f / fps;
-            let hash = this.hashAt(t);
 
-            //Filter only shapes to draw
-            const shapeIsInFrame = ({ startTime, endTime }) => {
-                return t >= startTime && t < endTime;
-            };
-
-            //Sort by layer
-            const sortLayer = (a, b) => {
-                return a.layer - b.layer;
-            };
-
-            //Get sorted and filtered shapes
-            const filterShapes = () => this.drawables.filter(shapeIsInFrame).sort(sortLayer);
-
-            //Get a transformed canvas, ready to draw on.
-            const transformedCanvas = () => {
-                //Create a new canvas
-                let canvas = createCanvas(width, height);
-                let ctx = canvas.getContext('2d');
-
-                //Set the default settings
-                ctx.fillStyle = "black";
-                ctx.strokeStyle = "none";
-                ctx.lineWidth = 1;
-
-                //Set the necessary transforms
-                var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(t);
-                //Translate relative to camera position
-                ctx.translate(-x, -y);
-                //Translate to make scale relative to ref
-                ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
-                //Scale
-                ctx.scale(scaleX, scaleY);
-
-                return canvas;
-            };
-
-            let same = false;
-            let sameAs;
-            PastFrames:
-            for (let i = 0; i < f; i++) {
-                if (hashes.has(i)) {
-                    let already = hashes.get(i);
-                    if (already.length === hash.length) {
-                        for (let j = 0; j < hash.length; j++) {
-                            let { shape: aShape, hash: aHash } = already[j];
-                            let { shape: nShape, hash: nHash } = hash[j];
-                            if (aShape === nShape && aHash === nHash) {
-                                same = true, sameAs = i;
-                                break PastFrames;
-                            }
-                        }
-                    }
-                }
-            }
-            if (same) {
-                yield sameAs;
-            }
-            else {
-                //Set the hash
-                hashes.set(f, hash);
-
-                //Check to see if we should cache anything
-                console.log("frame", f);
-                if (minCacheShapes && hash.length >= minCacheShapes) {
-                    for (let i = f + 1; i < frameCount; i++) {
-                        let frameHash = this.hashAt(i / fps);
-                        let lastStartShape = frameHash.length - minCacheShapes;
-                        let included = new Set();
-                        if (frameHash.length >= minCacheShapes) {
-                            for (let j = 0; j <= hash.length - minCacheShapes; j++) {
-                                let { shape: nowShape, hash: nowHash } = hash[j];
-                                for (let k = 0; k <= lastStartShape; k++) {
-                                    if(included.has(k)){
-                                        continue;
-                                    }
-                                    if (nowShape === frameHash[k].shape && nowHash === frameHash[k].hash) {
-                                        included.add(k);
-                                        let common = 1;
-                                        for(k++; k <= lastStartShape && j + common < hash.length; k++) {
-                                            if(included.has(k)){
-                                                continue;
-                                            }
-                                            let { shape: nowShape, hash: nowHash } = hash[j + common];
-                                            if (nowShape === frameHash[k].shape && nowHash === frameHash[k].hash) {
-                                                included.add(k);
-                                                common++;
-                                            }
-                                            else {
-                                                break;
-                                            }
-                                        }
-                                        console.log("common", f, i, j, common);
-                                        if(common >= minCacheShapes){
-                                            //TODO actually store a canvas
-                                            
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                //Create a new canvas
-                let canvas = createCanvas(width, height);
-                let ctx = canvas.getContext('2d');
-
-                //Draw the background
-                ctx.fillStyle = this.backgroundColor.hexString;
-                ctx.fillRect(0, 0, width, height);
-
-                //Set the default settings
-                ctx.fillStyle = "black";
-                ctx.strokeStyle = "none";
-                ctx.lineWidth = 1;
-
-                //Set the necessary transforms
-                var { scaleX, scaleY, refX, refY, x, y } = this.camera.at(t);
-                //Translate relative to camera position
-                ctx.translate(-x, -y);
-                //Translate to make scale relative to ref
-                ctx.translate(-(refX * (scaleX - 1)), -(refY * (scaleY - 1)));
-                //Scale
-                ctx.scale(scaleX, scaleY);
-
-                //Draw filtered and sorted drawables
-                for (let i = 0; i < hash.length; i++) {
-                    hash[i].shape.at(t).draw(ctx);
-                }
-
-                //Return the canvas
-                yield canvas;
-            }
-        }
+        return canvas;
     }
 
     setDuration(duration) {

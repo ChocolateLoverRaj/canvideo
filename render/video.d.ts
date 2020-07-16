@@ -365,6 +365,8 @@ declare abstract class VideoExport extends EventEmitter {
     addListener(event: "writeFinish", listener: (id?: string) => void): this;
     addListener(event: "finish", listener: () => void): this;
 
+    addListener(event: "start", listener: () => void): this;
+    addListener(event: "finish", listener: () => void): this;
     addListener(event: "error", listener: (err: Error) => void): this;
 
 
@@ -410,6 +412,8 @@ declare abstract class VideoExport extends EventEmitter {
     on(event: "writeFinish", listener: (id?: string) => void): this;
     on(event: "finish", listener: () => void): this;
 
+    on(event: "start", listener: () => void): this;
+    on(event: "finish", listener: () => void): this;
     on(event: "error", listener: (err: Error) => void): this;
 
 
@@ -455,6 +459,8 @@ declare abstract class VideoExport extends EventEmitter {
     once(event: "writeFinish", listener: (id?: string) => void): this;
     once(event: "finish", listener: () => void): this;
 
+    once(event: "start", listener: () => void): this;
+    once(event: "finish", listener: () => void): this;
     once(event: "error", listener: (err: Error) => void): this;
 
 
@@ -500,6 +506,8 @@ declare abstract class VideoExport extends EventEmitter {
     prependListener(event: "writeFinish", listener: (id?: string) => void): this;
     prependListener(event: "finish", listener: () => void): this;
 
+    prependListener(event: "start", listener: () => void): this;
+    prependListener(event: "finish", listener: () => void): this;
     prependListener(event: "error", listener: (err: Error) => void): this;
 
 
@@ -545,6 +553,8 @@ declare abstract class VideoExport extends EventEmitter {
     prependOnceListener(event: "writeFinish", listener: (id?: string) => void): this;
     prependOnceListener(event: "finish", listener: () => void): this;
 
+    prependOnceListener(event: "start", listener: () => void): this;
+    prependOnceListener(event: "finish", listener: () => void): this;
     prependOnceListener(event: "error", listener: (err: Error) => void): this;
 }
 
@@ -649,6 +659,8 @@ export declare class Video extends EventEmitter {
     addListener(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
     addListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
 
+    addListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
+    addListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
     addListener(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
 
 
@@ -694,6 +706,8 @@ export declare class Video extends EventEmitter {
     on(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
     on(event: "finish", listener: (videoExport?: VideoExport) => void): this;
 
+    on(event: "start", listener: (videoExport?: VideoExport) => void): this;
+    on(event: "finish", listener: (videoExport?: VideoExport) => void): this;
     on(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
 
 
@@ -739,6 +753,8 @@ export declare class Video extends EventEmitter {
     once(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
     once(event: "finish", listener: (videoExport?: VideoExport) => void): this;
 
+    once(event: "start", listener: (videoExport?: VideoExport) => void): this;
+    once(event: "finish", listener: (videoExport?: VideoExport) => void): this;
     once(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
 
 
@@ -784,6 +800,8 @@ export declare class Video extends EventEmitter {
     prependListener(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
     prependListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
 
+    prependListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
+    prependListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
     prependListener(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
 
 
@@ -829,5 +847,7 @@ export declare class Video extends EventEmitter {
     prependOnceListener(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
     prependOnceListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
 
+    prependOnceListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
+    prependOnceListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
     prependOnceListener(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
 }
