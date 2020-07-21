@@ -1,4 +1,4 @@
-import { PNGStream } from "canvas";
+import { Canvas } from "canvas";
 
 import Shape from "../shapes/shape";
 import Camera from "./camera";
@@ -73,7 +73,7 @@ export declare class Scene {
 
     setCamera(camera: Camera): this;
 
-    render(at: number, options: RenderOptions): PNGStream;
+    render(at: number, options: RenderOptions): Canvas;
 
     setDuration(duration: number): this;
 
