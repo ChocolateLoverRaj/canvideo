@@ -22,7 +22,11 @@
   },
   "homepage": "https://github.com/ChocolateLoverRaj/canvideo#readme",
   "dependencies": {
+    "@types/express-serve-static-core": "^4.17.8",
     "canvas": "^2.6.1",
+    "express": "^4.17.1",
+    "jsoneditor": "^9.0.3",
+    "papercss": "^1.6.1",
     "tinycolor2": "^1.4.1"
   },
   "devDependencies": {

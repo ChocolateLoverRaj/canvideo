@@ -10,3 +10,4 @@ export { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path } from "./sh
 export { default as Animation } from "./animations/animation";
 export { default as Precomputed } from "./animations/precomputed";
 export { default as Caption } from "./caption";
+export { default as createRouter } from "./server/server";

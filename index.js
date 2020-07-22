@@ -12,6 +12,7 @@ const { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path } = require("
 const Animation = require("./animations/animation");
 const Precomputed = require("./animations/precomputed");
 const Caption = require("./caption");
+const createRouter = require("./server/server");
 
 //Export everything
 module.exports = {
@@ -30,5 +31,6 @@ module.exports = {
     Path,
     Animation,
     Precomputed,
-    Caption
+    Caption,
+    createRouter
 };
