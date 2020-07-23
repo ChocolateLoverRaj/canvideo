@@ -1,4 +1,4 @@
-import type = require("./type");
+import type from "./type";
 
 interface Keys {
     [key: string]: Value;

@@ -1,6 +1,6 @@
-import type = require("./type");
+import type from "./type";
 
-declare interface Arg {
+interface Arg {
     type: type;
     name: string;
     optional?: boolean;

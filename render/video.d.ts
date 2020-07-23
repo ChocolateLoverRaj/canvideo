@@ -11,7 +11,7 @@ export declare function setFfmpegPath(path: string): void;
 export declare function getFfmpegPath(): string;
 export declare function checkFfmpegPath(): Promise<void>;
 
-declare interface Progress {
+interface Progress {
     progress: number;
     count: number;
     total: number;
@@ -25,49 +25,49 @@ export declare enum ExportStages {
     FINISH = "FINISH"
 }
 
-declare interface ExportTask {
+interface ExportTask {
     name: string;
     start: ExportStages;
     end: ExportStages;
 }
 
-export declare abstract class ExportTasks {
-    static CHECK_TEMP_PATH: ExportTask;
-    static DELETE_EXTRA_FRAMES: ExportTask;
-    static RENDER_NEW_FRAMES: ExportTask;
-    static GENERATE_SEPARATE_CAPTIONS: ExportTask;
-    static GENERATE_EMBEDDED_CAPTIONS: ExportTask;
-    static GENERATE_VIDEO: ExportTask;
-    static DELETE_FRAMES: ExportTask;
-    static DELETE_CAPTIONS: ExportTask;
+export declare namespace ExportTasks {
+    const CHECK_TEMP_PATH: ExportTask;
+    const DELETE_EXTRA_FRAMES: ExportTask;
+    const RENDER_NEW_FRAMES: ExportTask;
+    const GENERATE_SEPARATE_CAPTIONS: ExportTask;
+    const GENERATE_EMBEDDED_CAPTIONS: ExportTask;
+    const GENERATE_VIDEO: ExportTask;
+    const DELETE_FRAMES: ExportTask;
+    const DELETE_CAPTIONS: ExportTask;
 }
 
-declare interface RegularSize {
+interface RegularSize {
     width: number;
     height: number;
 }
-declare interface ShortSize {
+interface ShortSize {
     w: number;
     h: number;
 }
 
-declare interface RegularOptions extends RegularSize {
+interface RegularOptions extends RegularSize {
     fps: number;
 }
-declare interface ShortOptions extends ShortSize {
+interface ShortOptions extends ShortSize {
     fps: number;
 }
 
-declare interface RegularSquashedOptions {
+ interface RegularSquashedOptions {
     size: RegularSize;
     fps: number;
 }
-declare interface ShortSquashedOptions {
+ interface ShortSquashedOptions {
     size: ShortSize;
     fps: number;
 }
 
-declare interface ExportOptions {
+ interface ExportOptions {
     keepImages?: boolean;
     maxStreams?: number;
 }
@@ -558,14 +558,14 @@ declare abstract class VideoExport extends EventEmitter {
     prependOnceListener(event: "error", listener: (err: Error) => void): this;
 }
 
-declare interface VideoJson {
+interface VideoJson {
     width: number;
     height: number;
     fps: number;
     scenes: Array<SceneJson>;
 }
 
-declare type output = string | {
+type output = string | {
     video: string;
     captions?: string | Map<string, string>;
     embeddedCaptions?: boolean | Set<string>;

@@ -1,13 +1,13 @@
-export declare interface SetColor{
+export interface SetColor{
     r?: number;
     g?: number;
     b?: number;
     a?: number;
 }
 
-export declare type setColor = string | SetColor;
+export type setColor = string | SetColor;
 
-export declare interface GetColor {
+export interface GetColor {
     r: number;
     g: number;
     b: number;

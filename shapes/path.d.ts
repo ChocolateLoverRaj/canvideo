@@ -1,33 +1,35 @@
 import { Shape, ShapeProperties, ShapeJson } from "./shape";
 import { caMappings } from "../animations/animanaged";
 
-declare interface PathProperties extends ShapeProperties<PathProperties> {
+interface PathProperties extends ShapeProperties {
     doFill: boolean;
     strokeDash: Array<number>;
     strokeDashOffset: number;
     operations: Array<[string, Array<string>]>;
 }
 
-declare interface PathJson extends ShapeJson<PathProperties> {
+interface PathJson extends ShapeJson<PathProperties> {
     doFill: boolean;
     strokeDash: Array<number>;
     strokeDashOffset: number;
     operations: Array<[string, Array<string>]>;
 }
 
-declare type pathCaMappings = caMappings<PathProperties>;
+type pathCaMappings = caMappings<PathProperties>;
 
-declare class Path extends Shape<Path>{
-    static shapeName: "path";
+declare class Path extends Shape<Path, PathProperties>{
+    static shapeName: string | "path";
 
     static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: pathCaMappings): Path | false;
     static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: pathCaMappings): Path | false;
-    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: pathCaMappings): Path;
+    static fromJson(json: string, parse: true, throwErrors: true, caMappings?: pathCaMappings): Path;
     static fromJson(json: any, parse: false, throwErrors: true, caMappings?: pathCaMappings): Path;
+    
+    static fromJson(...args: any): any;
 
     constructor(fill?: boolean);
 
-    shapeName: "path";
+    shapeName: string | "path";
     doFill: boolean;
     strokeDash: Array<number>;
     strokeDashOffset: number;
@@ -39,6 +41,8 @@ declare class Path extends Shape<Path>{
 
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): PathJson;
+    
+    toJson(...args: any): any;
 }
 
 export = Path;
