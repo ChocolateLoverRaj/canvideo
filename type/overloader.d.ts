@@ -1,11 +1,11 @@
-import type = require("./type");
+import type from "./type";
 
-declare interface OverloadArg {
+interface OverloadArg {
     type: type;
     optional?: boolean;
 }
 
-declare interface Overload {
+interface Overload {
     maxLength: number;
     minLength: number;
     args: Array<OverloadArg>;

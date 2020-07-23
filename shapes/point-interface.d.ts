@@ -1,5 +1,5 @@
 import type from "../type/type";
 
-const pointInterface: type;
+declare const pointInterface: type;
 
 export = pointInterface;

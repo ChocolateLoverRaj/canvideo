@@ -1,32 +1,32 @@
-import type = require("./type");
+import type from "./type";
 
-declare abstract class Types {
-    static ANY: type;
+declare namespace Types {
+    const ANY: type;
 
-    static NUMBER: type;
-    static POSITIVE_NUMBER: type;
-    static NON_NEGATIVE_NUMBER: type;
-    static INTEGER: type;
-    static POSITIVE_INTEGER: type;
-    static NON_NEGATIVE_INTEGER: type;
-    static UNIT_INTERVAL: type;
-    static RGB_INTENSITY: type;
+    const NUMBER: type;
+    const POSITIVE_NUMBER: type;
+    const NON_NEGATIVE_NUMBER: type;
+    const INTEGER: type;
+    const POSITIVE_INTEGER: type;
+    const NON_NEGATIVE_INTEGER: type;
+    const UNIT_INTERVAL: type;
+    const RGB_INTENSITY: type;
 
-    static STRING: type;
-    static COLOR: type;
+    const STRING: type;
+    const COLOR: type;
 
-    static BOOLEAN: type;
-    static TRUTHY: type;
-    static FALSY: type;
+    const BOOLEAN: type;
+    const TRUTHY: type;
+    const FALSY: type;
 
-    static FUNCTION: type;
+    const FUNCTION: type;
 
-    static OBJECT: type;
-    static ARRAY: type;
+    const OBJECT: type;
+    const ARRAY: type;
 
-    static KEY: type;
+    const KEY: type;
 
-    static TYPE: type;
+    const TYPE: type;
 }
 
 export = Types;

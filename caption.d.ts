@@ -1,16 +1,16 @@
-declare interface Text{
+interface Text{
     start: number;
     end: number;
     text: string;
 }
 
-declare type captionJson = Array<Text>;
+export type captionJson = Array<Text>;
 
-declare class Caption{
+export declare class Caption{
     static vttHeader: "WEBVTT\n";
 
     static fromJson(json: string, parse?: true, throwErrors?: false): Caption | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Caption;
+    static fromJson(json: string, parse: true, throwErrors: true): Caption;
     static fromJson(json: any, parse: false, throwErrors?: false): Caption | false;
     static fromJson(json: any, parse: false, throwErrors: true): Caption;
 
@@ -24,4 +24,4 @@ declare class Caption{
     toJson(stringify: false): captionJson;
 }
 
-export = Caption;
+export default Caption;
