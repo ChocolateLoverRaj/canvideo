@@ -127,13 +127,93 @@ window.addEventListener("load", () => {
                                                                     title: "Lasts",
                                                                     description: "Whether the final values of animation still effect the shape after the animation ends.",
                                                                     type: "boolean"
+                                                                }
+                                                            },
+                                                            if: {
+                                                                properties: { isBuiltin: { const: true } }
+                                                            },
+                                                            then: {
+                                                                properties: {
+                                                                    name: {
+                                                                        title: "Name",
+                                                                        description: "The name of the builtin animation.",
+                                                                        enum: ["animation", "precomputed"]
+                                                                    }
                                                                 },
-                                                                data: {
-                                                                    title: "Data",
-                                                                    description: "The data about the animation.",
-                                                                    anyOf: [
-                                                                        { type: "object" }
-                                                                    ]
+                                                                allOf: [
+                                                                    {
+                                                                        if: {
+                                                                            properties: { name: { const: "animation" } }
+                                                                        },
+                                                                        then: {
+                                                                            properties: {
+                                                                                data: {
+                                                                                    title: "Animation Data",
+                                                                                    description: "Data about the animation",
+                                                                                    properties: {
+                                                                                        startValue: {
+                                                                                            title: "Start Value",
+                                                                                            description: "Value at the beginning of the animation.",
+                                                                                            type: "object"
+                                                                                        },
+                                                                                        endValue: {
+                                                                                            title: "End Value",
+                                                                                            description: "Value at the end of the animation.",
+                                                                                            type: "object"
+                                                                                        },
+                                                                                        reversed: {
+                                                                                            title: "Reversed",
+                                                                                            description: "Wether or not the animation is reversed.",
+                                                                                            type: "boolean"
+                                                                                        }
+                                                                                    },
+                                                                                    required: ["startValue", "endValue", "reversed"]
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        if: {
+                                                                            properties: { name: { const: "precomputed" } }
+                                                                        },
+                                                                        then: {
+                                                                            properties: {
+                                                                                data: {
+                                                                                    title: "Precomputed Data",
+                                                                                    description: "Data about the precomputed values",
+                                                                                    type: "array",
+                                                                                    items: {
+                                                                                        title: "Value",
+                                                                                        description: "A tuple with the value at a certain time.",
+                                                                                        type: "array",
+                                                                                        items: [
+                                                                                            {
+                                                                                                title: "At",
+                                                                                                description: "Time at which value changes.",
+                                                                                                type: "number",
+                                                                                                minimum: 0
+                                                                                            },
+                                                                                            {
+                                                                                                title: "Value",
+                                                                                                description: "The properties that change.",
+                                                                                                type: "object"
+                                                                                            }
+                                                                                        ],
+                                                                                        minItems: 2,
+                                                                                        additionalItems: false
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                required: ["name", "data"]
+                                                            },
+                                                            else: {
+                                                                properties: {
+                                                                    data: {
+                                                                        $ref: "any"
+                                                                    }
                                                                 }
                                                             },
                                                             required: ["startTime", "duration", "isBuiltin", "lasts"]
@@ -143,7 +223,7 @@ window.addEventListener("load", () => {
                                                 required: ["animations", "sets"]
                                             }
                                         },
-                                        required: ["isBuiltin", "data"]
+                                        required: ["isBuiltin"]
                                     }
                                 },
                                 required: ["startTime", "endTime", "layer", "shape"]
@@ -161,13 +241,26 @@ window.addEventListener("load", () => {
         title: "Color",
         description: "Color hex string.",
         type: "string",
-        pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
+        pattern: "^#?([0-9a-fA-F]{2}){3,4}$"
+    }
+
+    const anySchema = {
+        title: "Any",
+        description: "Anything is fine.",
+        type: [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"]
     }
 
     const options = {
         schema: schema,
         schemaRefs: {
-            color: colorSchema
+            color: colorSchema,
+            any: anySchema
         },
         mode: 'code',
         modes: ['code', 'tree']
@@ -187,16 +280,19 @@ window.addEventListener("load", () => {
                         isBuiltin: true,
                         name: "rectangle",
                         data: {
-                            x: 0,
-                            y: 0,
-                            width: 200,
-                            height: 400,
-                            cornerRound: {
-                                topLeft: 0,
-                                topRight: 0,
-                                bottomLeft: 0,
-                                bottomRight: 0
-                            }
+                            animations: [
+                                {
+                                    startTime: 1,
+                                    duration: 3,
+                                    lasts: false,
+                                    isBuiltin: true,
+                                    name: "animation",
+                                    data: {
+
+                                    }
+                                }
+                            ],
+                            sets: []
                         }
                     }
                 }
