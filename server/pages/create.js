@@ -1,5 +1,6 @@
+import getEditor from "/lib/json-editor.js";
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
     const container = document.getElementById("json");
 
     const schema = {
@@ -299,5 +300,8 @@ window.addEventListener("load", () => {
             ]
         }]
     }
-    const editor = new JSONEditor(container, options, initialJson);
+
+    let JsonEditor = await getEditor();
+
+    const editor = new JsonEditor(container, options, initialJson);
 });

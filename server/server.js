@@ -26,6 +26,11 @@ const createRouter = () => {
     //Create an express router
     let router = express.Router();
 
+    //Testing
+    router.get("/module.js", (req, res) => {
+        res.sendFile(path.join(serverPath, "./pages/module.js"));
+    });
+
     //Main page
     router.get("/", (req, res) => {
         res.sendFile(path.join(serverPath, "./pages/index.html"));
@@ -61,7 +66,8 @@ const createRouter = () => {
         res.sendFile(jsonEditorPaths.svg);
     });
 
-    //Static
+    //Static directories
+    router.use("/lib", express.static(path.join(serverPath, "./lib")));
     router.use("/static", express.static(path.join(serverPath, "./static")));
 
     return router;
