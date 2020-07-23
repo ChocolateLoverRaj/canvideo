@@ -1,8 +1,7 @@
-import MyCtx from "../render/my-ctx";
 import { Shape, ShapeProperties, ShapeJson } from "./shape";
 import { caMappings } from "../animations/animanaged";
 
-declare interface RectangleProperties extends ShapeProperties<RectangleProperties> {
+interface RectangleProperties extends ShapeProperties {
     x: number;
     y: number;
     width: number;
@@ -20,7 +19,7 @@ declare interface RectangleProperties extends ShapeProperties<RectanglePropertie
     rightCornerRound: setHorizontalCornerRound | GetHorizontalCornerRound;
 }
 
-declare interface RectangleJson extends ShapeJson<RectangleProperties> {
+interface RectangleJson extends ShapeJson<RectangleProperties> {
     x: number;
     y: number;
     width: number;
@@ -28,53 +27,55 @@ declare interface RectangleJson extends ShapeJson<RectangleProperties> {
     cornerRound: GetCornerRound;
 }
 
-declare interface SetCornerRound {
+interface SetCornerRound {
     topLeft?: number;
     topRight?: number;
     bottomLeft?: number;
     bottomRight?: number;
 }
-declare interface GetCornerRound {
+interface GetCornerRound {
     topLeft: number;
     topRight: number;
     bottomLeft: number;
     bottomRight: number;
 }
-declare type setCornerRound = number | SetCornerRound | Array<number> & { length: 4 };
+type setCornerRound = number | SetCornerRound | Array<number> & { length: 4 };
 
-declare interface SetVerticalCornerRound {
+interface SetVerticalCornerRound {
     left?: number;
     right?: number;
 }
-declare interface GetVerticalCornerRound {
+interface GetVerticalCornerRound {
     left: number;
     right: number;
 }
-declare type setVerticalCornerRound = number | SetVerticalCornerRound | Array<number> & { length: 2 };
+type setVerticalCornerRound = number | SetVerticalCornerRound | Array<number> & { length: 2 };
 
-declare interface SetHorizontalCornerRound {
+interface SetHorizontalCornerRound {
     top?: number;
     bottom?: number;
 }
-declare interface GetHorizontalCornerRound {
+interface GetHorizontalCornerRound {
     top: number;
     bottom: number;
 }
-declare type setHorizontalCornerRound = number | SetHorizontalCornerRound | Array<number> & { length: 2 };
+type setHorizontalCornerRound = number | SetHorizontalCornerRound | Array<number> & { length: 2 };
 
-declare type rectangleCaMappings = caMappings<RectangleProperties>;
+type rectangleCaMappings = caMappings<RectangleProperties>;
 
 declare class Rectangle extends Shape<Rectangle, RectangleProperties>{
-    static shapeName: "rectangle";
+    static shapeName: string | "rectangle";
 
     static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: rectangleCaMappings): Rectangle | false;
     static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: rectangleCaMappings): Rectangle | false;
-    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: rectangleCaMappings): Rectangle;
+    static fromJson(json: string, parse: true, throwErrors: true, caMappings?: rectangleCaMappings): Rectangle;
     static fromJson(json: any, parse: false, throwErrors: true, caMappings?: rectangleCaMappings): Rectangle;
+
+    static fromJson(...args: any): any;
 
     constructor(x: number, y: number, width: number, height: number, cornerRound?: setCornerRound);
 
-    shapeName: "rectangle";
+    shapeName: string | "rectangle";
 
     x: number;
     y: number;
@@ -103,10 +104,10 @@ declare class Rectangle extends Shape<Rectangle, RectangleProperties>{
     setLeftCornerRound(cornerRound: setHorizontalCornerRound): this;
     setRightCornerRound(cornerRound: setHorizontalCornerRound): this;
 
-    draw(ctx: MyCtx): this;
-
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): RectangleJson;
+    
+    toJson(...args: any): any;
 }
 
 export = Rectangle;

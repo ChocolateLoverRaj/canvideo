@@ -1,9 +1,9 @@
 import { Shape, ShapeProperties, ShapeJson } from "./shape";
 import { caMappings } from "../animations/animanaged";
 
-declare type shape = Shape<any, any>;
+type shape = Shape<any, any>;
 
-declare interface GroupProperties extends ShapeProperties<GroupProperties> {
+interface GroupProperties extends ShapeProperties {
     children: Array<shape>;
     x: number;
     y: number;
@@ -15,12 +15,12 @@ declare interface GroupProperties extends ShapeProperties<GroupProperties> {
     height: number;
 }
 
-declare interface ChildJson {
+interface ChildJson {
     name: string | undefined;
     data: object;
 }
 
-declare interface GroupJson extends ShapeJson<GroupProperties> {
+interface GroupJson extends ShapeJson<GroupProperties> {
     x: number;
     y: number;
     originalWidth: number;
@@ -32,19 +32,21 @@ declare interface GroupJson extends ShapeJson<GroupProperties> {
     children: Array<ChildJson>;
 }
 
-declare type groupCaMappings = caMappings<GroupProperties>;
+type groupCaMappings = caMappings<GroupProperties>;
 
 declare class Group extends Shape<Group, GroupProperties>{
-    static shapeName: "group";
+    static shapeName: string | "group";
 
     static fromJson(json: string, parse?: true, throwErrors?: false, caMappings?: groupCaMappings): Group | false;
     static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: groupCaMappings): Group | false;
-    static fromJson(json: string, parse?: true, throwErrors: true, caMappings?: groupCaMappings): Group;
+    static fromJson(json: string, parse: true, throwErrors: true, caMappings?: groupCaMappings): Group;
     static fromJson(json: any, parse: false, throwErrors: true, caMappings?: groupCaMappings): Group;
     
+    static fromJson(...args: any): any;
+
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
 
-    shapeName: "group";
+    shapeName: string | "group";
     children: Array<shape>;
     x: number;
     y: number;
@@ -83,6 +85,8 @@ declare class Group extends Shape<Group, GroupProperties>{
 
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): GroupJson;
+    
+    toJson(...args: any): any;
 }
 
 export = Group;

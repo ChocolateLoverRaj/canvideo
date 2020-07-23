@@ -1,34 +1,37 @@
 import { Canvas } from "canvas";
 
-import Shape from "../shapes/shape";
+import { Shape, ShapeProperties } from "../shapes/shape";
 import Camera from "./camera";
-import setColor from "./color/set";
-import GetColor from "./color/get";
+import { setColor, GetColor } from "../color";
 import csMappings from "../shapes/cs-mappings";
 import { caMappings } from "../animations/animanaged";
-import Caption from "../caption";
+import { Caption, captionJson } from "../caption";
 
-declare type shape = Shape<any, any>;
+type shape = Shape<any, any>;
 
-declare interface Drawable {
+interface Drawable {
     startTime: number;
     endTime: number;
     layer: number;
     shape: shape;
 }
 
-declare interface AddOptions {
+interface AddOptions {
     startTime?: number;
     duration?: number;
     layer?: number;
 }
 
-declare interface RenderOptions {
+interface RenderOptions {
     width: number;
     height: number;
 }
 
-declare interface DrawableJson {
+interface CaptionsJson {
+    [key: string]: captionJson;
+}
+
+interface DrawableJson {
     startTime: number;
     endTime: number;
     layer: number;
@@ -36,25 +39,30 @@ declare interface DrawableJson {
         isBuiltin: boolean;
         name: string | undefined;
         data: object;
-    }
+    };
+    captions: CaptionsJson;
 }
 
 export declare interface SceneJson {
     backgroundColor: string;
     drawables: Array<DrawableJson>;
+    captions: CaptionsJson;
 }
 
+type aam = caMappings<any & ShapeProperties>;
+
 export declare class Scene {
-    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Scene | false;
-    static fromJson(json: string, parse?: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Scene;
-    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings): Scene | false;
-    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings): Scene;
+    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: aam): Scene | false;
+    static fromJson(json: string, parse: true, throwErrors: true, csMappings?: csMappings, caMappings?: aam): Scene;
+    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: aam): Scene | false;
+    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: aam): Scene;
 
     constructor();
 
     drawables: Array<Drawable>;
     camera: Camera;
     duration: number;
+    backgroundColor: setColor | GetColor;
     readonly autoDuration: number;
 
     add(drawable: shape): this;
@@ -65,9 +73,6 @@ export declare class Scene {
 
     add(caption: Caption): this;
     add(id: string, caption: Caption): this;
-
-    set backgroundColor(color: setColor): this;
-    get backgroundColor(): GetColor;
 
     setBackgroundColor(color: setColor): this;
 

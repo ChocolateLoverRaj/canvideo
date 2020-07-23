@@ -1,4 +1,4 @@
-import type from "../type/type";
+import type from "./type";
 
 declare function instanceOf(c: Function): type;
 

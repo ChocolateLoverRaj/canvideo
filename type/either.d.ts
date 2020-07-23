@@ -1,5 +1,5 @@
-import type = require("./type");
+import type from "./type";
 
-declare function either(type: type, ...types: type): type;
+declare function either(type: type, ...types: Array<type>): type;
 
 export = either;

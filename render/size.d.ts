@@ -1,11 +1,9 @@
 import type from "../type/type";
 
-declare const sizeType: type;
+export declare const sizeType: type;
 
-declare const regularSizeInterface: type;
+export declare const regularSizeInterface: type;
 
-declare const shortSizeInterface: type;
+export declare const shortSizeInterface: type;
 
-declare const sizeInterface: type;
-
-export = { sizeType, regularSizeInterface, shortSizeInterface, sizeInterface };
+export declare const sizeInterface: type;

@@ -1,6 +1,6 @@
-import Animanaged = require("../animations/animanaged");
+import Animanaged from "../animations/animanaged";
 
-declare interface CameraJson{
+interface CameraProperties{
     scaleX: number;
     scaleY: number;
     refX: number;
@@ -9,11 +9,20 @@ declare interface CameraJson{
     y: number;
 }
 
-declare class Camera extends Animanaged<Camera> {
+interface CameraJson{
+    scaleX: number;
+    scaleY: number;
+    refX: number;
+    refY: number;
+    x: number;
+    y: number;
+}
+
+declare class Camera extends Animanaged<Camera, CameraProperties> {
     constructor();
 
     static fromJson(json: string, parse?: true, throwErrors?: false): Camera | false;
-    static fromJson(json: string, parse?: true, throwErrors: true): Camera;
+    static fromJson(json: string, parse: true, throwErrors: true): Camera;
     static fromJson(json: any, parse: false, throwErrors?: false): Camera | false;
     static fromJson(json: any, parse: false, throwErrors: true): Camera;
 
