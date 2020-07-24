@@ -1,13 +1,17 @@
 //Manage animatable properties
 
 //Dependencies
-const { Types, typedFunction, keyValueObject, interface, either, Interface, instanceOf } = require("../type");
-const { methodsToBindType } = require("../properties/properties-type");
-const Animation = require("./animation");
-const Precomputed = require("./precomputed");
+import Types from "../type/types.js";
+import typedFunction from "../type/typed-function.js";
+import keyValueObject from "../type/key-value-object.js";
+import {interface, Interface} from "../type/interface.js";
+import instanceOf from "../type/instanceOf.js";
+import {methodsToBindType} from "../properties/properties-type";
+import Animation from "./animation";
+import Precomputed from "./precomputed";
 
 //Properties type
-const propertiesType = keyValueObject(either(Types.TYPE, interface({
+export const propertiesType = keyValueObject(either(Types.TYPE, interface({
     type: {
         type: Types.TYPE,
         required: false
@@ -54,7 +58,7 @@ const builtInAnimations = new Set()
     .add(Animation)
     .add(Precomputed);
 
-const animanage = typedFunction(params, function (o, properties, methodsToBind) {
+export const animanage = typedFunction(params, function (o, properties, methodsToBind) {
     //List of properties that were explicitly set
     var explicit = new Set();
 
@@ -382,6 +386,3 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
         })
     });
 });
-
-//Export the module
-module.exports = { propertiesType, methodsToBindType, animanage };

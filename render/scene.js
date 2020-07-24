@@ -14,7 +14,6 @@ const {
     Interface,
     instanceOf } = require("../type");
 const Camera = require("./camera");
-const { sizeInterface } = require("./size");
 const colorType = require("./color");
 const typify = require("../properties/typify");
 const cameraInterface = require("./camera-interface");

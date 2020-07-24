@@ -1,11 +1,12 @@
 //Camera for scenes
 
 //Dependencies
-const { Types, typedFunction } = require("../type");
-const { animanage } = require("../animations/animanage");
+import Types from "../type/types.js";
+import typedFunction from "../type/typed-function.js";
+import { animanage } from "../animations/animanage.js";
 
 //Camera class
-class Camera {
+export default class Camera {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -21,11 +22,11 @@ class Camera {
                 .setRef(refX, refY)
                 .setPosition(x, y);
         }
-        catch(e){
-            if(throwErrors){
+        catch (e) {
+            if (throwErrors) {
                 throw e;
             }
-            else{
+            else {
                 return false;
             }
         }
@@ -102,6 +103,3 @@ class Camera {
         }
     }
 }
-
-//Export the module
-module.exports = Camera;

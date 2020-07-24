@@ -1,7 +1,7 @@
 //Class for precalculated animations. Created implicitly when exporting and importing json.
 
 //Precomputed class
-class Precomputed {
+export default class Precomputed {
     static animationName = "precomputed";
     animationName = "precomputed";
 
@@ -90,6 +90,3 @@ class Precomputed {
         }
     }
 }
-
-//Export the class
-module.exports = Precomputed;
