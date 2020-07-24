@@ -1,25 +1,24 @@
 //Manage a scene and add shapes
 
 //Dependencies
-const { createCanvas } = require('canvas');
+import { createCanvas } from 'canvas';
 
 //Npm Modules
-const tinyColor = require('tinycolor2');
+import tinyColor from 'tinycolor2';
 
 //My Modules
-const {
-    typedFunction,
-    Types,
-    Overloader,
-    Interface,
-    instanceOf } = require("../type");
-const Camera = require("./camera");
-const colorType = require("./color");
-const typify = require("../properties/typify");
-const cameraInterface = require("./camera-interface");
-const shapes = require("../shapes/shapes");
-const Shape = require("../shapes/shape");
-const Caption = require("../caption");
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
+import Overloader from "../type/overloader.js";
+import { Interface } from "../type/interface.js";
+import instanceOf from "../type/instanceOf.js";
+import Camera from "./camera/camera.js";
+import colorType from "../render/color.js";
+import typify from "../properties/typify.js";
+import cameraInterface from "./camera/camera-interface.js";
+import shapes from "../shapes/shapes.js";
+import Shape from "../shapes/shape.js";
+import Caption from "../captions/caption.js";
 
 //Config
 const defaultDuration = 5;
@@ -32,7 +31,7 @@ const addInterface = new Interface(false)
     .toType();
 
 //Scene class
-class Scene {
+export default class Scene {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -318,6 +317,3 @@ class Scene {
         }
     }
 }
-
-//Export the module
-module.exports = Scene;
