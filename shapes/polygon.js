@@ -4,7 +4,7 @@
 import Shape from "./shape.js";
 import arrayOf from "../type/array-of.js";
 import typedFunction from "../type/typed-function.js";
-import Types from "../type/Types.js";
+import Types from "../type/types.js";
 import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
 

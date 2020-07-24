@@ -12,7 +12,7 @@ import { methodsToBindType } from "../properties/properties-type.js";
 import Types from "../type/types.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
-import colorType from "../render/color.js";
+import colorType from "../color/color.js";
 
 //Figure out whether ctx given is actually ctx.
 const ctxType = a => a instanceof CanvasRenderingContext2D ? false : "is not CanvasRenderingContext2D.";

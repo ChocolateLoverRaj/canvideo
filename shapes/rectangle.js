@@ -5,7 +5,7 @@ import Shape from "./shape.js";
 import Types from "../type/types.js";
 import { Interface } from "../type/interface.js";
 import either from "../type/either.js";
-import arrayOf from "../type/arrayOf.js";
+import arrayOf from "../type/array-of.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 
