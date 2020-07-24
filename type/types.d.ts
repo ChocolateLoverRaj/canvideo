@@ -1,32 +1,28 @@
 import type from "./type";
 
-declare namespace Types {
-    const ANY: type;
+export const ANY: type;
 
-    const NUMBER: type;
-    const POSITIVE_NUMBER: type;
-    const NON_NEGATIVE_NUMBER: type;
-    const INTEGER: type;
-    const POSITIVE_INTEGER: type;
-    const NON_NEGATIVE_INTEGER: type;
-    const UNIT_INTERVAL: type;
-    const RGB_INTENSITY: type;
+export const NUMBER: type;
+export const POSITIVE_NUMBER: type;
+export const NON_NEGATIVE_NUMBER: type;
+export const INTEGER: type;
+export const POSITIVE_INTEGER: type;
+export const NON_NEGATIVE_INTEGER: type;
+export const UNIT_INTERVAL: type;
+export const RGB_INTENSITY: type;
 
-    const STRING: type;
-    const COLOR: type;
+export const STRING: type;
+export const COLOR: type;
 
-    const BOOLEAN: type;
-    const TRUTHY: type;
-    const FALSY: type;
+export const BOOLEAN: type;
+export const TRUTHY: type;
+export const FALSY: type;
 
-    const FUNCTION: type;
+export const FUNCTION: type;
 
-    const OBJECT: type;
-    const ARRAY: type;
+export const OBJECT: type;
+export const ARRAY: type;
 
-    const KEY: type;
+export const KEY: type;
 
-    const TYPE: type;
-}
-
-export = Types;
+export const TYPE: type;

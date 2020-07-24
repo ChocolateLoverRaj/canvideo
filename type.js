@@ -1,25 +1,39 @@
-//File that imports and exports all type features
+//File that exports and exports all type features
 //Easily access all features in ./type folder.
 
-//Dependencies
-const Types = require("./type/types");
-const { interface, Interface } = require("./type/interface");
-const arrayOf = require("./type/array-of");
-const keyValueObject = require("./type/key-value-object");
-const Overloader = require("./type/overloader");
-const typedFunction = require("./type/typed-function");
-const either = require("./type/either");
-const instanceOf = require("./type/instanceOf");
+//Export everything
+export {
+    ANY,
 
-//Export the module
-module.exports = {
-    Types,
-    interface,
-    Interface,
-    arrayOf,
-    keyValueObject,
-    Overloader,
-    typedFunction,
-    either,
-    instanceOf
-};
+    NUMBER,
+    POSITIVE_NUMBER,
+    NON_NEGATIVE_NUMBER,
+    INTEGER,
+    POSITIVE_INTEGER,
+    NON_NEGATIVE_INTEGER,
+    UNIT_INTERVAL,
+    RGB_INTENSITY,
+
+    STRING,
+    COLOR,
+
+    BOOLEAN,
+    TRUTHY,
+    FALSY,
+
+    FUNCTION,
+
+    OBJECT,
+    ARRAY,
+
+    KEY,
+
+    TYPE,
+} from "./type/types";
+export { interface, Interface } from "./type/interface";
+export { default as arrayOf } from "./type/array-of";
+export { default as keyValueObject } from "./type/key-value-object";
+export { default as Overloader } from "./type/overloader";
+export { default as typedFunction } from "./type/typed-function";
+export { default as either } from "./type/either";
+export { default as instanceOf } from "./type/instanceOf";

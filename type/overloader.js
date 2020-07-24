@@ -2,22 +2,22 @@
 //Just give the list of args, which includes the type and whether they are optional or not.
 
 //Dependencies
-const Types = require("./types");
-const { Interface } = require("./interface");
-const arrayOf = require("./array-of");
-const typedFunction = require("./typed-function");
+import { TYPE, BOOLEAN, FUNCTION } from "./types";
+import { Interface } from "./interface";
+import arrayOf from "./array-of";
+import typedFunction from "./typed-function";
 
 //The type for a special parameter.
 const paramType = new Interface(false)
-    .required("type", Types.TYPE)
-    .optional("optional", Types.BOOLEAN)
+    .required("type", TYPE)
+    .optional("optional", BOOLEAN)
     .toType();
 
 //An array of parameters.
 const paramsType = arrayOf(paramType);
 
 //The Overloader class which is used to create overloads.
-class Overloader {
+export default class Overloader {
     constructor() {
         this.overloads = [];
     }
@@ -55,7 +55,7 @@ class Overloader {
         };
     }
     overload() {
-        return typedFunction([{ name: "args", type: paramsType }, { name: "f", type: Types.FUNCTION }], function (args, f) {
+        return typedFunction([{ name: "args", type: paramsType }, { name: "f", type: FUNCTION }], function (args, f) {
             //Calculate the minimum length
             var optionalsStarted = false, minLength;
             for (var i = 0; i < args.length; i++) {
@@ -109,6 +109,3 @@ class Overloader {
         }).apply(this, arguments);
     };
 }
-
-//Export the module
-module.exports = Overloader;
