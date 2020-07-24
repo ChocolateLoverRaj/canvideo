@@ -1,13 +1,11 @@
 //Common file for point interface (x, y)
 
 //Dependencies
-const { Interface, Types } = require("../type");
+import { Interface } from "../type/interface.js";
+import Types from "../type/types.js";
 
 //Point interface
-const pointInterface = new Interface(false)
+export default pointInterface = new Interface(false)
     .required("x", Types.NUMBER)
     .required("y", Types.NUMBER)
     .toType();
-
-//Export the interface
-module.exports = pointInterface;

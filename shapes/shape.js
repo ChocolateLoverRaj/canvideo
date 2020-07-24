@@ -3,19 +3,22 @@
 
 //Dependencies
 //Npm Modules
-const tinyColor = require('tinycolor2');
-const canvas = require('canvas');
+import tinyColor from 'tinycolor2';
+import { CanvasRenderingContext2D } from 'canvas';
 
 //My Modules
-const { propertiesType, methodsToBindType, animanage } = require("../animations/animanage");
-const { Types, typedFunction, instanceOf } = require("../type");
-const colorType = require("../render/color");
+import { propertiesType, animanage } from "../animations/animanage.js";
+import { methodsToBindType } from "../properties/properties-type.js";
+import Types from "../type/types.js";
+import typedFunction from "../type/typed-function.js";
+import instanceOf from "../type/instanceOf.js";
+import colorType from "../render/color.js";
 
 //Figure out whether ctx given is actually ctx.
-const ctxType = a => a instanceof canvas.CanvasRenderingContext2D ? false : "is not canvasRenderingContext2D.";
+const ctxType = a => a instanceof CanvasRenderingContext2D ? false : "is not CanvasRenderingContext2D.";
 
 //Shape class
-class Shape {
+export default class Shape {
     static shapeName = "shape";
     shapeName = "shape";
 
@@ -166,6 +169,3 @@ class Shape {
         }
     }
 }
-
-//Export the module
-module.exports = Shape;

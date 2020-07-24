@@ -1,12 +1,16 @@
 //Draw circles
 
 //Dependencies
-const Shape = require("./shape");
-const { Types, arrayOf, Overloader, typedFunction, instanceOf } = require("../type");
-const pointInterface = require("./point-interface");
+import Shape from "./shape.js";
+import Types from "../type/types.js";
+import arrayOf from "../type/array-of.js";
+import Overloader from "../type/overloader.js";
+import typedFunction from "../type/typed-function.js";
+import instanceOf from "../type/instanceOf.js";
+import pointInterface from "./point-interface.js";
 
 //Circle class
-class Circle extends Shape {
+export default class Circle extends Shape {
     static shapeName = "circle";
     shapeName = "circle";
 
@@ -103,6 +107,3 @@ class Circle extends Shape {
         }
     }
 }
-
-//Export the class
-module.exports = Circle;

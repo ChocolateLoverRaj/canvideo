@@ -22,7 +22,10 @@ export interface AnimationJson {
     data: any;
 }
 
-export type SetJson<Properties> = [number, Properties];
+export interface SetJson<Properties> {
+    at: number;
+    value: Properties;
+};
 
 type fromJson<Properties> = (json?: any & object, parse?: any & false, throwErrors?: any & true) => animator<Properties>;
 export type caMappings<Properties> = Map<string, fromJson<Properties>>;

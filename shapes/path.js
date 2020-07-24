@@ -1,11 +1,14 @@
 //Draw a path, similar to ctx path.
 
 //Dependencies
-const Shape = require("./shape");
-const { Types, typedFunction, arrayOf, instanceOf } = require("../type");
+import Shape from "./shape.js";
+import Types from "../type/types.js";
+import typedFunction from "../type/typed-function.js";
+import arrayOf from "../type/array-of.js";
+import instanceOf from "../type/instanceOf.js";
 
 //Path class
-class Path extends Shape {
+export default class Path extends Shape {
     static shapeName = "path";
     shapeName = "path";
 
@@ -147,6 +150,3 @@ class Path extends Shape {
         }
     }
 }
-
-//Export the Path class
-module.exports = Path;

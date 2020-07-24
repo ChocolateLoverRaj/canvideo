@@ -1,33 +1,32 @@
 //Quick way of getting shapes
 
 //Dependencies
-const Shape = require("./shape");
-const Rectangle = require("./rectangle");
-const Group = require("./group");
-const Circle = require("./circle");
-const Polygon = require("./polygon");
-const NumberLine = require("./number-line");
-const Path = require("./path");
-const {typedFunction, Types, instanceOf} = require("../type");
-
-//Shapes module
-const shapes = { Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path };
+import Shape from "./shape.js";
+import Rectangle from "./rectangle.js";
+import Group, { shapeName } from "./group.js";
+import Circle from "./circle.js";
+import Polygon from "./polygon.js";
+import NumberLine from "./number-line.js";
+import Path from "./path.js";
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
+import instanceOf from "../type/instanceOf.js";
 
 //List of shapes
-shapes.list = [Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path];
+export const list = [Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path];
 
 //Check if a shape is builtin or not
-shapes.isBuiltin = function(shape){
-    for(var builtinShape of shapes.list){
-        if(Object.getPrototypeOf(shape) === builtinShape.prototype){
+export const isBuiltin = shape => {
+    for (var builtinShape of list) {
+        if (Object.getPrototypeOf(shape) === builtinShape.prototype) {
             return true;
         }
     }
     return false;
 }
-    
+
 //Get a shape from json
-shapes.fromJson = typedFunction([
+export const fromJson = typedFunction([
     {
         name: "name",
         type: Types.STRING
@@ -56,28 +55,28 @@ shapes.fromJson = typedFunction([
         type: instanceOf(Map),
         optional: true
     }
-], function(name, json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()){
-    if(typeof json === 'string' && parse){
-        try{
+], function (name, json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
+    if (typeof json === 'string' && parse) {
+        try {
             json = JSON.parse(json);
         }
-        catch(e){
-            if(throwErrors){
+        catch (e) {
+            if (throwErrors) {
                 throw e;
             }
-            else{
+            else {
                 return false;
             }
         }
     }
-    else if(parse){
+    else if (parse) {
         throw new TypeError("Cannot parse non string json.");
     }
-    try{
-        for(var shape of shapes.list){
-            if(name === shape.shapeName){
-                switch(name){
-                    case Group.shapeName:
+    try {
+        for (var shape of list) {
+            if (name === shape.shapeName) {
+                switch (name) {
+                    case shapeName:
                         return shape.fromJson(json, false, true, caMappings, csMappings);
                     default:
                         return shape.fromJson(json, false, true, caMappings);
@@ -86,15 +85,12 @@ shapes.fromJson = typedFunction([
         }
         throw new TypeError(`Unknown shape: ${name}.`);
     }
-    catch(e){
-        if(throwErrors){
+    catch (e) {
+        if (throwErrors) {
             throw e;
         }
-        else{
+        else {
             return false;
         }
     }
 });
-
-//Export the module
-module.exports = shapes;
