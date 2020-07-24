@@ -1,7 +1,8 @@
 //Create captions and generate .vtt files
 
 //Dependencies
-const { typedFunction, Types } = require("./type");
+import typedFunction from "./type/typed-function.js";
+import Types from "./type/types.js";
 
 //Zero pad a number to the left
 function zeroPad(n, length) {
@@ -27,7 +28,7 @@ const tooLargeTime =
     100; //100 Hours
 
 //Caption class
-class Caption {
+export default class Caption {
     static vttHeader = 'WEBVTT\n';
 
     static fromJson = typedFunction([
@@ -35,21 +36,21 @@ class Caption {
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true }
     ], function (json, parse = true, throwErrors = false) {
-        try{
-            if(parse){
+        try {
+            if (parse) {
                 json = JSON.parse(json);
             }
             let caption = new Caption();
-            for(let {start, end, text} of json){
+            for (let { start, end, text } of json) {
                 caption.add(start, end, text);
             }
             return caption;
         }
-        catch(e){
-            if(throwErrors){
+        catch (e) {
+            if (throwErrors) {
                 throw e;
             }
-            else{
+            else {
                 return false;
             }
         }
@@ -118,5 +119,3 @@ class Caption {
         }
     }
 }
-
-module.exports = Caption;
