@@ -4,7 +4,6 @@
 import Types from "../type/types";
 import typedFunction from "../type/typed-function";
 import { propertiesType } from "./properties-type";
-import typify from "./typify";
 
 //Properties
 const params = [

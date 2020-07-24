@@ -3,7 +3,7 @@
 //Dependencies
 import Shape from "./shape.js";
 import Rectangle from "./rectangle.js";
-import Group, { shapeName } from "./group.js";
+import Group from "./group.js";
 import Circle from "./circle.js";
 import Polygon from "./polygon.js";
 import NumberLine from "./number-line.js";
@@ -76,7 +76,7 @@ export const fromJson = typedFunction([
         for (var shape of list) {
             if (name === shape.shapeName) {
                 switch (name) {
-                    case shapeName:
+                    case Group.shapeName:
                         return shape.fromJson(json, false, true, caMappings, csMappings);
                     default:
                         return shape.fromJson(json, false, true, caMappings);

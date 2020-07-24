@@ -4,14 +4,14 @@
 import Types from "../type/types.js";
 import typedFunction from "../type/typed-function.js";
 import keyValueObject from "../type/key-value-object.js";
-import {interface, Interface} from "../type/interface.js";
+import { interfaceToType, Interface } from "../type/interface.js";
 import instanceOf from "../type/instanceOf.js";
-import {methodsToBindType} from "../properties/properties-type";
+import { methodsToBindType } from "../properties/properties-type";
 import Animation from "./animation";
 import Precomputed from "./precomputed";
 
 //Properties type
-export const propertiesType = keyValueObject(either(Types.TYPE, interface({
+export const propertiesType = keyValueObject(either(Types.TYPE, interfaceToType({
     type: {
         type: Types.TYPE,
         required: false

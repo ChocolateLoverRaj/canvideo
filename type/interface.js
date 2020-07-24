@@ -38,7 +38,7 @@ const returnInterface = (keys, extendible) => {
 }
 
 //Interface function
-export const interface = (o, extendible = true) => {
+export const interfaceToType = (o, extendible = true) => {
     let err = OBJECT(o);
     if (!err) {
         let err = BOOLEAN(extendible);

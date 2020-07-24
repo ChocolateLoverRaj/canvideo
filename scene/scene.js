@@ -16,7 +16,7 @@ import Camera from "../camera/camera.js";
 import colorType from "../color/color.js";
 import typify from "../properties/typify.js";
 import cameraInterface from "../camera/camera-interface.js";
-import shapes from "../shapes/shapes.js";
+import { fromJson as shapeFromJson, isBuiltin as isShapeBuiltin } from "../shapes/shapes.js";
 import Shape from "../shapes/shape.js";
 import Caption from "../captions/caption.js";
 
@@ -52,7 +52,7 @@ export default class Scene {
                     for (var i = 0; i < drawables.length; i++) {
                         let { startTime, endTime, layer, shape: { isBuiltin, name, data } } = drawables[i];
                         if (isBuiltin) {
-                            scene.add(startTime, endTime - startTime, layer, shapes.fromJson(name, data, false, true, csMappings, caMappings));
+                            scene.add(startTime, endTime - startTime, layer, shapeFromJson(name, data, false, true, csMappings, caMappings));
                         }
                         else if (csMappings.has(name)) {
                             scene.add(startTime, endTime - startTime, layer, csMappings.get(name)(data, false, true, csMappings, caMappings));
@@ -297,7 +297,7 @@ export default class Scene {
                 endTime,
                 layer,
                 shape: {
-                    isBuiltin: shapes.isBuiltin(shape),
+                    isBuiltin: isShapeBuiltin(shape),
                     name: shape.shapeName,
                     data: shape.toJson(false, fps)
                 }

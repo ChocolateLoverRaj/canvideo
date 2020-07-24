@@ -2,13 +2,13 @@
 
 //Dependencies
 import Types from "../type/types.js";
-import { interface } from "../type/interface.js";
+import { interfaceToType } from "../type/interface.js";
 import keyValueObject from "../type/key-value-object.js";
 import either from "../type/either";
 import arrayOf from "../type/array-of";
 
 export const propertiesType1 = Types.TYPE;
-export const propertiesType2 = interface({
+export const propertiesType2 = interfaceToType({
     type: {
         type: Types.TYPE,
         required: false

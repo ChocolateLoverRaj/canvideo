@@ -26,3 +26,24 @@ export const ARRAY: type;
 export const KEY: type;
 
 export const TYPE: type;
+
+export default {
+    NUMBER,
+    POSITIVE_NUMBER,
+    NON_NEGATIVE_NUMBER,
+    INTEGER,
+    POSITIVE_INTEGER,
+    NON_NEGATIVE_INTEGER,
+    UNIT_INTERVAL,
+    RGB_INTENSITY,
+    STRING,
+    COLOR,
+    BOOLEAN,
+    TRUTHY,
+    FALSY,
+    FUNCTION,
+    OBJECT,
+    ARRAY,
+    KEY,
+    TYPE,
+}

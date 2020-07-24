@@ -39,3 +39,25 @@ export const KEY = a => ['symbol', 'string', 'number'].includes(typeof a) ? fals
 
 //Type function
 export const TYPE = a => typeof a === 'function' ? false : "is not a type function.";
+
+//An object full of all the types
+export default {
+    NUMBER,
+    POSITIVE_NUMBER,
+    NON_NEGATIVE_NUMBER,
+    INTEGER,
+    POSITIVE_INTEGER,
+    NON_NEGATIVE_INTEGER,
+    UNIT_INTERVAL,
+    RGB_INTENSITY,
+    STRING,
+    COLOR,
+    BOOLEAN,
+    TRUTHY,
+    FALSY,
+    FUNCTION,
+    OBJECT,
+    ARRAY,
+    KEY,
+    TYPE,
+}
