@@ -2,21 +2,19 @@
 
 //Dependencies
 //Npm Modules
-const chai = require('chai');
-const asserttype = require('chai-asserttype');
+import chai from 'chai';
+import asserttype from 'chai-asserttype';
 
 //My Modules
-const {
-    Types,
-    interface,
-    Interface,
-    arrayOf,
-    keyValueObject,
-    Overloader,
-    typedFunction,
-    either,
-    instanceOf } = require("../type");
-const expectError = require("./expect-error");
+import Types from "../type/types.js";
+import { interfaceToType, Interface } from "../type/interface.js";
+import arrayOf from "../type/array-of.js";
+import keyValueObject from "../type/key-value-object.js";
+import Overloader from "../type/overloader.js";
+import typedFunction from "../type/typed-function.js";
+import either from "../type/either.js";
+import instanceOf from "../type/instanceOf.js";
+import expectError from "./expect-error.js";
 
 chai.use(asserttype);
 const expect = chai.expect;
@@ -422,13 +420,13 @@ function test() {
         });
         describe("interface", () => {
             it("no keys", () => {
-                var interfaceType = interface({});
+                var interfaceType = interfaceToType({});
                 expect(interfaceType).to.be.function();
                 expect(Types.TYPE(interfaceType)).to.be.false;
                 expect(interfaceType({ a: false })).to.be.false;
             });
             it("required", () => {
-                var interfaceType = interface({
+                var interfaceType = interfaceToType({
                     a: {
                         type: Types.BOOLEAN,
                         required: true
@@ -446,7 +444,7 @@ function test() {
                 expect(interfaceType({})).to.be.string();
             });
             it("optional", () => {
-                var interfaceType = interface({
+                var interfaceType = interfaceToType({
                     a: {
                         type: Types.BOOLEAN,
                         required: false
@@ -464,7 +462,7 @@ function test() {
                 expect(interfaceType({})).to.be.false;
             });
             it("not extendible", () => {
-                var interfaceType = interface({
+                var interfaceType = interfaceToType({
                     a: {
                         type: Types.BOOLEAN
                     }
@@ -689,5 +687,5 @@ function test() {
     });
 };
 
-//Export the module
-module.exports = test;
+//Export
+export default test;

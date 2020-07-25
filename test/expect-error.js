@@ -18,4 +18,4 @@ function expectError(action) {
 };
 
 //Export the function
-module.exports = expectError;
+export default expectError;
