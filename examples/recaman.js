@@ -1,7 +1,7 @@
 //Draws graph with the recaman sequence visualization.
 
 //Dependencies
-const { Video, Scene, Animation, NumberLine, Path, Camera } = require("../index");
+import { Video, Scene, Animation, NumberLine, Path, Camera } from 'canvideo';
 
 //You can adjust theses
 const numberCount = 300;
