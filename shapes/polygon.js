@@ -1,9 +1,12 @@
 //Draw polygons with any number of sides
 
 //Dependencies
-const Shape = require("./shape");
-const { arrayOf, typedFunction, Types, instanceOf } = require("../type");
-const pointInterface = require("./point-interface");
+import Shape from "./shape.js";
+import arrayOf from "../type/array-of.js";
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
+import instanceOf from "../type/instanceOf.js";
+import pointInterface from "./point-interface.js";
 
 //Polygon class
 class Polygon extends Shape {
@@ -138,5 +141,4 @@ class Polygon extends Shape {
     }
 }
 
-//Export the polygon class
-module.exports = Polygon;
+export default Polygon;

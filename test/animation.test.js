@@ -2,11 +2,11 @@
 
 //Dependencies
 //Npm Modules
-const chai = require('chai');
+import chai from 'chai';
 
 //My Modules
-const expectError = require("./expect-error");
-const Animation = require("../animations/animation");
+import expectError from "./expect-error.js";
+import Animation from "../animations/animation.js";
 
 const expect = chai.expect;
 
@@ -51,5 +51,5 @@ function test() {
     });
 };
 
-//Export the module
-module.exports = test;
+//Export
+export default test;

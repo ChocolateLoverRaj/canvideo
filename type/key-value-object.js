@@ -2,8 +2,8 @@
 //This object needs to have a certain type for its values.
 
 //Dependencies
-const Types = require("./types");
-const typedFunction = require("./typed-function");
+import Types from "./types.js";
+import typedFunction from "./typed-function.js";
 
 //Creates a type based on given valueType.
 const keyValueObject = typedFunction([{ name: "valueType", type: Types.TYPE }], function (valueType) {
@@ -24,5 +24,4 @@ const keyValueObject = typedFunction([{ name: "valueType", type: Types.TYPE }], 
     };
 });
 
-//Export the module
-module.exports = keyValueObject;
+export default keyValueObject;

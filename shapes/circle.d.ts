@@ -1,4 +1,5 @@
-import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import Shape from "./shape";
+import { ShapeProperties, ShapeJson } from "./shape-properties";
 import { caMappings } from "../animations/animanaged";
 
 interface CircleProperties extends ShapeProperties {
@@ -44,4 +45,4 @@ declare class Circle extends Shape<Circle, CircleProperties> {
     toJson(...args: any): any;
 }
 
-export = Circle;
+export default Circle;

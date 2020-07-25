@@ -2,13 +2,13 @@
 
 //Dependencies
 //Npm Modules
-const chai = require('chai');
+import chai from 'chai';
 
 //My Modules
-const { animanage } = require("../animations/animanage");
-const { Types } = require("../type");
-const expectError = require("./expect-error");
-const Animation = require("../animations/animation");
+import { animanage } from "../animations/animanage.js";
+import Types from "../type/types.js";
+import expectError from "./expect-error.js";
+import Animation from "../animations/animation.js";
 
 const expect = chai.expect;
 
@@ -23,15 +23,15 @@ function test() {
             };
             var o = new O();
             animanage(o, { a: { type: Types.BOOLEAN, initial: true } }, ["opposite"]);
-            o.set(5, {a: false});
+            o.set(5, { a: false });
             expectError(() => {
-                o.set(5, {a: 2});
+                o.set(5, { a: 2 });
             });
             expectError(() => {
                 o.set(-5, {});
             });
             expectError(() => {
-                o.set(5, {b: 2});
+                o.set(5, { b: 2 });
             });
             expect(o.at(3).opposite()).to.be.false;
             expect(o.at(7).opposite()).to.be.true;
@@ -61,5 +61,5 @@ function test() {
     });
 };
 
-//Export the module
-module.exports = test;
+//Export
+export default test;

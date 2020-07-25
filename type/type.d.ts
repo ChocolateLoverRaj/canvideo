@@ -1,3 +1,3 @@
-declare type type = (a: any) => false | string;
+type type = (a: any) => false | string;
 
-export = type;
+export default type;

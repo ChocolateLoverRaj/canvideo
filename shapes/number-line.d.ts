@@ -1,4 +1,5 @@
-import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import Shape from "./shape";
+import { ShapeProperties, ShapeJson } from "./shape-properties";
 import { caMappings } from "../animations/animanaged";
 
 interface NumberLineProperties extends ShapeProperties {
@@ -51,8 +52,8 @@ declare class NumberLine extends Shape<NumberLine, NumberLineProperties>{
 
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): NumberLineJson;
-    
+
     toJson(...args: any): any;
 }
 
-export = NumberLine;
+export default NumberLine;

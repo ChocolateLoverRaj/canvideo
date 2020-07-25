@@ -6,6 +6,7 @@ import { setColor, GetColor } from "../color";
 import csMappings from "../shapes/cs-mappings";
 import { caMappings } from "../animations/animanaged";
 import { Caption, captionJson } from "../caption";
+import SceneJson from "./scene-json";
 
 type shape = Shape<any, any>;
 
@@ -43,15 +44,9 @@ interface DrawableJson {
     captions: CaptionsJson;
 }
 
-export declare interface SceneJson {
-    backgroundColor: string;
-    drawables: Array<DrawableJson>;
-    captions: CaptionsJson;
-}
-
 type aam = caMappings<any & ShapeProperties>;
 
-export declare class Scene {
+declare class Scene {
     static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: aam): Scene | false;
     static fromJson(json: string, parse: true, throwErrors: true, csMappings?: csMappings, caMappings?: aam): Scene;
     static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: aam): Scene | false;

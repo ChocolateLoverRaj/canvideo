@@ -1,6 +1,6 @@
 import animator from "./animator";
 
-declare interface Animation<Properties extends object> {
+interface Animation<Properties extends object> {
     startTime: number;
     duration: number;
     animator: animator<Properties>;
@@ -8,12 +8,12 @@ declare interface Animation<Properties extends object> {
     isCustom: boolean;
 }
 
-declare interface Set<Properties extends object> {
+interface Set<Properties extends object> {
     at: number;
     value: Properties
 }
 
-export declare interface AnimationJson {
+export interface AnimationJson {
     startTime: number;
     duration: number;
     isBuiltin: boolean;
@@ -22,12 +22,15 @@ export declare interface AnimationJson {
     data: any;
 }
 
-export declare type SetJson<Properties> = [number, Properties];
+export interface SetJson<Properties> {
+    at: number;
+    value: Properties;
+};
 
-declare type fromJson<Properties> = (json?: any & object, parse?: any & false, throwErrors?: any & true) => animator<Properties>;
-export declare type caMappings<Properties> = Map<string, fromJson<Properties>>;
+type fromJson<Properties> = (json?: any & object, parse?: any & false, throwErrors?: any & true) => animator<Properties>;
+export type caMappings<Properties> = Map<string, fromJson<Properties>>;
 
-declare abstract class Animations<Properties> extends Array<Animation<Properties>>{
+abstract class Animations<Properties> extends Array<Animation<Properties>>{
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): object;
 
@@ -35,7 +38,7 @@ declare abstract class Animations<Properties> extends Array<Animation<Properties
     importJson(json: any, parse: false, caMappings?: caMappings<Properties>): this;
 }
 
-declare abstract class Sets<Properties> extends Array<Set<Properties>>{
+abstract class Sets<Properties> extends Array<Set<Properties>>{
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): object;
 
@@ -43,7 +46,7 @@ declare abstract class Sets<Properties> extends Array<Set<Properties>>{
     importJson(json: any, parse: false): this;
 }
 
-export declare abstract class Animanaged<T extends object, P extends object> {
+export abstract class Animanaged<T extends object, P extends object> {
     animations: Animations<P>;
     sets: Sets<P>;
 

@@ -3,43 +3,13 @@ import { EventEmitter } from 'events';
 import { SceneJson, Scene } from "./scene";
 import csMappings from "../shapes/cs-mappings";
 import { caMappings } from '../animations/animanaged';
-
-export declare var tempPath: string;
-export declare function setTempPath(path: string): Promise<string>;
-
-export declare function setFfmpegPath(path: string): void;
-export declare function getFfmpegPath(): string;
-export declare function checkFfmpegPath(): Promise<void>;
+import { ExportStages } from "./stages";
+import ExportTask from "./export-task";
 
 interface Progress {
     progress: number;
     count: number;
     total: number;
-}
-
-export declare enum ExportStages {
-    START = "START",
-    CREATE_FILES = "CREATE_FILES",
-    GENERATE_VIDEO = "GENERATE_VIDEO",
-    DELETE_TEMPORARY = "DELETE_FRAMES",
-    FINISH = "FINISH"
-}
-
-interface ExportTask {
-    name: string;
-    start: ExportStages;
-    end: ExportStages;
-}
-
-export declare namespace ExportTasks {
-    const CHECK_TEMP_PATH: ExportTask;
-    const DELETE_EXTRA_FRAMES: ExportTask;
-    const RENDER_NEW_FRAMES: ExportTask;
-    const GENERATE_SEPARATE_CAPTIONS: ExportTask;
-    const GENERATE_EMBEDDED_CAPTIONS: ExportTask;
-    const GENERATE_VIDEO: ExportTask;
-    const DELETE_FRAMES: ExportTask;
-    const DELETE_CAPTIONS: ExportTask;
 }
 
 interface RegularSize {
@@ -58,21 +28,21 @@ interface ShortOptions extends ShortSize {
     fps: number;
 }
 
- interface RegularSquashedOptions {
+interface RegularSquashedOptions {
     size: RegularSize;
     fps: number;
 }
- interface ShortSquashedOptions {
+interface ShortSquashedOptions {
     size: ShortSize;
     fps: number;
 }
 
- interface ExportOptions {
+interface ExportOptions {
     keepImages?: boolean;
     maxStreams?: number;
 }
 
-declare namespace VideoExport {
+namespace VideoExport {
     abstract class CheckTempPath extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "finish", listener: () => void): this;
@@ -307,7 +277,7 @@ declare namespace VideoExport {
     }
 }
 
-declare abstract class VideoExport extends EventEmitter {
+abstract class VideoExport extends EventEmitter {
     currentStage: ExportStages;
     currentTasks: Set<ExportTask>;
 
@@ -571,7 +541,7 @@ type output = string | {
     embeddedCaptions?: boolean | Set<string>;
 };
 
-export declare class Video extends EventEmitter {
+export default class Video extends EventEmitter {
     static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;
     static fromJson(json: string, parse: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): Video;
     static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;

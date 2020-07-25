@@ -1,31 +1,25 @@
 //Create groups of things
 
 //Dependencies
-const Shape = require("./shape");
-const Circle = require("./circle");
-const NumberLine = require("./number-line");
-const Path = require("./path");
-const Polygon = require("./polygon");
-const Rectangle = require("./rectangle");
-const { arrayOf, Types, Overloader, Interface, typedFunction, instanceOf } = require("../type");
-const pointInterface = require("./point-interface");
+import Shape from "./shape.js";
+import Circle from "./circle.js";
+import NumberLine from "./number-line.js";
+import Path from "./path.js";
+import Polygon from "./polygon.js";
+import Rectangle from "./rectangle.js";
+import arrayOf from "../type/array-of.js";
+import Types from "../type/types.js";
+import Overloader from "../type/overloader.js";
+import { Interface } from "../type/interface.js";
+import typedFunction from "../type/typed-function.js";
+import instanceOf from "../type/instanceOf.js";
+import pointInterface from "./point-interface.js";
 
 //Size interface
 const sizeInterface = new Interface(false)
     .required("width", Types.POSITIVE_NUMBER)
     .required("height", Types.POSITIVE_NUMBER)
     .toType();
-
-//Check if a shape is builtin
-//This is because requiring ./shapes.js will cause circular dependencies
-const isBuiltin = a => {
-    for (let shape of shapesList) {
-        if (Object.getPrototypeOf(a) === shape.prototype) {
-            return true;
-        }
-    }
-    return false;
-}
 
 //Group class
 class Group extends Shape {
@@ -223,6 +217,7 @@ class Group extends Shape {
     }
 
     draw(ctx) {
+        let t = typeof this.at === 'number' ? this.at : 0;
         for (var i = 0; i < this.children.length; i++) {
             super.draw(ctx);
 
@@ -235,7 +230,7 @@ class Group extends Shape {
             ctx.scale(scaleX, scaleY);
 
             //Call the child's draw function
-            this.children[i].at(ctx.now).draw(ctx);
+            this.children[i].at(t).draw(ctx);
 
             //Undo transformations
             ctx.scale(1 / scaleX, 1 / scaleY);
@@ -281,5 +276,15 @@ class Group extends Shape {
 //List of shapes
 const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
 
-//Export the group class
-module.exports = Group;
+//Check if a shape is builtin
+//This is because requiring ./shapes.js will cause circular dependencies
+const isBuiltin = a => {
+    for (let shape of shapesList) {
+        if (Object.getPrototypeOf(a) === shape.prototype) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export default Group;

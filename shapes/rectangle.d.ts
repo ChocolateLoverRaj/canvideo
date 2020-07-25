@@ -1,4 +1,5 @@
-import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import Shape from "./shape";
+import { ShapeProperties, ShapeJson 1} from "./shape-properties";
 import { caMappings } from "../animations/animanaged";
 
 interface RectangleProperties extends ShapeProperties {
@@ -106,8 +107,8 @@ declare class Rectangle extends Shape<Rectangle, RectangleProperties>{
 
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): RectangleJson;
-    
+
     toJson(...args: any): any;
 }
 
-export = Rectangle;
+export default Rectangle;

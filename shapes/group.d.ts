@@ -1,4 +1,5 @@
-import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import Shape from "./shape";
+import { ShapeProperties, ShapeJson } from "./shape-properties";
 import { caMappings } from "../animations/animanaged";
 
 type shape = Shape<any, any>;
@@ -41,7 +42,7 @@ declare class Group extends Shape<Group, GroupProperties>{
     static fromJson(json: any, parse: false, throwErrors?: false, caMappings?: groupCaMappings): Group | false;
     static fromJson(json: string, parse: true, throwErrors: true, caMappings?: groupCaMappings): Group;
     static fromJson(json: any, parse: false, throwErrors: true, caMappings?: groupCaMappings): Group;
-    
+
     static fromJson(...args: any): any;
 
     constructor(x?: number, y?: number, originalWidth?: number, originalHeight?: number, refX?: number, refY?: number);
@@ -85,8 +86,8 @@ declare class Group extends Shape<Group, GroupProperties>{
 
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): GroupJson;
-    
+
     toJson(...args: any): any;
 }
 
-export = Group;
+export default Group;

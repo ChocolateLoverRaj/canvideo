@@ -1,0 +1,15 @@
+{
+  "name": "any-package",
+  "version": "1.0.0",
+  "description": "This package is so that I can do 'npm install {pathToCanvideo}' and then use import {} from 'canvideo'.",
+  "type": "module",
+  "main": "truck.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvideo": "file:.."
+  }
+}

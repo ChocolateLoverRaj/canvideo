@@ -1,4 +1,5 @@
-import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import Shape from "./shape";
+import { ShapeProperties, ShapeJson } from "./shape-properties";
 import { caMappings } from "../animations/animanaged";
 
 interface PathProperties extends ShapeProperties {
@@ -45,4 +46,4 @@ declare class Path extends Shape<Path, PathProperties>{
     toJson(...args: any): any;
 }
 
-export = Path;
+export default Path;
