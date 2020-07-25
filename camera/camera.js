@@ -6,7 +6,7 @@ import typedFunction from "../type/typed-function.js";
 import { animanage } from "../animations/animanage.js";
 
 //Camera class
-export default class Camera {
+class Camera {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -103,3 +103,5 @@ export default class Camera {
         }
     }
 }
+
+export default Camera;

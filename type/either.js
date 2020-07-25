@@ -2,11 +2,11 @@
 //Give a type based on two types.
 
 //Dependencies
-import { TYPE } from "./types";
-import arrayOf from "./array-of";
+import { TYPE } from "./types.js";
+import arrayOf from "./array-of.js";
 
 //Fine with either types
-export default either = (type, ...types) => {
+const either = (type, ...types) => {
     let err = TYPE(type);
     if (!err) {
         let err = arrayOf(TYPE)(types);
@@ -34,3 +34,5 @@ export default either = (type, ...types) => {
         throw new TypeError(`type: ${type}, ${err}`);
     }
 };
+
+export default either;

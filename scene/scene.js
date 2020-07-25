@@ -1,7 +1,7 @@
 //Manage a scene and add shapes
 
 //Dependencies
-import { createCanvas } from 'canvas';
+import nodeCanvas from 'canvas';
 
 //Npm Modules
 import tinyColor from 'tinycolor2';
@@ -31,7 +31,7 @@ const addInterface = new Interface(false)
     .toType();
 
 //Scene class
-export default class Scene {
+class Scene {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -240,7 +240,7 @@ export default class Scene {
         }
 
         //Create a new canvas
-        let canvas = createCanvas(width, height);
+        let canvas = nodeCanvas.createCanvas(width, height);
         let ctx = canvas.getContext('2d');
 
         //Draw the background
@@ -317,3 +317,5 @@ export default class Scene {
         }
     }
 }
+
+export default Scene;

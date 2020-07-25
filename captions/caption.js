@@ -28,7 +28,7 @@ const tooLargeTime =
     100; //100 Hours
 
 //Caption class
-export default class Caption {
+class Caption {
     static vttHeader = 'WEBVTT\n';
 
     static fromJson = typedFunction([
@@ -119,3 +119,5 @@ export default class Caption {
         }
     }
 }
+
+export default Caption;

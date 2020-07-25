@@ -1,9 +1,9 @@
 //Typify properties on object
 
 //Dependencies
-import Types from "../type/types";
-import typedFunction from "../type/typed-function";
-import { propertiesType } from "./properties-type";
+import Types from "../type/types.js";
+import typedFunction from "../type/typed-function.js";
+import { propertiesType } from "./properties-type.js";
 
 //Properties
 const params = [
@@ -18,7 +18,7 @@ const params = [
 ];
 
 //Typify function
-export default typify = typedFunction(params, function (o, properties) {
+const typify = typedFunction(params, function (o, properties) {
     //Loop through all the properties
     for (const k in properties) {
         if (properties.hasOwnProperty(k)) {
@@ -69,3 +69,5 @@ export default typify = typedFunction(params, function (o, properties) {
         }
     }
 });
+
+export default typify;

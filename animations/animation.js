@@ -5,7 +5,7 @@
 import typedFunction from "../type/typed-function.js";
 import Types from "../type/types.js";
 
-export default class Animation {
+class Animation {
     static animationName = "animation";
     animationName = "animation";
 
@@ -176,3 +176,5 @@ export default class Animation {
         }
     }
 };
+
+export default Animation;

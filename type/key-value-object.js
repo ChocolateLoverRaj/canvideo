@@ -2,11 +2,11 @@
 //This object needs to have a certain type for its values.
 
 //Dependencies
-import { TYPE } from "./types";
-import typedFunction from "./typed-function";
+import Types from "./types.js";
+import typedFunction from "./typed-function.js";
 
 //Creates a type based on given valueType.
-export default keyValueObject = typedFunction([{ name: "valueType", type: TYPE }], function (valueType) {
+const keyValueObject = typedFunction([{ name: "valueType", type: Types.TYPE }], function (valueType) {
     return a => {
         if (typeof a === 'object') {
             for (let k in a) {
@@ -23,3 +23,5 @@ export default keyValueObject = typedFunction([{ name: "valueType", type: TYPE }
         }
     };
 });
+
+export default keyValueObject;

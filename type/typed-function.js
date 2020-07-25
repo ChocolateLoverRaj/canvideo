@@ -2,9 +2,9 @@
 //Typed functions throw TypeErrors by themselves.
 
 //Dependencies
-import { TYPE, STRING, BOOLEAN, ANY, FUNCTION } from "./types";
-import { Interface } from "./interface";
-import arrayOf from "./array-of";
+import { TYPE, STRING, BOOLEAN, ANY, FUNCTION } from "./types.js";
+import { Interface } from "./interface.js";
+import arrayOf from "./array-of.js";
 
 //Argument interface
 const argType = new Interface(false)
@@ -18,7 +18,7 @@ const argType = new Interface(false)
 const argsType = arrayOf(argType);
 
 //Typed function
-export default typedFunction = (args, f) => {
+const typedFunction = (args, f) => {
     let err = argsType(args);
     if (!err) {
         //Required parameters cannot come after optional parameters.
@@ -76,3 +76,5 @@ export default typedFunction = (args, f) => {
         throw new TypeError(`args: ${args}, ${err}`);
     }
 };
+
+export default typedFunction;

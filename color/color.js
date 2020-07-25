@@ -2,7 +2,7 @@
 
 //Dependencies
 import Types from "../type/types.js";
-import {Interface} from "../type/interface.js";
+import { Interface } from "../type/interface.js";
 import either from "../type/either.js";
 
 //Color interface
@@ -14,4 +14,6 @@ const colorInterface = new Interface(false)
     .toType();
 
 //Input either a color interface or a string representation of a color
-export default colorType = either(colorInterface, Types.COLOR);
+const colorType = either(colorInterface, Types.COLOR);
+
+export default colorType;

@@ -7,9 +7,10 @@ import Types from "../type/types.js";
 import arrayOf from "../type/array-of.js";
 import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
+import typedFunction from "../type/typed-function.js";
 
 //Number line class
-export default class NumberLine extends Shape {
+class NumberLine extends Shape {
     static shapeName = "numberLine";
     shapeName = "numberLine";
 
@@ -144,3 +145,5 @@ export default class NumberLine extends Shape {
         }
     }
 }
+
+export default NumberLine;

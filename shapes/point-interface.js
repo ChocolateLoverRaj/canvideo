@@ -5,7 +5,9 @@ import { Interface } from "../type/interface.js";
 import Types from "../type/types.js";
 
 //Point interface
-export default pointInterface = new Interface(false)
+const pointInterface = new Interface(false)
     .required("x", Types.NUMBER)
     .required("y", Types.NUMBER)
     .toType();
+
+export default pointInterface;

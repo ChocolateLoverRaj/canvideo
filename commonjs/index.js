@@ -10,7 +10,7 @@ var events = require('events');
 var path = _interopDefault(require('path'));
 var child_process = require('child_process');
 var tinyColor = _interopDefault(require('tinycolor2'));
-var canvas = require('canvas');
+var nodeCanvas = _interopDefault(require('canvas'));
 
 //File for types.
 
@@ -51,6 +51,7 @@ const TYPE = a => typeof a === 'function' ? false : "is not a type function.";
 
 //An object full of all the types
 var Types = {
+    ANY,
     NUMBER,
     POSITIVE_NUMBER,
     NON_NEGATIVE_NUMBER,
@@ -76,7 +77,7 @@ var Types = {
 //Generate type function from given map
 const returnInterface = (keys, extendible) => {
     return a => {
-        var err = OBJECT(a);
+        var err = Types.OBJECT(a);
         if (!err) {
             for (let [k, { type, required }] of keys.entries()) {
                 if (a.hasOwnProperty(k)) {
@@ -109,9 +110,9 @@ const returnInterface = (keys, extendible) => {
 
 //Interface function
 const interfaceToType = (o, extendible = true) => {
-    let err = OBJECT(o);
+    let err = Types.OBJECT(o);
     if (!err) {
-        let err = BOOLEAN(extendible);
+        let err = Types.BOOLEAN(extendible);
         if (!err) {
             let keys = new Map();
             for (let k in o) {
@@ -126,16 +127,17 @@ const interfaceToType = (o, extendible = true) => {
                     required = false;
                 }
                 else {
-                    let err = BOOLEAN(required);
+                    let err = Types.BOOLEAN(required);
                     if (err) {
                         throw new TypeError(`required: ${required}, ${err}`);
                     }
                 }
-                let err = TYPE(type);
+                let err = Types.TYPE(type);
                 if (!err) {
                     keys.set(k, { type, required });
                 }
                 else {
+                    console.log(o, k, v);
                     throw new TypeError(`type: ${type}, ${err}`);
                 }
             }
@@ -153,7 +155,7 @@ const interfaceToType = (o, extendible = true) => {
 //Interface class
 class Interface {
     constructor(extendible = true) {
-        let err = BOOLEAN(extendible);
+        let err = Types.BOOLEAN(extendible);
         if (!err) {
             this.extendible = extendible;
             this.keys = new Map();
@@ -163,11 +165,11 @@ class Interface {
         }
     }
     key(key, type, required = true) {
-        let err = STRING(key);
+        let err = Types.STRING(key);
         if (!err) {
-            let err = TYPE(type);
+            let err = Types.TYPE(type);
             if (!err) {
-                let err = BOOLEAN(required);
+                let err = Types.BOOLEAN(required);
                 if (!err) {
                     this.keys.set(key, {
                         type: type,
@@ -201,13 +203,13 @@ class Interface {
 //File for creating a special array type.
 
 //Create an array type by giving a type.
-var arrayOf$1 = arrayOf = (type, length) => {
-    let err = TYPE(type);
+const arrayOf = (type, length) => {
+    let err = Types.TYPE(type);
     if (!err) {
-        let err = NON_NEGATIVE_INTEGER(length);
+        let err = Types.NON_NEGATIVE_INTEGER(length);
         if (!err || typeof length === 'undefined') {
             return a => {
-                let err = ARRAY(a);
+                let err = Types.ARRAY(a);
                 if (!err) {
                     if (typeof length === 'number' && a.length !== length) {
                         return `does not have length: ${length}.`
@@ -246,10 +248,10 @@ const argType = new Interface(false)
     .toType();
 
 //Array of arguments
-const argsType = arrayOf$1(argType);
+const argsType = arrayOf(argType);
 
 //Typed function
-var typedFunction$1 = typedFunction = (args, f) => {
+const typedFunction = (args, f) => {
     let err = argsType(args);
     if (!err) {
         //Required parameters cannot come after optional parameters.
@@ -317,7 +319,7 @@ const paramType = new Interface(false)
     .toType();
 
 //An array of parameters.
-const paramsType = arrayOf$1(paramType);
+const paramsType = arrayOf(paramType);
 
 //The Overloader class which is used to create overloads.
 class Overloader {
@@ -358,7 +360,7 @@ class Overloader {
         };
     }
     overload() {
-        return typedFunction$1([{ name: "args", type: paramsType }, { name: "f", type: FUNCTION }], function (args, f) {
+        return typedFunction([{ name: "args", type: paramsType }, { name: "f", type: FUNCTION }], function (args, f) {
             //Calculate the minimum length
             var optionalsStarted = false, minLength;
             for (var i = 0; i < args.length; i++) {
@@ -416,15 +418,15 @@ class Overloader {
 //Check if something is instanceof another
 
 //Capital O in instanceOf
-var instanceOf$1 = instanceOf = c => a => a instanceof c ? false : `is not an instance of ${c}.`;
+const instanceOf = c => a => a instanceof c ? false : `is not an instance of ${c}.`;
 
 //File that creates either type.
 
 //Fine with either types
-var either$1 = either = (type, ...types) => {
+const either = (type, ...types) => {
     let err = TYPE(type);
     if (!err) {
-        let err = arrayOf$1(TYPE)(types);
+        let err = arrayOf(TYPE)(types);
         if (!err) {
             types.unshift(type);
             return a => {
@@ -468,12 +470,12 @@ const shortSizeInterface = new Interface(false)
     .toType();
 
 //Use the regular one or the short one
-const sizeInterface = either$1(regularSizeInterface, shortSizeInterface);
+const sizeInterface = either(regularSizeInterface, shortSizeInterface);
 
 //File for creating a special object type.
 
 //Creates a type based on given valueType.
-var keyValueObject$1 = keyValueObject = typedFunction$1([{ name: "valueType", type: TYPE }], function (valueType) {
+const keyValueObject = typedFunction([{ name: "valueType", type: Types.TYPE }], function (valueType) {
     return a => {
         if (typeof a === 'object') {
             for (let k in a) {
@@ -512,8 +514,8 @@ const propertiesType2 = interfaceToType({
         required: false
     }
 }, false);
-const propertiesType = keyValueObject$1(either$1(propertiesType1, propertiesType2));
-const methodsToBindType = arrayOf$1(Types.STRING);
+const propertiesType = keyValueObject(either(propertiesType1, propertiesType2));
+const methodsToBindType = arrayOf(Types.STRING);
 
 //Typify properties on object
 
@@ -530,7 +532,7 @@ const params = [
 ];
 
 //Typify function
-var typify$1 = typify = typedFunction$1(params, function (o, properties) {
+const typify = typedFunction(params, function (o, properties) {
     //Loop through all the properties
     for (const k in properties) {
         if (properties.hasOwnProperty(k)) {
@@ -600,7 +602,7 @@ var typify$1 = typify = typedFunction$1(params, function (o, properties) {
 } */
 
 //Declare and export function
-var defaultify$1 = defaultify = (properties, defaultProperties) => {
+const defaultify = (properties, defaultProperties) => {
     const anyDefault = (g, d) => {
         if (typeof d === 'object') {
             return objectDefault(g, d);
@@ -669,7 +671,7 @@ class Animation {
     }
 
     constructor() {
-        typedFunction$1([
+        typedFunction([
             {
                 name: "startValue",
                 type: Types.OBJECT
@@ -738,7 +740,7 @@ class Animation {
     }
 
     calculate() {
-        return typedFunction$1([{ name: "progress", type: Types.UNIT_INTERVAL }], function (progress) {
+        return typedFunction([{ name: "progress", type: Types.UNIT_INTERVAL }], function (progress) {
             //If the reverse effect is enabled, then alter the progress.
             if (this.reversed) {
                 progress = 1 - Math.abs(progress * 2 - 1);
@@ -836,7 +838,7 @@ class Precomputed {
             }
         }
     }
-    
+
     constructor(values) {
         if (values instanceof Array) {
             for (var i = 0; i < values.length; i++) {
@@ -858,8 +860,8 @@ class Precomputed {
             this.values.sort((a, b) => a[0] - b[0]);
             for (var i = 0; i < this.values.length; i++) {
                 let changeAt = this.values[i][0];
-                if(progress < changeAt){
-                    if(i > 0){
+                if (progress < changeAt) {
+                    if (i > 0) {
                         return this.values[i - 1][1];
                     }
                     else {
@@ -875,7 +877,7 @@ class Precomputed {
     }
 
     lasts = false;
-    last(){
+    last() {
         this.lasts = true;
         return this;
     }
@@ -896,7 +898,7 @@ class Precomputed {
 //Manage animatable properties
 
 //Properties type
-const propertiesType$1 = keyValueObject$1(either(Types.TYPE, interfaceToType({
+const propertiesType$1 = keyValueObject(either(Types.TYPE, interfaceToType({
     type: {
         type: Types.TYPE,
         required: false
@@ -943,7 +945,7 @@ const builtInAnimations = new Set()
     .add(Animation)
     .add(Precomputed);
 
-const animanage = typedFunction$1(params$1, function (o, properties, methodsToBind) {
+const animanage = typedFunction(params$1, function (o, properties, methodsToBind) {
     //List of properties that were explicitly set
     var explicit = new Set();
 
@@ -1006,7 +1008,7 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
     Object.defineProperty(o, "isExplicitlySet", {
         enumerable: true,
         configurable: false,
-        value: typedFunction$1([{ name: "key", type: Types.STRING }], function (key) {
+        value: typedFunction([{ name: "key", type: Types.STRING }], function (key) {
             return explicit.has(key);
         })
     });
@@ -1062,10 +1064,10 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
         }
     };
     //Add the importJson method to the animations
-    animations.importJson = typedFunction$1([
+    animations.importJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, caMappings = new Map()) {
         if (parse) {
             json = JSON.parse(json);
@@ -1111,7 +1113,7 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
     Object.defineProperty(o, "animate", {
         enumerable: true,
         configurable: false,
-        value: typedFunction$1([
+        value: typedFunction([
             { name: "startTime", type: Types.NON_NEGATIVE_NUMBER },
             { name: "duration", type: Types.NON_NEGATIVE_NUMBER },
             { name: "animator", type: either(animatorInterface, Types.FUNCTION) }], function (startTime, duration, animator) {
@@ -1138,7 +1140,7 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
     Object.defineProperty(o, "propertyToJson", {
         enumerable: true,
         configurable: false,
-        value: typedFunction$1([
+        value: typedFunction([
             { name: "property", type: Types.KEY },
             { name: "stringify", optional: true, type: Types.BOOLEAN },
             { name: "fps", type: Types.POSITIVE_NUMBER, optional: true }
@@ -1183,7 +1185,7 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
     Object.defineProperty(o, "set", {
         enumerable: true,
         configurable: false,
-        value: typedFunction$1([
+        value: typedFunction([
             { name: "at", type: Types.NON_NEGATIVE_NUMBER },
             { name: "value", type: oInterface }], function (at, value) {
                 sets.push({ at, value });
@@ -1211,7 +1213,7 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
     Object.defineProperty(o, "at", {
         enumerable: true,
         configurable: false,
-        value: typedFunction$1([{ name: "time", type: Types.NON_NEGATIVE_NUMBER }], function (time) {
+        value: typedFunction([{ name: "time", type: Types.NON_NEGATIVE_NUMBER }], function (time) {
             var at = {};
             //Copy all values
             var keys = Object.getOwnPropertyNames(this);
@@ -1267,6 +1269,12 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
                     }
                 }
             }
+            //Set a key on the at object called at
+            //This is so that shapes know what time it is
+            //The group shape needs this
+            //Also it's okay because the at property is a reserved method anyway
+            at.at = time;
+            //The final at object
             return at;
         })
     });
@@ -1276,7 +1284,7 @@ const animanage = typedFunction$1(params$1, function (o, properties, methodsToBi
 
 //Camera class
 class Camera {
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true }
@@ -1384,12 +1392,12 @@ const colorInterface = new Interface(false)
     .toType();
 
 //Input either a color interface or a string representation of a color
-var colorType$1 = colorType = either$1(colorInterface, Types.COLOR);
+const colorType = either(colorInterface, Types.COLOR);
 
 //Interface for camera
 
 //Camera interface
-var cameraInterface$1 = cameraInterface = new Interface(true)
+const cameraInterface = new Interface(true)
     .required("scaleX", Types.NUMBER)
     .required("scaleY", Types.NUMBER)
     .required("refX", Types.NUMBER)
@@ -1400,20 +1408,23 @@ var cameraInterface$1 = cameraInterface = new Interface(true)
 
 //File which contains Shape class
 
+//Ctx class
+const Ctx = nodeCanvas.CanvasRenderingContext2D;
+
 //Figure out whether ctx given is actually ctx.
-const ctxType = a => a instanceof canvas.CanvasRenderingContext2D ? false : "is not CanvasRenderingContext2D.";
+const ctxType = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
 
 //Shape class
 class Shape {
     static shapeName = "shape";
     shapeName = "shape";
 
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true },
-        { name: "shape", type: instanceOf$1(Shape), optional: true }
+        { name: "caMappings", type: instanceOf(Map), optional: true },
+        { name: "shape", type: instanceOf(Shape), optional: true }
     ], function (json, parse = true, throwErrors = false, caMappings = new Map(), shape) {
         let shapeGiven = false;
         if (shape instanceof Shape) {
@@ -1448,7 +1459,7 @@ class Shape {
     });
 
     constructor() {
-        typedFunction$1([
+        typedFunction([
             {
                 name: "properties",
                 type: propertiesType$1,
@@ -1464,7 +1475,7 @@ class Shape {
         ], function (properties = {}, methodsToBind = []) {
             const shapeProperties = {
                 fillColor: {
-                    type: colorType$1,
+                    type: colorType,
                     initial: new tinyColor(),
                     setter: function (v, set) {
                         if (typeof v === 'object') {
@@ -1481,7 +1492,7 @@ class Shape {
                     }
                 },
                 strokeColor: {
-                    type: colorType$1,
+                    type: colorType,
                     initial: new tinyColor(),
                     setter: function (v, set) {
                         if (typeof v === 'object') {
@@ -1505,7 +1516,7 @@ class Shape {
 
             properties = Object.assign(properties, shapeProperties);
 
-            const shapeMethodsToBind = ["draw", "getHash"];
+            const shapeMethodsToBind = ["draw"];
             methodsToBind = [...new Set([...shapeMethodsToBind, ...methodsToBind])];
 
             animanage(this, properties, methodsToBind);
@@ -1522,7 +1533,7 @@ class Shape {
         return this;
     }
     draw() {
-        return typedFunction$1([{ name: "ctx", type: ctxType }], function (ctx) {
+        return typedFunction([{ name: "ctx", type: ctxType }], function (ctx) {
             if (this.isExplicitlySet("fillColor")) {
                 ctx.fillStyle = this.fillColor.hexString;
             }
@@ -1566,19 +1577,19 @@ const cornerRoundInterface = new Interface(false)
     .optional("bottomRight", Types.NON_NEGATIVE_NUMBER)
     .toType();
 //Corner round array
-const cornerRoundArray = arrayOf$1(Types.NON_NEGATIVE_NUMBER, 4);
+const cornerRoundArray = arrayOf(Types.NON_NEGATIVE_NUMBER, 4);
 //Corner round type
-const cornerRoundType = either$1(Types.NON_NEGATIVE_NUMBER, cornerRoundInterface, cornerRoundArray);
+const cornerRoundType = either(Types.NON_NEGATIVE_NUMBER, cornerRoundInterface, cornerRoundArray);
 
 //Two corners array
-const twoCornersArray = arrayOf$1(Types.NON_NEGATIVE_NUMBER, 2);
+const twoCornersArray = arrayOf(Types.NON_NEGATIVE_NUMBER, 2);
 //Vertical corner round interface
 const verticalCornerRoundInterface = new Interface(false)
     .optional("left", Types.NON_NEGATIVE_NUMBER)
     .optional("right", Types.NON_NEGATIVE_NUMBER)
     .toType();
 //Vertical corner round type
-const verticalCornerRoundType = either$1(Types.NON_NEGATIVE_NUMBER, verticalCornerRoundInterface, twoCornersArray);
+const verticalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, verticalCornerRoundInterface, twoCornersArray);
 
 //Horizontal corner round interface
 const horizontalCornerRoundInterface = new Interface(false)
@@ -1586,18 +1597,18 @@ const horizontalCornerRoundInterface = new Interface(false)
     .optional("left", Types.NON_NEGATIVE_NUMBER)
     .toType();
 //Horizontal corner round type
-const horizontalCornerRoundType = either$1(Types.NON_NEGATIVE_NUMBER, horizontalCornerRoundInterface, twoCornersArray);
+const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCornerRoundInterface, twoCornersArray);
 
 //Rectangle class
 class Rectangle extends Shape {
     static shapeName = "rectangle";
     shapeName = "rectangle";
 
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
@@ -1921,18 +1932,6 @@ class Rectangle extends Shape {
 
         return this;
     }
-    getHash() {
-        let hash = super.getHash();
-        hash += `${this.x},`;
-        hash += `${this.y},`;
-        hash += `${this.width},`;
-        hash += `${this.height},`;
-        hash += `${this.topLeftCornerRound},`;
-        hash += `${this.topRightCornerRound},`;
-        hash += `${this.bottomLeftCornerRound},`;
-        hash += `${this.bottomRightCornerRound},`;
-        return hash;
-    }
 
     toJson(stringify = true, fps = 60) {
         let o = {
@@ -1958,7 +1957,7 @@ class Rectangle extends Shape {
 //Common file for point interface (x, y)
 
 //Point interface
-var pointInterface$1 = pointInterface = new Interface(false)
+const pointInterface = new Interface(false)
     .required("x", Types.NUMBER)
     .required("y", Types.NUMBER)
     .toType();
@@ -1970,11 +1969,11 @@ class Circle extends Shape {
     static shapeName = "circle";
     shapeName = "circle";
 
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
@@ -2021,10 +2020,10 @@ class Circle extends Shape {
             .overload([{ type: Types.NUMBER }, { type: Types.NUMBER }], function (x, y) {
                 this.cx = x, this.cy = y;
             })
-            .overload([{ type: pointInterface$1 }], function ({ x, y }) {
+            .overload([{ type: pointInterface }], function ({ x, y }) {
                 this.cx = x, this.cy = y;
             })
-            .overload([{ type: arrayOf$1(Types.NUMBER, 2) }], function ([x, y]) {
+            .overload([{ type: arrayOf(Types.NUMBER, 2) }], function ([x, y]) {
                 this.cx = x, this.cy = y;
             })
             .overloader.apply(this, arguments);
@@ -2075,7 +2074,7 @@ class NumberLine extends Shape {
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
@@ -2128,10 +2127,10 @@ class NumberLine extends Shape {
             .overload([{ type: Types.NUMBER }, { type: Types.NUMBER }], function (x, y) {
                 this.x = x, this.y = y;
             })
-            .overload([{ type: pointInterface$1 }], function ({ x, y }) {
+            .overload([{ type: pointInterface }], function ({ x, y }) {
                 this.x = x, this.y = y;
             })
-            .overload([{ type: arrayOf$1(Types.NUMBER, 2) }], function ([x, y]) {
+            .overload([{ type: arrayOf(Types.NUMBER, 2) }], function ([x, y]) {
                 this.x = x, this.y = y;
             })
             .overloader.apply(this, arguments);
@@ -2210,29 +2209,29 @@ class Path extends Shape {
     static shapeName = "path";
     shapeName = "path";
 
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
                 json = JSON.parse(json);
             }
-            let [path, { 
-                doFill, strokeDash, strokeDashOffset, operations 
+            let [path, {
+                doFill, strokeDash, strokeDashOffset, operations
             }] = Shape.fromJson(json, false, true, caMappings, new Path());
             path.strokeDash = strokeDash;
             path.strokeDashOffset = strokeDashOffset;
-            if(typeof doFill === 'boolean'){
+            if (typeof doFill === 'boolean') {
                 path.doFill = doFill;
             }
             else {
                 throw new TypeError("path doFill must be a boolean.");
             }
-            for(let [name, args] of operations){
-                if(["moveTo", "lineTo", "arc"].includes(name)){
+            for (let [name, args] of operations) {
+                if (["moveTo", "lineTo", "arc"].includes(name)) {
                     path[name](...args);
                 }
                 else {
@@ -2250,13 +2249,13 @@ class Path extends Shape {
             }
         }
     });
-    
+
     constructor(fill = false) {
         if (typeof fill === 'boolean') {
             super({
                 strokeDash: {
                     initial: [],
-                    type: arrayOf$1(Types.NON_NEGATIVE_NUMBER)
+                    type: arrayOf(Types.NON_NEGATIVE_NUMBER)
                 },
                 strokeDashOffset: Types.NUMBER
             });
@@ -2272,25 +2271,25 @@ class Path extends Shape {
         this.strokeDash = strokeDash;
         return this;
     }
-    setStrokeDashOffset(strokeDashOffset){
+    setStrokeDashOffset(strokeDashOffset) {
         this.strokeDashOffset = strokeDashOffset;
         return this;
     }
 
     moveTo(x, y) {
-        typedFunction$1([{ name: "x", type: Types.NUMBER }, { name: "y", type: Types.NUMBER }], function (x, y) {
+        typedFunction([{ name: "x", type: Types.NUMBER }, { name: "y", type: Types.NUMBER }], function (x, y) {
             this.operations.push(["moveTo", [x, y]]);
         }).call(this, x, y);
         return this;
     }
     lineTo(x, y) {
-        typedFunction$1([{ name: "x", type: Types.NUMBER }, { name: "y", type: Types.NUMBER }], function (x, y) {
+        typedFunction([{ name: "x", type: Types.NUMBER }, { name: "y", type: Types.NUMBER }], function (x, y) {
             this.operations.push(["lineTo", [x, y]]);
         }).call(this, x, y);
         return this;
     }
     arc() {
-        typedFunction$1([
+        typedFunction([
             { name: "x", type: Types.NUMBER },
             { name: "y", type: Types.NUMBER },
             { name: "radius", type: Types.NON_NEGATIVE_NUMBER },
@@ -2329,7 +2328,7 @@ class Path extends Shape {
         return this;
     }
 
-    toJson(stringify = true, fps = 60){
+    toJson(stringify = true, fps = 60) {
         let o = {
             ...super.toJson(false, fps),
             doFill: this.doFill,
@@ -2337,10 +2336,10 @@ class Path extends Shape {
             strokeDashOffset: this.strokeDashOffset,
             operations: this.operations
         };
-        if(stringify === true){
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
         else {
@@ -2356,11 +2355,11 @@ class Polygon extends Shape {
     static shapeName = "polygon";
     shapeName = "polygon";
 
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, caMappings = new Map()) {
         try {
             if (parse) {
@@ -2383,7 +2382,7 @@ class Polygon extends Shape {
     constructor() {
         super({
             points: {
-                type: arrayOf$1(pointInterface$1),
+                type: arrayOf(pointInterface),
                 initial: []
             }
         });
@@ -2429,7 +2428,7 @@ class Polygon extends Shape {
                 else {
                     for (var i = 0; i < arguments.length; i++) {
                         let arg = arguments[i];
-                        let err = pointInterface$1(arg);
+                        let err = pointInterface(arg);
                         if (!err) {
                             this.points.push(arg);
                         }
@@ -2492,31 +2491,17 @@ const sizeInterface$1 = new Interface(false)
     .required("height", Types.POSITIVE_NUMBER)
     .toType();
 
-//List of shapes
-const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
-
-//Check if a shape is builtin
-//This is because requiring ./shapes.js will cause circular dependencies
-const isBuiltin = a => {
-    for (let shape of shapesList) {
-        if (Object.getPrototypeOf(a) === shape.prototype) {
-            return true;
-        }
-    }
-    return false;
-};
-
 //Group class
 class Group extends Shape {
     static shapeName = "group";
     shapeName = "group";
 
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "csMappings", type: instanceOf$1(Map), optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
         try {
             if (parse) {
@@ -2578,7 +2563,7 @@ class Group extends Shape {
         super({
             children: {
                 initial: [],
-                type: arrayOf$1(instanceOf$1(Shape))
+                type: arrayOf(instanceOf(Shape))
             },
             x: Types.NUMBER,
             y: Types.NUMBER,
@@ -2617,7 +2602,7 @@ class Group extends Shape {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
-            .overload([{ type: arrayOf$1(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
+            .overload([{ type: arrayOf(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
                 this.originalWidth = width;
                 this.originalHeight = height;
             })
@@ -2642,7 +2627,7 @@ class Group extends Shape {
                 this.width = width;
                 this.height = height;
             })
-            .overload([{ type: arrayOf$1(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
+            .overload([{ type: arrayOf(Types.POSITIVE_NUMBER, 2) }], function ([width, height]) {
                 this.width = width;
                 this.height = height;
             })
@@ -2663,10 +2648,10 @@ class Group extends Shape {
             .overload([{ type: Types.NUMBER }, { type: Types.NUMBER }], function (x, y) {
                 this.x = x, this.y = y;
             })
-            .overload([{ type: pointInterface$1 }], function ({ x, y }) {
+            .overload([{ type: pointInterface }], function ({ x, y }) {
                 this.x = x, this.y = y;
             })
-            .overload([{ type: arrayOf$1(Types.NUMBER, 2) }], function ([x, y]) {
+            .overload([{ type: arrayOf(Types.NUMBER, 2) }], function ([x, y]) {
                 this.x = x, this.y = y;
             })
             .overloader.apply(this, arguments);
@@ -2686,10 +2671,10 @@ class Group extends Shape {
             .overload([{ type: Types.NUMBER }, { type: Types.NUMBER }], function (x, y) {
                 this.refX = x, this.refY = y;
             })
-            .overload([{ type: pointInterface$1 }], function ({ x, y }) {
+            .overload([{ type: pointInterface }], function ({ x, y }) {
                 this.refX = x, this.refY = y;
             })
-            .overload([{ type: arrayOf$1(Types.NUMBER, 2) }], function ([x, y]) {
+            .overload([{ type: arrayOf(Types.NUMBER, 2) }], function ([x, y]) {
                 this.refX = x, this.refY = y;
             })
             .overloader.apply(this, arguments);
@@ -2702,6 +2687,7 @@ class Group extends Shape {
     }
 
     draw(ctx) {
+        let t = typeof this.at === 'number' ? this.at : 0;
         for (var i = 0; i < this.children.length; i++) {
             super.draw(ctx);
 
@@ -2714,7 +2700,7 @@ class Group extends Shape {
             ctx.scale(scaleX, scaleY);
 
             //Call the child's draw function
-            this.children[i].at(ctx.now).draw(ctx);
+            this.children[i].at(t).draw(ctx);
 
             //Undo transformations
             ctx.scale(1 / scaleX, 1 / scaleY);
@@ -2756,6 +2742,19 @@ class Group extends Shape {
         }
     }
 }
+//List of shapes
+const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
+
+//Check if a shape is builtin
+//This is because requiring ./shapes.js will cause circular dependencies
+const isBuiltin = a => {
+    for (let shape of shapesList) {
+        if (Object.getPrototypeOf(a) === shape.prototype) {
+            return true;
+        }
+    }
+    return false;
+};
 
 //Quick way of getting shapes
 
@@ -2773,7 +2772,7 @@ const isBuiltin$1 = shape => {
 };
 
 //Get a shape from json
-const fromJson = typedFunction$1([
+const fromJson = typedFunction([
     {
         name: "name",
         type: Types.STRING
@@ -2794,12 +2793,12 @@ const fromJson = typedFunction$1([
     },
     {
         name: "csMappings",
-        type: instanceOf$1(Map),
+        type: instanceOf(Map),
         optional: true
     },
     {
         name: "caMappings",
-        type: instanceOf$1(Map),
+        type: instanceOf(Map),
         optional: true
     }
 ], function (name, json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
@@ -2871,7 +2870,7 @@ const tooLargeTime =
 class Caption {
     static vttHeader = 'WEBVTT\n';
 
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true }
@@ -2974,12 +2973,12 @@ const addInterface = new Interface(false)
 
 //Scene class
 class Scene {
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "csMappings", type: instanceOf$1(Map), optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
         try {
             if (parse) {
@@ -3027,9 +3026,9 @@ class Scene {
     });
 
     constructor() {
-        typify$1(this, {
+        typify(this, {
             backgroundColor: {
-                type: colorType$1,
+                type: colorType,
                 initial: tinyColor("white"),
                 setter: function (v, set) {
                     if (typeof v === 'object') {
@@ -3054,7 +3053,7 @@ class Scene {
     }
 
     set camera(camera) {
-        return typedFunction$1([{ name: "camera", type: cameraInterface$1, optional: false }], function (camera) {
+        return typedFunction([{ name: "camera", type: cameraInterface, optional: false }], function (camera) {
             this._camera = camera;
             return this;
         }).call(this, camera);
@@ -3064,7 +3063,7 @@ class Scene {
     }
 
     set duration(duration) {
-        return typedFunction$1([{ name: "duration", type: Types.POSITIVE_NUMBER }], function (duration) {
+        return typedFunction([{ name: "duration", type: Types.POSITIVE_NUMBER }], function (duration) {
             this._duration = duration;
             return this;
         }).call(this, duration);
@@ -3093,14 +3092,14 @@ class Scene {
         new Overloader()
             //Add Shape overloads
             .overload([
-                { type: instanceOf$1(Shape) }
+                { type: instanceOf(Shape) }
             ], function (shape) {
                 drawable.shape = shape;
                 addShape();
             })
             .overload([
                 { type: Types.NON_NEGATIVE_NUMBER },
-                { type: instanceOf$1(Shape) }
+                { type: instanceOf(Shape) }
             ], function (startTime, shape) {
                 drawable.startTime = startTime;
                 drawable.shape = shape;
@@ -3109,7 +3108,7 @@ class Scene {
             .overload([
                 { type: Types.NON_NEGATIVE_NUMBER },
                 { type: Types.POSITIVE_NUMBER },
-                { type: instanceOf$1(Shape) }
+                { type: instanceOf(Shape) }
             ], function (startTime, duration, shape) {
                 drawable.startTime = startTime;
                 drawable.endTime = startTime + duration;
@@ -3120,7 +3119,7 @@ class Scene {
                 { type: Types.NON_NEGATIVE_NUMBER },
                 { type: Types.POSITIVE_NUMBER },
                 { type: Types.NON_NEGATIVE_INTEGER },
-                { type: instanceOf$1(Shape) }
+                { type: instanceOf(Shape) }
             ], function (startTime, duration, layer, shape) {
                 drawable.startTime = startTime;
                 drawable.endTime = startTime + duration;
@@ -3130,7 +3129,7 @@ class Scene {
             })
             .overload([
                 { type: addInterface },
-                { type: instanceOf$1(Shape) }
+                { type: instanceOf(Shape) }
             ], function ({ startTime, duration, layer }, shape) {
                 drawable.startTime = startTime || 0;
                 drawable.endTime = drawable.startTime + (duration || Infinity);
@@ -3141,7 +3140,7 @@ class Scene {
 
             //Add caption overloads
             .overload([
-                { type: instanceOf$1(Caption) }
+                { type: instanceOf(Caption) }
             ], function (caption) {
                 var n = 0;
                 var id;
@@ -3154,7 +3153,7 @@ class Scene {
             })
             .overload([
                 { type: Types.STRING },
-                { type: instanceOf$1(Caption) }
+                { type: instanceOf(Caption) }
             ], addCaption)
             .overloader.call(this, ...arguments);
         return this;
@@ -3182,8 +3181,8 @@ class Scene {
         }
 
         //Create a new canvas
-        let canvas$1 = canvas.createCanvas(width, height);
-        let ctx = canvas$1.getContext('2d');
+        let canvas = nodeCanvas.createCanvas(width, height);
+        let ctx = canvas.getContext('2d');
 
         //Draw the background
         ctx.fillStyle = this.backgroundColor.hexString;
@@ -3217,7 +3216,7 @@ class Scene {
             drawables[i].shape.at(at).draw(ctx);
         }
 
-        return canvas$1;
+        return canvas;
     }
 
     setDuration(duration) {
@@ -3418,21 +3417,21 @@ const getFfmpegPath = () => ffmpegPath;
 //Output interface
 const outputInterface = new Interface(false)
     .required("video", Types.STRING)
-    .optional("captions", either$1(Types.STRING, instanceOf$1(Map)))
-    .optional("embeddedCaptions", either$1(Types.BOOLEAN, instanceOf$1(Set)))
+    .optional("captions", either(Types.STRING, instanceOf(Map)))
+    .optional("embeddedCaptions", either(Types.BOOLEAN, instanceOf(Set)))
     .toType();
 
 //Output type
-const outputType = either$1(Types.STRING, outputInterface);
+const outputType = either(Types.STRING, outputInterface);
 
 //Video class
 class Video extends events.EventEmitter {
-    static fromJson = typedFunction$1([
+    static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
         { name: "throwErrors", type: Types.BOOLEAN, optional: true },
-        { name: "csMappings", type: instanceOf$1(Map), optional: true },
-        { name: "caMappings", type: instanceOf$1(Map), optional: true }
+        { name: "csMappings", type: instanceOf(Map), optional: true },
+        { name: "caMappings", type: instanceOf(Map), optional: true }
     ], function (json, parse = true, throwErrors = false, csMappings = new Map(), caMappings = new Map()) {
         try {
             if (parse) {
@@ -3477,7 +3476,7 @@ class Video extends events.EventEmitter {
 
     constructor() {
         super();
-        typify$1(this, {
+        typify(this, {
             tempPath: {
                 type: Types.STRING,
                 setter(v, set) {
@@ -3532,7 +3531,7 @@ class Video extends events.EventEmitter {
     }
 
     add() {
-        typedFunction$1([{ name: "scene", type: instanceOf$1(Scene) }], function (scene) {
+        typedFunction([{ name: "scene", type: instanceOf(Scene) }], function (scene) {
             this.scenes.push(scene);
         }).call(this, ...arguments);
         return this;
@@ -4052,7 +4051,7 @@ class Video extends events.EventEmitter {
             maxStreams: 100
         };
         const handleReturning = (outputPath, options, returnPromise) => {
-            options = defaultify$1(options, defaultOptions);
+            options = defaultify(options, defaultOptions);
             if (returnPromise) {
                 return new Promise((resolve, reject) => {
                     start(outputPath, options)
@@ -4069,7 +4068,7 @@ class Video extends events.EventEmitter {
         };
 
         const handleCallback = (outputPath, options, callback) => {
-            options = defaultify$1(options, defaultOptions);
+            options = defaultify(options, defaultOptions);
             callback(start(outputPath, options));
             return this;
         };

@@ -4,8 +4,8 @@
 import Types from "../type/types.js";
 import { interfaceToType } from "../type/interface.js";
 import keyValueObject from "../type/key-value-object.js";
-import either from "../type/either";
-import arrayOf from "../type/array-of";
+import either from "../type/either.js";
+import arrayOf from "../type/array-of.js";
 
 export const propertiesType1 = Types.TYPE;
 export const propertiesType2 = interfaceToType({

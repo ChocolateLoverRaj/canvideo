@@ -4,7 +4,7 @@
 //Dependencies
 //Npm Modules
 import tinyColor from 'tinycolor2';
-import { CanvasRenderingContext2D } from 'canvas';
+import nodeCanvas from 'canvas';
 
 //My Modules
 import { propertiesType, animanage } from "../animations/animanage.js";
@@ -14,11 +14,14 @@ import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import colorType from "../color/color.js";
 
+//Ctx class
+const Ctx = nodeCanvas.CanvasRenderingContext2D;
+
 //Figure out whether ctx given is actually ctx.
-const ctxType = a => a instanceof CanvasRenderingContext2D ? false : "is not CanvasRenderingContext2D.";
+const ctxType = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
 
 //Shape class
-export default class Shape {
+class Shape {
     static shapeName = "shape";
     shapeName = "shape";
 
@@ -119,7 +122,7 @@ export default class Shape {
 
             properties = Object.assign(properties, shapeProperties);
 
-            const shapeMethodsToBind = ["draw", "getHash"];
+            const shapeMethodsToBind = ["draw"];
             methodsToBind = [...new Set([...shapeMethodsToBind, ...methodsToBind])];
 
             animanage(this, properties, methodsToBind);
@@ -169,3 +172,5 @@ export default class Shape {
         }
     }
 }
+
+export default Shape;

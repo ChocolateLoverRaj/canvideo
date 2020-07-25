@@ -21,22 +21,8 @@ const sizeInterface = new Interface(false)
     .required("height", Types.POSITIVE_NUMBER)
     .toType();
 
-//List of shapes
-const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
-
-//Check if a shape is builtin
-//This is because requiring ./shapes.js will cause circular dependencies
-const isBuiltin = a => {
-    for (let shape of shapesList) {
-        if (Object.getPrototypeOf(a) === shape.prototype) {
-            return true;
-        }
-    }
-    return false;
-}
-
 //Group class
-export default class Group extends Shape {
+class Group extends Shape {
     static shapeName = "group";
     shapeName = "group";
 
@@ -231,6 +217,7 @@ export default class Group extends Shape {
     }
 
     draw(ctx) {
+        let t = typeof this.at === 'number' ? this.at : 0;
         for (var i = 0; i < this.children.length; i++) {
             super.draw(ctx);
 
@@ -243,7 +230,7 @@ export default class Group extends Shape {
             ctx.scale(scaleX, scaleY);
 
             //Call the child's draw function
-            this.children[i].at(ctx.now).draw(ctx);
+            this.children[i].at(t).draw(ctx);
 
             //Undo transformations
             ctx.scale(1 / scaleX, 1 / scaleY);
@@ -285,3 +272,19 @@ export default class Group extends Shape {
         }
     }
 };
+
+//List of shapes
+const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
+
+//Check if a shape is builtin
+//This is because requiring ./shapes.js will cause circular dependencies
+const isBuiltin = a => {
+    for (let shape of shapesList) {
+        if (Object.getPrototypeOf(a) === shape.prototype) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export default Group;

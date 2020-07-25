@@ -6,9 +6,10 @@ import typedFunction from "../type/typed-function.js";
 import keyValueObject from "../type/key-value-object.js";
 import { interfaceToType, Interface } from "../type/interface.js";
 import instanceOf from "../type/instanceOf.js";
-import { methodsToBindType } from "../properties/properties-type";
-import Animation from "./animation";
-import Precomputed from "./precomputed";
+import either from "../type/either.js";
+import { methodsToBindType } from "../properties/properties-type.js";
+import Animation from "./animation.js";
+import Precomputed from "./precomputed.js";
 
 //Properties type
 export const propertiesType = keyValueObject(either(Types.TYPE, interfaceToType({
@@ -382,6 +383,12 @@ export const animanage = typedFunction(params, function (o, properties, methodsT
                     }
                 }
             }
+            //Set a key on the at object called at
+            //This is so that shapes know what time it is
+            //The group shape needs this
+            //Also it's okay because the at property is a reserved method anyway
+            at.at = time;
+            //The final at object
             return at;
         })
     });

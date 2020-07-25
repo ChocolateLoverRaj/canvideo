@@ -2,10 +2,10 @@
 
 //Dependencies
 import { Interface } from "../type/interface.js";
-import Types from "../type/types";
+import Types from "../type/types.js";
 
 //Camera interface
-export default cameraInterface = new Interface(true)
+const cameraInterface = new Interface(true)
     .required("scaleX", Types.NUMBER)
     .required("scaleY", Types.NUMBER)
     .required("refX", Types.NUMBER)
@@ -13,3 +13,5 @@ export default cameraInterface = new Interface(true)
     .required("x", Types.NUMBER)
     .required("y", Types.NUMBER)
     .toType();
+
+export default cameraInterface;

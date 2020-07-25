@@ -1,12 +1,12 @@
 //File for creating interfaces based on types
 
 //Dependencies
-import { OBJECT, BOOLEAN, TYPE, STRING } from "./types";
+import Types from "./types.js";
 
 //Generate type function from given map
 const returnInterface = (keys, extendible) => {
     return a => {
-        var err = OBJECT(a);
+        var err = Types.OBJECT(a);
         if (!err) {
             for (let [k, { type, required }] of keys.entries()) {
                 if (a.hasOwnProperty(k)) {
@@ -39,9 +39,9 @@ const returnInterface = (keys, extendible) => {
 
 //Interface function
 export const interfaceToType = (o, extendible = true) => {
-    let err = OBJECT(o);
+    let err = Types.OBJECT(o);
     if (!err) {
-        let err = BOOLEAN(extendible);
+        let err = Types.BOOLEAN(extendible);
         if (!err) {
             let keys = new Map();
             for (let k in o) {
@@ -56,16 +56,17 @@ export const interfaceToType = (o, extendible = true) => {
                     required = false;
                 }
                 else {
-                    let err = BOOLEAN(required);
+                    let err = Types.BOOLEAN(required);
                     if (err) {
                         throw new TypeError(`required: ${required}, ${err}`);
                     }
                 }
-                let err = TYPE(type);
+                let err = Types.TYPE(type);
                 if (!err) {
                     keys.set(k, { type, required });
                 }
                 else {
+                    console.log(o, k, v);
                     throw new TypeError(`type: ${type}, ${err}`);
                 }
             }
@@ -83,7 +84,7 @@ export const interfaceToType = (o, extendible = true) => {
 //Interface class
 export class Interface {
     constructor(extendible = true) {
-        let err = BOOLEAN(extendible);
+        let err = Types.BOOLEAN(extendible);
         if (!err) {
             this.extendible = extendible;
             this.keys = new Map();
@@ -93,11 +94,11 @@ export class Interface {
         }
     }
     key(key, type, required = true) {
-        let err = STRING(key);
+        let err = Types.STRING(key);
         if (!err) {
-            let err = TYPE(type);
+            let err = Types.TYPE(type);
             if (!err) {
-                let err = BOOLEAN(required);
+                let err = Types.BOOLEAN(required);
                 if (!err) {
                     this.keys.set(key, {
                         type: type,

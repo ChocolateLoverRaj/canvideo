@@ -28,6 +28,7 @@ export const KEY: type;
 export const TYPE: type;
 
 export default {
+    ANY,
     NUMBER,
     POSITIVE_NUMBER,
     NON_NEGATIVE_NUMBER,

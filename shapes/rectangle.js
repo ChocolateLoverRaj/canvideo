@@ -40,7 +40,7 @@ const horizontalCornerRoundInterface = new Interface(false)
 const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCornerRoundInterface, twoCornersArray);
 
 //Rectangle class
-export default class Rectangle extends Shape {
+class Rectangle extends Shape {
     static shapeName = "rectangle";
     shapeName = "rectangle";
 
@@ -372,18 +372,6 @@ export default class Rectangle extends Shape {
 
         return this;
     }
-    getHash() {
-        let hash = super.getHash();
-        hash += `${this.x},`;
-        hash += `${this.y},`;
-        hash += `${this.width},`;
-        hash += `${this.height},`;
-        hash += `${this.topLeftCornerRound},`;
-        hash += `${this.topRightCornerRound},`;
-        hash += `${this.bottomLeftCornerRound},`;
-        hash += `${this.bottomRightCornerRound},`;
-        return hash;
-    }
 
     toJson(stringify = true, fps = 60) {
         let o = {
@@ -405,3 +393,5 @@ export default class Rectangle extends Shape {
         }
     }
 }
+
+export default Rectangle;

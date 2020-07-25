@@ -10,7 +10,7 @@ import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
 
 //Circle class
-export default class Circle extends Shape {
+class Circle extends Shape {
     static shapeName = "circle";
     shapeName = "circle";
 
@@ -107,3 +107,5 @@ export default class Circle extends Shape {
         }
     }
 }
+
+export default Circle;

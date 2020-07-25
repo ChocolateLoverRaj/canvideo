@@ -2,16 +2,16 @@
 //This type is an array where every element is a certain type.
 
 //Dependencies
-import { TYPE, NON_NEGATIVE_INTEGER, ARRAY } from "./types";
+import Types from "./types.js";
 
 //Create an array type by giving a type.
-export default arrayOf = (type, length) => {
-    let err = TYPE(type);
+const arrayOf = (type, length) => {
+    let err = Types.TYPE(type);
     if (!err) {
-        let err = NON_NEGATIVE_INTEGER(length);
+        let err = Types.NON_NEGATIVE_INTEGER(length);
         if (!err || typeof length === 'undefined') {
             return a => {
-                let err = ARRAY(a);
+                let err = Types.ARRAY(a);
                 if (!err) {
                     if (typeof length === 'number' && a.length !== length) {
                         return `does not have length: ${length}.`
@@ -38,3 +38,5 @@ export default arrayOf = (type, length) => {
         throw new TypeError(`type: ${type}, ${err}`);
     }
 }
+
+export default arrayOf;

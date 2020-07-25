@@ -8,7 +8,7 @@ import arrayOf from "../type/array-of.js";
 import instanceOf from "../type/instanceOf.js";
 
 //Path class
-export default class Path extends Shape {
+class Path extends Shape {
     static shapeName = "path";
     shapeName = "path";
 
@@ -22,22 +22,22 @@ export default class Path extends Shape {
             if (parse) {
                 json = JSON.parse(json);
             }
-            let [path, { 
-                doFill, strokeDash, strokeDashOffset, operations 
+            let [path, {
+                doFill, strokeDash, strokeDashOffset, operations
             }] = Shape.fromJson(json, false, true, caMappings, new Path());
             path.strokeDash = strokeDash;
             path.strokeDashOffset = strokeDashOffset;
-            if(typeof doFill === 'boolean'){
+            if (typeof doFill === 'boolean') {
                 path.doFill = doFill;
             }
-            else{
+            else {
                 throw new TypeError("path doFill must be a boolean.");
             }
-            for(let [name, args] of operations){
-                if(["moveTo", "lineTo", "arc"].includes(name)){
+            for (let [name, args] of operations) {
+                if (["moveTo", "lineTo", "arc"].includes(name)) {
                     path[name](...args);
                 }
-                else{
+                else {
                     throw new TypeError(`Unknown operation name: ${name}.`);
                 }
             }
@@ -52,7 +52,7 @@ export default class Path extends Shape {
             }
         }
     });
-    
+
     constructor(fill = false) {
         if (typeof fill === 'boolean') {
             super({
@@ -74,7 +74,7 @@ export default class Path extends Shape {
         this.strokeDash = strokeDash;
         return this;
     }
-    setStrokeDashOffset(strokeDashOffset){
+    setStrokeDashOffset(strokeDashOffset) {
         this.strokeDashOffset = strokeDashOffset;
         return this;
     }
@@ -131,7 +131,7 @@ export default class Path extends Shape {
         return this;
     }
 
-    toJson(stringify = true, fps = 60){
+    toJson(stringify = true, fps = 60) {
         let o = {
             ...super.toJson(false, fps),
             doFill: this.doFill,
@@ -139,14 +139,16 @@ export default class Path extends Shape {
             strokeDashOffset: this.strokeDashOffset,
             operations: this.operations
         };
-        if(stringify === true){
+        if (stringify === true) {
             return JSON.stringify(o);
         }
-        else if(stringify === false){
+        else if (stringify === false) {
             return o;
         }
-        else{
+        else {
             throw new TypeError("stringify must be a boolean.");
         }
     }
 }
+
+export default Path;

@@ -1,7 +1,7 @@
 //Class for precalculated animations. Created implicitly when exporting and importing json.
 
 //Precomputed class
-export default class Precomputed {
+class Precomputed {
     static animationName = "precomputed";
     animationName = "precomputed";
 
@@ -34,7 +34,7 @@ export default class Precomputed {
             }
         }
     }
-    
+
     constructor(values) {
         if (values instanceof Array) {
             for (var i = 0; i < values.length; i++) {
@@ -56,11 +56,11 @@ export default class Precomputed {
             this.values.sort((a, b) => a[0] - b[0]);
             for (var i = 0; i < this.values.length; i++) {
                 let changeAt = this.values[i][0];
-                if(progress < changeAt){
-                    if(i > 0){
+                if (progress < changeAt) {
+                    if (i > 0) {
                         return this.values[i - 1][1];
                     }
-                    else{
+                    else {
                         return {};
                     }
                 }
@@ -73,7 +73,7 @@ export default class Precomputed {
     }
 
     lasts = false;
-    last(){
+    last() {
         this.lasts = true;
         return this;
     }
@@ -90,3 +90,5 @@ export default class Precomputed {
         }
     }
 }
+
+export default Precomputed;

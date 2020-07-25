@@ -42,6 +42,7 @@ export const TYPE = a => typeof a === 'function' ? false : "is not a type functi
 
 //An object full of all the types
 export default {
+    ANY,
     NUMBER,
     POSITIVE_NUMBER,
     NON_NEGATIVE_NUMBER,

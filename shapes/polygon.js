@@ -9,7 +9,7 @@ import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
 
 //Polygon class
-export default class Polygon extends Shape {
+class Polygon extends Shape {
     static shapeName = "polygon";
     shapeName = "polygon";
 
@@ -140,3 +140,5 @@ export default class Polygon extends Shape {
         }
     }
 }
+
+export default Polygon;

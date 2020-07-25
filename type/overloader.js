@@ -2,10 +2,10 @@
 //Just give the list of args, which includes the type and whether they are optional or not.
 
 //Dependencies
-import { TYPE, BOOLEAN, FUNCTION } from "./types";
-import { Interface } from "./interface";
-import arrayOf from "./array-of";
-import typedFunction from "./typed-function";
+import { TYPE, BOOLEAN, FUNCTION } from "./types.js";
+import { Interface } from "./interface.js";
+import arrayOf from "./array-of.js";
+import typedFunction from "./typed-function.js";
 
 //The type for a special parameter.
 const paramType = new Interface(false)
@@ -17,7 +17,7 @@ const paramType = new Interface(false)
 const paramsType = arrayOf(paramType);
 
 //The Overloader class which is used to create overloads.
-export default class Overloader {
+class Overloader {
     constructor() {
         this.overloads = [];
     }
@@ -109,3 +109,5 @@ export default class Overloader {
         }).apply(this, arguments);
     };
 }
+
+export default Overloader;

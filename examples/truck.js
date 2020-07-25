@@ -1,7 +1,7 @@
 //Draws a moving truck in two angles
 
 //Dependencies
-const { Video, Scene, Rectangle, Group, Circle, Animation, Polygon } = require("../index");
+const { Video, Scene, Rectangle, Group, Circle, Animation, Polygon } = require('canvideo');
 
 function wheel(cx, cy) {
     return new Group()
