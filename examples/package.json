@@ -5,7 +5,7 @@
   "type": "module",
   "main": "truck.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node --experimental-modules --experimental-import-meta-resolve server.js"
   },
   "author": "",
   "license": "ISC",

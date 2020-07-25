@@ -1,4 +1,4 @@
-import getEditor from "/lib/json-editor.js";
+import getEditor from "/web/json-editor.js";
 
 window.addEventListener("load", async () => {
     const container = document.getElementById("json");
