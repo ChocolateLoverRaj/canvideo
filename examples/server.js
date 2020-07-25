@@ -1,8 +1,8 @@
 //Create a server on localhost to use user interface to create videos.
 
 //Dependencies
-const { createRouter } = require("../index");
-const express = require("express");
+import { createRouter } from 'canvideo';
+import express from 'express';
 
 //Create an express app
 const app = express();
