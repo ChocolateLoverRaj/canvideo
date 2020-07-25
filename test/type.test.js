@@ -6,14 +6,14 @@ import chai from 'chai';
 import asserttype from 'chai-asserttype';
 
 //My Modules
-import Types from "../type/types.js";
-import { interfaceToType, Interface } from "../type/interface.js";
-import arrayOf from "../type/array-of.js";
-import keyValueObject from "../type/key-value-object.js";
-import Overloader from "../type/overloader.js";
-import typedFunction from "../type/typed-function.js";
-import either from "../type/either.js";
-import instanceOf from "../type/instanceOf.js";
+import Types from "../node/type/types.js";
+import { interfaceToType, Interface } from "../node/type/interface.js";
+import arrayOf from "../node/type/array-of.js";
+import keyValueObject from "../node/type/key-value-object.js";
+import Overloader from "../node/type/overloader.js";
+import typedFunction from "../node/type/typed-function.js";
+import either from "../node/type/either.js";
+import instanceOf from "../node/type/instanceOf.js";
 import expectError from "./expect-error.js";
 
 chai.use(asserttype);
