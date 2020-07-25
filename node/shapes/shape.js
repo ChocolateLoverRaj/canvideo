@@ -6,12 +6,12 @@
 import tinyColor from 'tinycolor2';
 
 //My Modules
-import { Ctx } from "../canvas.js";
+import { Ctx } from "../../common/canvas/canvas.js";
 import { propertiesType, animanage } from "../animations/animanage.js";
 import { methodsToBindType } from "../properties/properties-type.js";
-import Types from "../type/types.js";
-import typedFunction from "../type/typed-function.js";
-import instanceOf from "../type/instanceOf.js";
+import Types from "../../common/type/types.js";
+import typedFunction from "../../common/type/typed-function.js";
+import instanceOf from "../../common/type/instanceOf.js";
 import colorType from "../color/color.js";
 
 //Figure out whether ctx given is actually ctx.

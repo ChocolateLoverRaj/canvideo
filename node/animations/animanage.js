@@ -1,12 +1,12 @@
 //Manage animatable properties
 
 //Dependencies
-import Types from "../type/types.js";
-import typedFunction from "../type/typed-function.js";
-import keyValueObject from "../type/key-value-object.js";
-import { interfaceToType, Interface } from "../type/interface.js";
-import instanceOf from "../type/instanceOf.js";
-import either from "../type/either.js";
+import Types from "../../common/type/types.js";
+import typedFunction from "../../common/type/typed-function.js";
+import keyValueObject from "../../common/type/key-value-object.js";
+import { interfaceToType, Interface } from "../../common/type/interface.js";
+import instanceOf from "../../common/type/instanceOf.js";
+import either from "../../common/type/either.js";
 import { methodsToBindType } from "../properties/properties-type.js";
 import Animation from "./animation.js";
 import Precomputed from "./precomputed.js";

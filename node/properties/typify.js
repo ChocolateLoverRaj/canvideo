@@ -1,8 +1,8 @@
 //Typify properties on object
 
 //Dependencies
-import Types from "../type/types.js";
-import typedFunction from "../type/typed-function.js";
+import Types from "../../common/type/types.js";
+import typedFunction from "../../common/type/typed-function.js";
 import { propertiesType } from "./properties-type.js";
 
 //Properties

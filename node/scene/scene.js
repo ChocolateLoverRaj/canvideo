@@ -7,11 +7,11 @@ import nodeCanvas from 'canvas';
 import tinyColor from 'tinycolor2';
 
 //My Modules
-import typedFunction from "../type/typed-function.js";
-import Types from "../type/types.js";
-import Overloader from "../type/overloader.js";
-import { Interface } from "../type/interface.js";
-import instanceOf from "../type/instanceOf.js";
+import typedFunction from "../../common/type/typed-function.js";
+import Types from "../../common/type/types.js";
+import Overloader from "../../common/type/overloader.js";
+import { Interface } from "../../common/type/interface.js";
+import instanceOf from "../../common/type/instanceOf.js";
 import Camera from "../camera/camera.js";
 import colorType from "../color/color.js";
 import typify from "../properties/typify.js";

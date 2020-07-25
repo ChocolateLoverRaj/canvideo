@@ -1,8 +1,8 @@
 //Interface for camera
 
 //Dependencies
-import { Interface } from "../type/interface.js";
-import Types from "../type/types.js";
+import { Interface } from "../../common/type/interface.js";
+import Types from "../../common/type/types.js";
 
 //Camera interface
 const cameraInterface = new Interface(true)

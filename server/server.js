@@ -41,10 +41,12 @@ const createRouter = async () => {
 
     //Server path
     const serverPath = myDirname;
-    console.log(serverPath);
 
     //Web path
     const webPath = join(myDirname, "../web/");
+
+    //Common path
+    const commonPath = join(myDirname, "../common/");
 
     //Create an express router
     let router = express.Router();
@@ -90,7 +92,11 @@ const createRouter = async () => {
     });
 
     //Static directories
+    router.use("/common", express.static(webPath));
+    router.use("/common", express.static(commonPath));
+
     router.use("/web", express.static(webPath));
+    
     router.use("/static", express.static(join(serverPath, "./static")));
 
     return router;

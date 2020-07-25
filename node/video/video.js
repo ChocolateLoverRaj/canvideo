@@ -8,12 +8,12 @@ import path from 'path';
 import { exec } from 'child_process';
 
 //My Modules
-import Overloader from "../type/overloader.js";
-import Types from "../type/types.js";
-import { Interface } from "../type/interface.js";
-import typedFunction from "../type/typed-function.js";
-import instanceOf from "../type/instanceOf.js";
-import either from "../type/either.js";
+import Overloader from "../../common/type/overloader.js";
+import Types from "../../common/type/types.js";
+import { Interface } from "../../common/type/interface.js";
+import typedFunction from "../../common/type/typed-function.js";
+import instanceOf from "../../common/type/instanceOf.js";
+import either from "../../common/type/either.js";
 import { sizeType, regularSizeInterface, shortSizeInterface } from "./size.js";
 import typify from "../properties/typify.js";
 import defaultify from "../lib/defaultify.js";

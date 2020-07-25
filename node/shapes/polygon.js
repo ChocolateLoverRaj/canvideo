@@ -2,10 +2,10 @@
 
 //Dependencies
 import Shape from "./shape.js";
-import arrayOf from "../type/array-of.js";
-import typedFunction from "../type/typed-function.js";
-import Types from "../type/types.js";
-import instanceOf from "../type/instanceOf.js";
+import arrayOf from "../../common/type/array-of.js";
+import typedFunction from "../../common/type/typed-function.js";
+import Types from "../../common/type/types.js";
+import instanceOf from "../../common/type/instanceOf.js";
 import pointInterface from "./point-interface.js";
 
 //Polygon class
