@@ -4,18 +4,15 @@
 //Dependencies
 //Npm Modules
 import tinyColor from 'tinycolor2';
-import nodeCanvas from 'canvas';
 
 //My Modules
+import { Ctx } from "../canvas.js";
 import { propertiesType, animanage } from "../animations/animanage.js";
 import { methodsToBindType } from "../properties/properties-type.js";
 import Types from "../type/types.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import colorType from "../color/color.js";
-
-//Ctx class
-const Ctx = nodeCanvas.CanvasRenderingContext2D;
 
 //Figure out whether ctx given is actually ctx.
 const ctxType = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
