@@ -7,28 +7,38 @@ import { join, dirname } from 'path';
 //Npm Modules
 import express from 'express';
 
-//Get a normal path from import.meta.resolve
-const importPath = async lib => await import.meta.resolve(lib).substring(8);
-
 //Dirname
 // file:///
 // 01234567
 const myDirname = dirname(import.meta.url).substring(8);
 
-//Get the path of the paper css minified file
-console.log(import.meta.resolve('papercss/dist/paper.min.css'));
-const paperCssPath = importPath('papercss/dist/paper.min.css');
+//Promise that gets resource paths
+const resPaths = (async () => {
+    const paperCss = import.meta.resolve('papercss/dist/paper.min.css');
+    const jsonEditor = import.meta.resolve('jsoneditor');
+    await Promise.all([paperCss, jsonEditor]);
 
-//Get the path of json editor minified css and js files
-const jsonEditorPaths = {
-    css: importPath('jsoneditor/dist/jsoneditor.min.css'),
-    js: importPath('jsoneditor/dist/jsoneditor.min.js'),
-    map: importPath('jsoneditor/dist/jsoneditor.map'),
-    svg: importPath('jsoneditor/dist/img/jsoneditor-icons.svg')
-};
+    const jsonEditorDist = join(dirname(await jsonEditor).substring(8), './dist/');
+
+    return {
+        paperCss: (await paperCss).substring(8),
+        jsonEditor: {
+            css: join(jsonEditorDist, "./jsoneditor.min.css"),
+            js: join(jsonEditorDist, "./jsoneditor.min.js"),
+            map: join(jsonEditorDist, "./jsoneditor.map"),
+            svg: join(jsonEditorDist, "./img/jsoneditor-icons.svg")
+        }
+    };
+})();
 
 //Function that returns an express router.
-const createRouter = () => {
+const createRouter = async () => {
+    //Wait for resource paths
+    const {
+        paperCss: paperCssPath,
+        jsonEditor: jsonEditorPaths
+    } = await resPaths;
+
     //Server path
     const serverPath = myDirname;
     console.log(serverPath);

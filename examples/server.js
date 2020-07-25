@@ -8,12 +8,12 @@ import express from 'express';
 const app = express();
 
 //Get an express router
-const router = createRouter();
+createRouter().then(router => {
+    //Use the router with the server
+    app.use("/", router);
 
-//Use the router with the server
-app.use("/", router);
-
-//Start the server
-app.listen(2400, () => {
-    console.log("Started server.");
+    //Start the server
+    app.listen(2400, () => {
+        console.log("Started server.");
+    });
 });
