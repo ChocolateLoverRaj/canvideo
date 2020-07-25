@@ -8,7 +8,7 @@ interface Value {
     required?: boolean;
 }
 
-export function interface(o: Keys, extendible?: boolean): type;
+export function interfaceToType(o: Keys, extendible?: boolean): type;
 
 export class Interface {
     constructor(extendible?: boolean);

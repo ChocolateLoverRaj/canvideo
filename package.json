@@ -3,16 +3,16 @@
   "version": "6.0.0-1",
   "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
   "type": "module",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "./commonjs/index.js",
+  "types": "./index.d.ts",
   "exports": {
-    "import": "index.js",
-    "require": "commonjs/index.js"
+    "import": "./index.js",
+    "require": "./commonjs/index.js"
   },
   "scripts": {
     "build": "rollup -c",
     "prepack": "npm run build",
-    "test": "mocha"
+    "test": "mocha --experimental-modules"
   },
   "repository": {
     "type": "git",

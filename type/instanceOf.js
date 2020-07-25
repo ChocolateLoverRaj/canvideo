@@ -1,9 +1,6 @@
 //Check if something is instanceof another
 
 //Capital O in instanceOf
-function instanceOf(c){
-    return a => a instanceof c ? false : `is not an instance of ${c}.`;
-};
+const instanceOf = c => a => a instanceof c ? false : `is not an instance of ${c}.`;
 
-//Export the function
-module.exports = instanceOf;
+export default instanceOf;

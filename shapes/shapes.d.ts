@@ -8,13 +8,7 @@ import Path from "./path";
 import csMappings from "./cs-mappings";
 import { caMappings } from "../animations/animanaged";
 
-export { Shape as Shape };
-export { Rectangle as Rectangle };
-export { Group as Group };
-export { Circle as Circle };
-export { Polygon as Polygon };
-export { NumberLine as NumberLine };
-export { Path as Path };
+export const list: Array<Function>;
 
 export function isBuiltin(shape: any): boolean;
 

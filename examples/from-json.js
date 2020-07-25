@@ -4,9 +4,20 @@
 //Then you can parse json to get a Video instance.
 
 //Dependencies
-const fs = require('fs');
-//'../index' is used because this example is in the canvideo folder. Change it to 'canvideo';
-const { Video, Scene, Rectangle, Animation, Polygon, Circle, Group, Shape, Camera, Caption } = require("../index");
+import fs from 'fs';
+
+import { 
+    Video, 
+    Scene, 
+    Rectangle, 
+    Animation, 
+    Polygon, 
+    Circle, 
+    Group, 
+    Shape, 
+    Camera, 
+    Caption 
+} from 'canvideo';
 
 //This shows how custom classes can also be saved and imported to and from JSON.
 //Here we have a simple class that is basically a shape class that saves some sort of data.

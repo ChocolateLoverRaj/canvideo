@@ -1,4 +1,5 @@
-import { Shape, ShapeProperties, ShapeJson } from "./shape";
+import Shape from "./shape";
+import { ShapeProperties, ShapeJson } from "./shape-properties";
 import { caMappings } from '../animations/animanaged';
 
 interface PolygonProperties extends ShapeProperties {
@@ -39,4 +40,4 @@ declare class Polygon extends Shape<Polygon, PolygonProperties>{
     toJson(...args: any): any;
 }
 
-export = Polygon;
+export default Polygon;

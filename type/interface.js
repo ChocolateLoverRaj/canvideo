@@ -1,10 +1,10 @@
 //File for creating interfaces based on types
 
 //Dependencies
-const Types = require("./types");
+import Types from "./types.js";
 
 //Generate type function from given map
-function returnInterface(keys, extendible) {
+const returnInterface = (keys, extendible) => {
     return a => {
         var err = Types.OBJECT(a);
         if (!err) {
@@ -38,7 +38,7 @@ function returnInterface(keys, extendible) {
 }
 
 //Interface function
-function interface(o, extendible = true) {
+export const interfaceToType = (o, extendible = true) => {
     let err = Types.OBJECT(o);
     if (!err) {
         let err = Types.BOOLEAN(extendible);
@@ -66,6 +66,7 @@ function interface(o, extendible = true) {
                     keys.set(k, { type, required });
                 }
                 else {
+                    console.log(o, k, v);
                     throw new TypeError(`type: ${type}, ${err}`);
                 }
             }
@@ -81,7 +82,7 @@ function interface(o, extendible = true) {
 };
 
 //Interface class
-class Interface {
+export class Interface {
     constructor(extendible = true) {
         let err = Types.BOOLEAN(extendible);
         if (!err) {
@@ -127,9 +128,3 @@ class Interface {
         return returnInterface(this.keys, this.extendible);
     }
 }
-
-//Export the module
-module.exports = {
-    interface,
-    Interface
-};

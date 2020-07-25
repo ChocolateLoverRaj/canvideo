@@ -2,10 +2,10 @@
 //This type is an array where every element is a certain type.
 
 //Dependencies
-const Types = require("./types");
+import Types from "./types.js";
 
 //Create an array type by giving a type.
-function arrayOf(type, length) {
+const arrayOf = (type, length) => {
     let err = Types.TYPE(type);
     if (!err) {
         let err = Types.NON_NEGATIVE_INTEGER(length);
@@ -13,7 +13,7 @@ function arrayOf(type, length) {
             return a => {
                 let err = Types.ARRAY(a);
                 if (!err) {
-                    if(typeof length === 'number' && a.length !== length){
+                    if (typeof length === 'number' && a.length !== length) {
                         return `does not have length: ${length}.`
                     }
                     for (let i = 0; i < a.length; i++) {
@@ -39,5 +39,4 @@ function arrayOf(type, length) {
     }
 }
 
-//Export the module
-module.exports = arrayOf;
+export default arrayOf;

@@ -1,13 +1,18 @@
 //Manage animatable properties
 
 //Dependencies
-const { Types, typedFunction, keyValueObject, interface, either, Interface, instanceOf } = require("../type");
-const { methodsToBindType } = require("../properties/properties-type");
-const Animation = require("./animation");
-const Precomputed = require("./precomputed");
+import Types from "../type/types.js";
+import typedFunction from "../type/typed-function.js";
+import keyValueObject from "../type/key-value-object.js";
+import { interfaceToType, Interface } from "../type/interface.js";
+import instanceOf from "../type/instanceOf.js";
+import either from "../type/either.js";
+import { methodsToBindType } from "../properties/properties-type.js";
+import Animation from "./animation.js";
+import Precomputed from "./precomputed.js";
 
 //Properties type
-const propertiesType = keyValueObject(either(Types.TYPE, interface({
+export const propertiesType = keyValueObject(either(Types.TYPE, interfaceToType({
     type: {
         type: Types.TYPE,
         required: false
@@ -54,7 +59,7 @@ const builtInAnimations = new Set()
     .add(Animation)
     .add(Precomputed);
 
-const animanage = typedFunction(params, function (o, properties, methodsToBind) {
+export const animanage = typedFunction(params, function (o, properties, methodsToBind) {
     //List of properties that were explicitly set
     var explicit = new Set();
 
@@ -378,10 +383,13 @@ const animanage = typedFunction(params, function (o, properties, methodsToBind) 
                     }
                 }
             }
+            //Set a key on the at object called at
+            //This is so that shapes know what time it is
+            //The group shape needs this
+            //Also it's okay because the at property is a reserved method anyway
+            at.at = time;
+            //The final at object
             return at;
         })
     });
 });
-
-//Export the module
-module.exports = { propertiesType, methodsToBindType, animanage };

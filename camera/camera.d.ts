@@ -49,4 +49,4 @@ declare class Camera extends Animanaged<Camera, CameraProperties> {
     toJson(stringify: false): CameraJson;
 }
 
-export = Camera;
+export default Camera;

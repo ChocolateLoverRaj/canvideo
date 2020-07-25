@@ -9,4 +9,4 @@ interface Arg {
 
 declare function typedFunction(args: Array<Arg>, f: Function): Function;
 
-export = typedFunction;
+export default typedFunction;
