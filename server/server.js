@@ -2,49 +2,72 @@
 
 //Dependencies
 //Node.js Modules
-const path = require('path');
+import { join, dirname } from 'path';
 
 //Npm Modules
-const express = require('express');
+import express from 'express';
 
-//Get the path of the paper css minified file
-const paperCssPath = require.resolve('papercss/dist/paper.min.css');
+//Dirname
+// file:///
+// 01234567
+const myDirname = dirname(import.meta.url).substring(8);
 
-//Get the path of json editor minified css and js files
-const jsonEditorPaths = {
-    css: require.resolve('jsoneditor/dist/jsoneditor.min.css'),
-    js: require.resolve('jsoneditor/dist/jsoneditor.min.js'),
-    map: require.resolve('jsoneditor/dist/jsoneditor.map'),
-    svg: require.resolve('jsoneditor/dist/img/jsoneditor-icons.svg')
-};
+//Promise that gets resource paths
+const resPaths = (async () => {
+    const paperCss = import.meta.resolve('papercss/dist/paper.min.css');
+    const jsonEditor = import.meta.resolve('jsoneditor');
+    await Promise.all([paperCss, jsonEditor]);
+
+    const jsonEditorDist = join(dirname(await jsonEditor).substring(8), './dist/');
+
+    return {
+        paperCss: (await paperCss).substring(8),
+        jsonEditor: {
+            css: join(jsonEditorDist, "./jsoneditor.min.css"),
+            js: join(jsonEditorDist, "./jsoneditor.min.js"),
+            map: join(jsonEditorDist, "./jsoneditor.map"),
+            svg: join(jsonEditorDist, "./img/jsoneditor-icons.svg")
+        }
+    };
+})();
 
 //Function that returns an express router.
-const createRouter = () => {
+const createRouter = async () => {
+    //Wait for resource paths
+    const {
+        paperCss: paperCssPath,
+        jsonEditor: jsonEditorPaths
+    } = await resPaths;
+
     //Server path
-    const serverPath = path.join(__dirname, "./");
+    const serverPath = myDirname;
+    console.log(serverPath);
+
+    //Web path
+    const webPath = join(myDirname, "../web/");
 
     //Create an express router
     let router = express.Router();
 
     //Testing
     router.get("/module.js", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/module.js"));
+        res.sendFile(join(serverPath, "./pages/module.js"));
     });
 
     //Main page
     router.get("/", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/index.html"));
+        res.sendFile(join(serverPath, "./pages/index.html"));
     });
 
     //Create page
     router.get("/create", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/create.html"));
+        res.sendFile(join(serverPath, "./pages/create.html"));
     });
     router.get("/create.css", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/create.css"));
+        res.sendFile(join(serverPath, "./pages/create.css"));
     });
     router.get("/create.js", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/create.js"));
+        res.sendFile(join(serverPath, "./pages/create.js"));
     });
 
     //Paper css
@@ -67,11 +90,10 @@ const createRouter = () => {
     });
 
     //Static directories
-    router.use("/lib", express.static(path.join(serverPath, "./lib")));
-    router.use("/static", express.static(path.join(serverPath, "./static")));
+    router.use("/web", express.static(webPath));
+    router.use("/static", express.static(join(serverPath, "./static")));
 
     return router;
 };
 
-//Export the createRouter function
-module.exports = createRouter;
+export default createRouter;

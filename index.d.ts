@@ -24,3 +24,4 @@ export { default as Path } from "./shapes/path.js";
 export { default as Animation } from "./animations/animation.js";
 export { default as Precomputed } from "./animations/precomputed.js";
 export { default as Caption } from "./captions/caption.js";
+export { default as createRouter } from "./server/server.js";
