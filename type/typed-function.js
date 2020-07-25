@@ -2,23 +2,23 @@
 //Typed functions throw TypeErrors by themselves.
 
 //Dependencies
-const Types = require("./types");
-const { Interface } = require("./interface");
-const arrayOf = require("./array-of");
+import { TYPE, STRING, BOOLEAN, ANY, FUNCTION } from "./types.js";
+import { Interface } from "./interface.js";
+import arrayOf from "./array-of.js";
 
 //Argument interface
 const argType = new Interface(false)
-    .required("type", Types.TYPE)
-    .required("name", Types.STRING)
-    .optional("optional", Types.BOOLEAN)
-    .optional("default", Types.ANY)
+    .required("type", TYPE)
+    .required("name", STRING)
+    .optional("optional", BOOLEAN)
+    .optional("default", ANY)
     .toType();
 
 //Array of arguments
 const argsType = arrayOf(argType);
 
 //Typed function
-function typedFunction(args, f) {
+const typedFunction = (args, f) => {
     let err = argsType(args);
     if (!err) {
         //Required parameters cannot come after optional parameters.
@@ -36,7 +36,7 @@ function typedFunction(args, f) {
                 minLength++;
             }
         }
-        let err = Types.FUNCTION(f);
+        let err = FUNCTION(f);
         if (!err) {
             return function () {
                 const lengthRange = `${minLength} - ${args.length}`;
@@ -77,5 +77,4 @@ function typedFunction(args, f) {
     }
 };
 
-//Export the module
-module.exports = typedFunction;
+export default typedFunction;

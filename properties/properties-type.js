@@ -1,10 +1,14 @@
 //Types that are shared between animanage and typify
 
 //Dependencies
-const {Types, interface, keyValueObject, either, arrayOf} = require("../type");
+import Types from "../type/types.js";
+import { interfaceToType } from "../type/interface.js";
+import keyValueObject from "../type/key-value-object.js";
+import either from "../type/either.js";
+import arrayOf from "../type/array-of.js";
 
-const propertiesType1 = Types.TYPE;
-const propertiesType2 = interface({
+export const propertiesType1 = Types.TYPE;
+export const propertiesType2 = interfaceToType({
     type: {
         type: Types.TYPE,
         required: false
@@ -22,13 +26,5 @@ const propertiesType2 = interface({
         required: false
     }
 }, false);
-const propertiesType = keyValueObject(either(propertiesType1, propertiesType2));
-const methodsToBindType = arrayOf(Types.STRING);
-
-//Export the module
-module.exports = {
-    propertiesType1,
-    propertiesType2,
-    propertiesType,
-    methodsToBindType
-};
+export const propertiesType = keyValueObject(either(propertiesType1, propertiesType2));
+export const methodsToBindType = arrayOf(Types.STRING);

@@ -1,8 +1,13 @@
 //File for creating rectangle class
 
 //Dependencies
-const Shape = require("./shape");
-const { Types, Interface, either, arrayOf, typedFunction, instanceOf } = require("../type");
+import Shape from "./shape.js";
+import Types from "../type/types.js";
+import { Interface } from "../type/interface.js";
+import either from "../type/either.js";
+import arrayOf from "../type/array-of.js";
+import typedFunction from "../type/typed-function.js";
+import instanceOf from "../type/instanceOf.js";
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)
@@ -367,18 +372,6 @@ class Rectangle extends Shape {
 
         return this;
     }
-    getHash(){
-        let hash = super.getHash();
-        hash += `${this.x},`;
-        hash += `${this.y},`;
-        hash += `${this.width},`;
-        hash += `${this.height},`;
-        hash += `${this.topLeftCornerRound},`;
-        hash += `${this.topRightCornerRound},`;
-        hash += `${this.bottomLeftCornerRound},`;
-        hash += `${this.bottomRightCornerRound},`;
-        return hash;
-    }
 
     toJson(stringify = true, fps = 60) {
         let o = {
@@ -401,5 +394,4 @@ class Rectangle extends Shape {
     }
 }
 
-//Export the module
-module.exports = Rectangle;
+export default Rectangle;

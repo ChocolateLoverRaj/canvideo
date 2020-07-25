@@ -2,9 +2,17 @@
   "name": "canvideo",
   "version": "6.0.0-1",
   "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
-  "main": "index.js",
+  "type": "module",
+  "main": "./commonjs/index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    "import": "./index.js",
+    "require": "./commonjs/index.js"
+  },
   "scripts": {
-    "test": "mocha"
+    "build": "rollup -c",
+    "prepack": "npm run build",
+    "test": "mocha --experimental-modules"
   },
   "repository": {
     "type": "git",
@@ -32,6 +40,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-asserttype": "^1.0.5",
-    "mocha": "^7.2.0"
+    "mocha": "^7.2.0",
+    "rollup": "^2.23.0"
   }
 }

@@ -2,7 +2,8 @@
 //Just give an object of keys
 
 //Dependencies
-const { typedFunction, Types } = require("../type");
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
 
 class Animation {
     static animationName = "animation";
@@ -176,5 +177,4 @@ class Animation {
     }
 };
 
-//Export the module
-module.exports = Animation;
+export default Animation;

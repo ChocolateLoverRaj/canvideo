@@ -20,4 +20,4 @@ declare class Overloader {
     overload(args: Array<OverloadArg>, f: Function): this;
 }
 
-export = Overloader;
+export default Overloader;

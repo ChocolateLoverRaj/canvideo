@@ -1,7 +1,9 @@
 //Color Type
 
 //Dependencies
-const { Types, Interface, either } = require("../type");
+import Types from "../type/types.js";
+import { Interface } from "../type/interface.js";
+import either from "../type/either.js";
 
 //Color interface
 const colorInterface = new Interface(false)
@@ -14,5 +16,4 @@ const colorInterface = new Interface(false)
 //Input either a color interface or a string representation of a color
 const colorType = either(colorInterface, Types.COLOR);
 
-//Export the colorType
-module.exports = colorType;
+export default colorType;

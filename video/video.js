@@ -2,20 +2,23 @@
 
 //Dependencies
 //Node.js Modules
-const fs = require('fs');
-const { EventEmitter, once } = require('events');
-const path = require('path');
-const { exec } = require('child_process');
+import fs, { promises as fsPromises } from 'fs';
+import { EventEmitter, once } from 'events';
+import path from 'path';
+import { exec } from 'child_process';
 
 //My Modules
-const { Overloader, Types, Interface, typedFunction, instanceOf, either } = require("../type");
-const { sizeType, regularSizeInterface, shortSizeInterface } = require("./size");
-const typify = require("../properties/typify");
-const defaultify = require("../lib/default-properties");
-const Scene = require("./scene");
-
-//Dependency stuff
-const fsPromises = fs.promises;
+import Overloader from "../type/overloader.js";
+import Types from "../type/types.js";
+import { Interface } from "../type/interface.js";
+import typedFunction from "../type/typed-function.js";
+import instanceOf from "../type/instanceOf.js";
+import either from "../type/either.js";
+import { sizeType, regularSizeInterface, shortSizeInterface } from "./size.js";
+import typify from "../properties/typify.js";
+import defaultify from "../lib/defaultify.js";
+import Scene from "../scene/scene.js";
+import { ExportStages, ExportTasks } from "./stages.js";
 
 //Image regex
 const imageRegex = /canvideo \d+\.png/i;
@@ -48,7 +51,7 @@ const exportOptionsInterface = new Interface(false)
     .toType();
 
 //Temp path
-var tempPath;
+export var tempPath;
 //Make sure directory exists
 function directoryExists(path) {
     return new Promise((resolve, reject) => {
@@ -75,107 +78,33 @@ function directoryExists(path) {
 }
 
 //Set the global tempPath
-function setTempPath(path) {
-    tempPath = directoryExists(path);
-}
+export const setTempPath = (path) => tempPath = directoryExists(path);
 
 //Check that ffmpeg path is good
 var ffmpegPathStatus;
-async function checkFfmpegPath() {
-    return new Promise((resolve, reject) => {
-        var command = exec(`${ffmpegPath} -version`);
-        command.once("exit", code => {
-            if (code === 0) {
-                ffmpegPathStatus = true;
-                resolve();
-            }
-            else {
-                ffmpegPathStatus = false;
-                reject(`Check command failed: ${ffmpegPath} -version.`);
-            }
-        });
+export const checkFfmpegPath = async () => new Promise((resolve, reject) => {
+    var command = exec(`${ffmpegPath} -version`);
+    command.once("exit", code => {
+        if (code === 0) {
+            ffmpegPathStatus = true;
+            resolve();
+        }
+        else {
+            ffmpegPathStatus = false;
+            reject(`Check command failed: ${ffmpegPath} -version.`);
+        }
     });
-};
+});
 
 //Set and get ffmpeg path
 var ffmpegPath = "ffmpeg";
-var setFfmpegPath = function (path) {
+export const setFfmpegPath = (path) => {
     if (path !== ffmpegPath) {
         ffmpegPath = path;
         ffmpegPathStatus = undefined;
     }
 };
-const getFfmpegPath = () => ffmpegPath;
-
-//Export enums
-//The export process is split into stages.
-//Each stage has some tasks that it depends on.
-//After those tasks are done, it starts the tasks that depend on the stage to be done.
-
-//Visualization
-
-// START                 CREATE_FILES                     GENERATE_VIDEO       DELETE_TEMPORARY      FINISH
-// | --> CHECK_TEMP_PATH |                                |                    |                     |
-//                       | --> DELETE_EXTRA_FRAMES        |                    |                     |
-//                       | --> RENDER_NEW_FRAMES          |                    |                     |
-//                       | --> GENERATE_EMBEDDED_CAPTIONS |                    |                     |
-//                                                        | --> GENERATE_VIDEO |                     |
-//                                                                             | --> DELETE_FRAMES   |
-//                                                                             | --> DELETE_CAPTIONS |
-//                       | --> GENERATE_SEPARATE_CAPTIONS                                            |
-
-//Export stages enum
-const ExportStages = {
-    START: "START",
-    CREATE_FILES: "CREATE_FILES",
-    GENERATE_VIDEO: "GENERATE_VIDEO",
-    DELETE_TEMPORARY: "DELETE_FRAMES",
-    FINISH: "FINISH"
-};
-
-//Export tasks enum
-const ExportTasks = {
-    CHECK_TEMP_PATH: {
-        name: "CHECK_TEMP_PATH",
-        start: ExportStages.START,
-        end: ExportStages.CREATE_FILES
-    },
-    DELETE_EXTRA_FRAMES: {
-        name: "DELETE_EXTRA_FRAMES",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.GENERATE_VIDEO
-    },
-    RENDER_NEW_FRAMES: {
-        name: "RENDER_NEW_FRAMES",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.GENERATE_VIDEO
-    },
-    GENERATE_SEPARATE_CAPTIONS: {
-        name: "GENERATE_SEPARATE_CAPTIONS",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.FINISH
-    },
-    GENERATE_EMBEDDED_CAPTIONS: {
-        name: "GENERATE_EMBEDDED_CAPTIONS",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.GENERATE_VIDEO
-    },
-    GENERATE_VIDEO: {
-        name: "GENERATE_VIDEO",
-        start: ExportStages.GENERATE_VIDEO,
-        end: ExportStages.DELETE_TEMPORARY
-    },
-    DELETE_FRAMES: {
-        name: "DELETE_FRAMES",
-        start: ExportStages.DELETE_TEMPORARY,
-        end: ExportStages.FINISH
-    },
-    DELETE_CAPTIONS: {
-        name: "DELETE_CAPTIONS",
-        start: ExportStages.DELETE_TEMPORARY,
-        end: ExportStages.FINISH
-    }
-}
+export const getFfmpegPath = () => ffmpegPath;
 
 //Output interface
 const outputInterface = new Interface(false)
@@ -188,7 +117,7 @@ const outputInterface = new Interface(false)
 const outputType = either(Types.STRING, outputInterface);
 
 //Video class
-class Video extends EventEmitter {
+export class Video extends EventEmitter {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -856,11 +785,3 @@ class Video extends EventEmitter {
             .overloader.apply(this, arguments);
     }
 }
-
-//Export the module
-module.exports = {
-    tempPath, setTempPath,
-    setFfmpegPath, getFfmpegPath, checkFfmpegPath,
-    ExportStages, ExportTasks,
-    Video
-};

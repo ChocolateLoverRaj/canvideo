@@ -1,10 +1,10 @@
 import { Animator } from "./animator";
 
-declare interface Value {
+interface Value {
     [key: string | number]: Value | number;
 }
 
-declare interface AnimationJson{
+interface AnimationJson{
     startValue: Value;
     endValue: Value;
     reversed: boolean;
@@ -32,4 +32,4 @@ declare class Animation<Properties extends object> implements Animator<Propertie
     toJson(stringify: false): AnimationJson;
 }
 
-export = Animation;
+export default Animation;

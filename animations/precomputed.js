@@ -34,7 +34,7 @@ class Precomputed {
             }
         }
     }
-    
+
     constructor(values) {
         if (values instanceof Array) {
             for (var i = 0; i < values.length; i++) {
@@ -56,11 +56,11 @@ class Precomputed {
             this.values.sort((a, b) => a[0] - b[0]);
             for (var i = 0; i < this.values.length; i++) {
                 let changeAt = this.values[i][0];
-                if(progress < changeAt){
-                    if(i > 0){
+                if (progress < changeAt) {
+                    if (i > 0) {
                         return this.values[i - 1][1];
                     }
-                    else{
+                    else {
                         return {};
                     }
                 }
@@ -73,7 +73,7 @@ class Precomputed {
     }
 
     lasts = false;
-    last(){
+    last() {
         this.lasts = true;
         return this;
     }
@@ -91,5 +91,4 @@ class Precomputed {
     }
 }
 
-//Export the class
-module.exports = Precomputed;
+export default Precomputed;

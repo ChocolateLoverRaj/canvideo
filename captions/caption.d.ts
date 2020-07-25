@@ -1,12 +1,12 @@
+import captionJson from "./caption-json";
+
 interface Text{
     start: number;
     end: number;
     text: string;
 }
 
-export type captionJson = Array<Text>;
-
-export declare class Caption{
+declare class Caption{
     static vttHeader: "WEBVTT\n";
 
     static fromJson(json: string, parse?: true, throwErrors?: false): Caption | false;

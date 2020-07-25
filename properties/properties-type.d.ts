@@ -1,13 +1,6 @@
-import type = require("../type/type");
+import type from "../type/type";
 
-declare const propertiesType1: type;
-const propertiesType2: type;
-const propertiesType: type;
-const methodsToBindType: type;
-
-export = {
-    propertiesType1,
-    propertiesType2,
-    propertiesType,
-    methodsToBindType
-};
+export declare const propertiesType1: type;
+export declare const propertiesType2: type;
+export declare const propertiesType: type;
+export declare const methodsToBindType: type;

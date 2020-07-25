@@ -1,9 +1,13 @@
 //Customizable number line shape
 
 //Dependencies
-const Shape = require("./shape");
-const { Overloader, Types, arrayOf, typedFunction, instanceOf } = require("../type");
-const pointInterface = require("./point-interface");
+import Shape from "./shape.js";
+import Overloader from "../type/overloader.js";
+import Types from "../type/types.js";
+import arrayOf from "../type/array-of.js";
+import instanceOf from "../type/instanceOf.js";
+import pointInterface from "./point-interface.js";
+import typedFunction from "../type/typed-function.js";
 
 //Number line class
 class NumberLine extends Shape {
@@ -142,5 +146,4 @@ class NumberLine extends Shape {
     }
 }
 
-//Export the class
-module.exports = NumberLine;
+export default NumberLine;
