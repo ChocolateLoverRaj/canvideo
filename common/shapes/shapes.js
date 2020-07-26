@@ -8,9 +8,9 @@ import Circle from "./circle.js";
 import Polygon from "./polygon.js";
 import NumberLine from "./number-line.js";
 import Path from "./path.js";
-import typedFunction from "../../common/type/typed-function.js";
-import Types from "../../common/type/types.js";
-import instanceOf from "../../common/type/instanceOf.js";
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
+import instanceOf from "../type/instanceOf.js";
 
 //List of shapes
 export const list = [Shape, Rectangle, Group, Circle, Polygon, NumberLine, Path];

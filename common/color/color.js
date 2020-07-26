@@ -1,9 +1,9 @@
 //Color Type
 
 //Dependencies
-import Types from "../../common/type/types.js";
-import { Interface } from "../../common/type/interface.js";
-import either from "../../common/type/either.js";
+import Types from "../type/types.js";
+import { Interface } from "../type/interface.js";
+import either from "../type/either.js";
 
 //Color interface
 const colorInterface = new Interface(false)

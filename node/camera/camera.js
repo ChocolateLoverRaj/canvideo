@@ -3,7 +3,7 @@
 //Dependencies
 import Types from "../../common/type/types.js";
 import typedFunction from "../../common/type/typed-function.js";
-import { animanage } from "../animations/animanage.js";
+import { animanage } from "../../common/animations/animanage.js";
 
 //Camera class
 class Camera {

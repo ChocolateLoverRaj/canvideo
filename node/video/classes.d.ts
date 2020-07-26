@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 
 import { SceneJson, Scene } from "./scene";
-import csMappings from "../shapes/cs-mappings";
+import csMappings from "../../common/shapes/cs-mappings";
 import { caMappings } from '../animations/animanaged';
 import { ExportStages } from "./stages";
 import ExportTask from "./export-task";

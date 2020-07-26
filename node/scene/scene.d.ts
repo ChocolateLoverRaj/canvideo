@@ -1,10 +1,10 @@
 import { Canvas } from "canvas";
 
-import { Shape, ShapeProperties } from "../shapes/shape";
+import { Shape, ShapeProperties } from "../../common/shapes/shape";
 import Camera from "./camera";
-import { setColor, GetColor } from "../color";
-import csMappings from "../shapes/cs-mappings";
-import { caMappings } from "../animations/animanaged";
+import { setColor, GetColor } from "../../common/color";
+import csMappings from "../../common/shapes/cs-mappings";
+import { caMappings } from "../../common/animations/animanaged";
 import { Caption, captionJson } from "../caption";
 import SceneJson from "./scene-json";
 

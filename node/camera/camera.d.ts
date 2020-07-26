@@ -1,4 +1,4 @@
-import Animanaged from "../animations/animanaged";
+import Animanaged from "../../common/animations/animanaged";
 
 interface CameraProperties{
     scaleX: number;

@@ -10,4 +10,4 @@ export const createCanvas = typedFunction([
     { name: "height", type: Types.POSITIVE_INTEGER }
 ], (width, height) => canvas.createCanvas(width, height))
 
-export { CanvasRenderingContext2D as Ctx } from 'canvas';
+export const Ctx = canvas.CanvasRenderingContext2D;

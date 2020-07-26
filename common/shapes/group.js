@@ -7,12 +7,12 @@ import NumberLine from "./number-line.js";
 import Path from "./path.js";
 import Polygon from "./polygon.js";
 import Rectangle from "./rectangle.js";
-import arrayOf from "../../common/type/array-of.js";
-import Types from "../../common/type/types.js";
-import Overloader from "../../common/type/overloader.js";
-import { Interface } from "../../common/type/interface.js";
-import typedFunction from "../../common/type/typed-function.js";
-import instanceOf from "../../common/type/instanceOf.js";
+import arrayOf from "../type/array-of.js";
+import Types from "../type/types.js";
+import Overloader from "../type/overloader.js";
+import { Interface } from "../type/interface.js";
+import typedFunction from "../type/typed-function.js";
+import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
 
 //Size interface

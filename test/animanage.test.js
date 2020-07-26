@@ -5,10 +5,10 @@
 import chai from 'chai';
 
 //My Modules
-import { animanage } from "../node/animations/animanage.js";
-import Types from "../node/type/types.js";
+import { animanage } from "../common/animations/animanage.js";
+import Types from "../common/type/types.js";
 import expectError from "./expect-error.js";
-import Animation from "../node/animations/animation.js";
+import Animation from "../common/animations/animation.js";
 
 const expect = chai.expect;
 

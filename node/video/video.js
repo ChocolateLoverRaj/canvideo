@@ -15,7 +15,7 @@ import typedFunction from "../../common/type/typed-function.js";
 import instanceOf from "../../common/type/instanceOf.js";
 import either from "../../common/type/either.js";
 import { sizeType, regularSizeInterface, shortSizeInterface } from "./size.js";
-import typify from "../properties/typify.js";
+import typify from "../../common/properties/typify.js";
 import defaultify from "../lib/defaultify.js";
 import Scene from "../scene/scene.js";
 import { ExportStages, ExportTasks } from "./stages.js";

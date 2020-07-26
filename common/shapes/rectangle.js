@@ -2,12 +2,12 @@
 
 //Dependencies
 import Shape from "./shape.js";
-import Types from "../../common/type/types.js";
-import { Interface } from "../../common/type/interface.js";
-import either from "../../common/type/either.js";
-import arrayOf from "../../common/type/array-of.js";
-import typedFunction from "../../common/type/typed-function.js";
-import instanceOf from "../../common/type/instanceOf.js";
+import Types from "../type/types.js";
+import { Interface } from "../type/interface.js";
+import either from "../type/either.js";
+import arrayOf from "../type/array-of.js";
+import typedFunction from "../type/typed-function.js";
+import instanceOf from "../type/instanceOf.js";
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)

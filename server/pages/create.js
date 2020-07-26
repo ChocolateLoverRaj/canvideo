@@ -1,4 +1,7 @@
 import getEditor from "/web/json-editor.js";
+import { list } from "/common/shapes/shapes.js";
+
+console.log(list);
 
 window.addEventListener("load", async () => {
     const container = document.getElementById("json");

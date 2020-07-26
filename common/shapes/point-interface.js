@@ -1,8 +1,8 @@
 //Common file for point interface (x, y)
 
 //Dependencies
-import { Interface } from "../../common/type/interface.js";
-import Types from "../../common/type/types.js";
+import { Interface } from "../type/interface.js";
+import Types from "../type/types.js";
 
 //Point interface
 const pointInterface = new Interface(false)
