@@ -4,6 +4,4 @@ const promise = new Promise((resolve, reject) => {
     });
 });
 
-export const getEditor = async () => promise;
-
-export default getEditor;
+export default async () => promise;

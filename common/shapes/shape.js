@@ -2,10 +2,7 @@
 //All other shapes are extensions of this class
 
 //Dependencies
-//Npm Modules
-import tinyColor from 'tinycolor2';
-
-//My Modules
+import tinyColor from "../color/tiny-color.js";
 import { Ctx } from "../canvas/canvas.js";
 import { propertiesType, animanage } from "../animations/animanage.js";
 import { methodsToBindType } from "../properties/properties-type.js";

@@ -1,11 +1,7 @@
 //Manage a scene and add shapes
 
 //Dependencies
-
-//Npm Modules
-import tinyColor from 'tinycolor2';
-
-//My Modules
+import tinyColor from "../../common/color/tiny-color.js";
 import { createCanvas } from "../../common/canvas/canvas.js";
 import typedFunction from "../../common/type/typed-function.js";
 import Types from "../../common/type/types.js";
@@ -16,7 +12,10 @@ import Camera from "../camera/camera.js";
 import colorType from "../../common/color/color.js";
 import typify from "../../common/properties/typify.js";
 import cameraInterface from "../camera/camera-interface.js";
-import { fromJson as shapeFromJson, isBuiltin as isShapeBuiltin } from "../../common/shapes/shapes.js";
+import { 
+    fromJson as shapeFromJson, 
+    isBuiltin as isShapeBuiltin 
+} from "../../common/shapes/shapes.js";
 import Shape from "../../common/shapes/shape.js";
 import Caption from "../captions/caption.js";
 

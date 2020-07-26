@@ -16,7 +16,8 @@ const myDirname = dirname(import.meta.url).substring(8);
 const resPaths = (async () => {
     const paperCss = import.meta.resolve('papercss/dist/paper.min.css');
     const jsonEditor = import.meta.resolve('jsoneditor');
-    await Promise.all([paperCss, jsonEditor]);
+    const tinyColor = import.meta.resolve('tinycolor2/dist/tinycolor-min.js');
+    await Promise.all([paperCss, jsonEditor, tinyColor]);
 
     const jsonEditorDist = join(dirname(await jsonEditor).substring(8), './dist/');
 
@@ -27,7 +28,8 @@ const resPaths = (async () => {
             js: join(jsonEditorDist, "./jsoneditor.min.js"),
             map: join(jsonEditorDist, "./jsoneditor.map"),
             svg: join(jsonEditorDist, "./img/jsoneditor-icons.svg")
-        }
+        },
+        tinyColor: (await tinyColor).substring(8)
     };
 })();
 
@@ -36,7 +38,8 @@ const createRouter = async () => {
     //Wait for resource paths
     const {
         paperCss: paperCssPath,
-        jsonEditor: jsonEditorPaths
+        jsonEditor: jsonEditorPaths,
+        tinyColor: tinyColorPath
     } = await resPaths;
 
     //Server path
@@ -89,6 +92,11 @@ const createRouter = async () => {
     });
     router.get("/img/jsoneditor-icons.svg", (req, res) => {
         res.sendFile(jsonEditorPaths.svg);
+    });
+
+    //Tiny Color
+    router.get("/tiny-color.min.js", (req, res) => {
+        res.sendFile(tinyColorPath);
     });
 
     //Static directories

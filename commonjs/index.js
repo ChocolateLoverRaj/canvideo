@@ -7,10 +7,12 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var fs = require('fs');
 var fs__default = _interopDefault(fs);
 var events = require('events');
-var path = _interopDefault(require('path'));
+var path = require('path');
+var path__default = _interopDefault(path);
 var child_process = require('child_process');
 var tinyColor = _interopDefault(require('tinycolor2'));
-var nodeCanvas = _interopDefault(require('canvas'));
+var canvas = _interopDefault(require('canvas'));
+var express = _interopDefault(require('express'));
 
 //File for types.
 
@@ -628,6 +630,15 @@ const defaultify = (properties, defaultProperties) => {
     };
     return anyDefault(properties, defaultProperties);
 };
+
+//Npm Modules
+
+const createCanvas = typedFunction([
+    { name: "width", type: Types.POSITIVE_INTEGER },
+    { name: "height", type: Types.POSITIVE_INTEGER }
+], (width, height) => canvas.createCanvas(width, height));
+
+const Ctx = canvas.CanvasRenderingContext2D;
 
 //File for making linear animations
 
@@ -1407,9 +1418,6 @@ const cameraInterface = new Interface(true)
     .toType();
 
 //File which contains Shape class
-
-//Ctx class
-const Ctx = nodeCanvas.CanvasRenderingContext2D;
 
 //Figure out whether ctx given is actually ctx.
 const ctxType = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
@@ -3181,7 +3189,7 @@ class Scene {
         }
 
         //Create a new canvas
-        let canvas = nodeCanvas.createCanvas(width, height);
+        let canvas = createCanvas(width, height);
         let ctx = canvas.getContext('2d');
 
         //Draw the background
@@ -3617,7 +3625,7 @@ class Video extends events.EventEmitter {
                     for (let { captions } of this.scenes) {
                         for (let id of captions.keys()) {
                             if (!outputCaptions.has(id)) {
-                                outputCaptions.set(id, path.resolve(path.join(outputCaptionsDir, id + ".vtt")));
+                                outputCaptions.set(id, path__default.resolve(path__default.join(outputCaptionsDir, id + ".vtt")));
                             }
                         }
                     }
@@ -3686,7 +3694,7 @@ class Video extends events.EventEmitter {
                         let frameNumber = parseInt(file.substring(9, file.indexOf('.')));
                         if (frameNumber >= frameCount) {
                             emit("deleteStart", frameNumber);
-                            deletePromises.push(fs.promises.unlink(path.join(tempPathToUse, file))
+                            deletePromises.push(fs.promises.unlink(path__default.join(tempPathToUse, file))
                                 .then(() => {
                                     emit("deleteFinish", frameNumber);
                                 })
@@ -3735,7 +3743,7 @@ class Video extends events.EventEmitter {
                             captionOutput = outputCaptions.get(id);
                         }
                         else {
-                            captionOutput = path.resolve(path.join(tempPathToUse, `./canvideo ${id}.vtt`));
+                            captionOutput = path__default.resolve(path__default.join(tempPathToUse, `./canvideo ${id}.vtt`));
                             tempCaptionFiles.set(id, captionOutput);
                         }
                         emit("writeStart", id);
@@ -3757,7 +3765,7 @@ class Video extends events.EventEmitter {
                 let writePromises = [];
                 let captionsToWrite = new Map();
                 for (let [id, captionsPath] of outputCaptions) {
-                    if (path.extname(captionsPath) !== ".vtt") {
+                    if (path__default.extname(captionsPath) !== ".vtt") {
                         throw new URIError("Unrecognized caption file format. Currently, only .vtt is supported.");
                     }
                     if (embeddedCaptionsWrites.has(id)) {
@@ -3832,7 +3840,7 @@ class Video extends events.EventEmitter {
                         emit("renderStart", currentFrame);
                         let canvas = scene.render(sceneFrame / this.fps, this);
                         addWrite(new Promise((resolve, reject) => {
-                            let framePath = path.join(tempPathToUse, `./canvideo ${currentFrame}.png`);
+                            let framePath = path__default.join(tempPathToUse, `./canvideo ${currentFrame}.png`);
                             framePaths.push(framePath);
 
                             canvas.createPNGStream()
@@ -3871,7 +3879,7 @@ class Video extends events.EventEmitter {
                 //Add fps
                 ffmpegCommand += ` -r ${this.fps}`;
                 //Add frame input.
-                ffmpegCommand += ` -i "${path.join(tempPathToUse, "./canvideo %01d.png")}"`;
+                ffmpegCommand += ` -i "${path__default.join(tempPathToUse, "./canvideo %01d.png")}"`;
                 //Add captions.
                 for (let captionFile of embeddedCaptionFiles) {
                     ffmpegCommand += ` -i "${captionFile}"`;
@@ -4042,7 +4050,7 @@ class Video extends events.EventEmitter {
         };
 
         function checkVideoPath(outputPath) {
-            if (path.extname(outputPath) !== '.mp4') {
+            if (path__default.extname(outputPath) !== '.mp4') {
                 throw new URIError("Output path must have .mp4 extension.");
             }
         }
@@ -4090,6 +4098,103 @@ class Video extends events.EventEmitter {
     }
 }
 
+//File for managing server for web gui.
+
+//Dirname
+// file:///
+// 01234567
+const myDirname = path.dirname((typeof document === 'undefined' ? new (require('u' + 'rl').URL)('file:' + __filename).href : (document.currentScript && document.currentScript.src || new URL('index.js', document.baseURI).href))).substring(8);
+
+//Promise that gets resource paths
+const resPaths = (async () => {
+    const paperCss = undefined('papercss/dist/paper.min.css');
+    const jsonEditor = undefined('jsoneditor');
+    await Promise.all([paperCss, jsonEditor]);
+
+    const jsonEditorDist = path.join(path.dirname(await jsonEditor).substring(8), './dist/');
+
+    return {
+        paperCss: (await paperCss).substring(8),
+        jsonEditor: {
+            css: path.join(jsonEditorDist, "./jsoneditor.min.css"),
+            js: path.join(jsonEditorDist, "./jsoneditor.min.js"),
+            map: path.join(jsonEditorDist, "./jsoneditor.map"),
+            svg: path.join(jsonEditorDist, "./img/jsoneditor-icons.svg")
+        }
+    };
+})();
+
+//Function that returns an express router.
+const createRouter = async () => {
+    //Wait for resource paths
+    const {
+        paperCss: paperCssPath,
+        jsonEditor: jsonEditorPaths
+    } = await resPaths;
+
+    //Server path
+    const serverPath = myDirname;
+
+    //Web path
+    const webPath = path.join(myDirname, "../web/");
+
+    //Common path
+    const commonPath = path.join(myDirname, "../common/");
+
+    //Create an express router
+    let router = express.Router();
+
+    //Testing
+    router.get("/module.js", (req, res) => {
+        res.sendFile(path.join(serverPath, "./pages/module.js"));
+    });
+
+    //Main page
+    router.get("/", (req, res) => {
+        res.sendFile(path.join(serverPath, "./pages/index.html"));
+    });
+
+    //Create page
+    router.get("/create", (req, res) => {
+        res.sendFile(path.join(serverPath, "./pages/create.html"));
+    });
+    router.get("/create.css", (req, res) => {
+        res.sendFile(path.join(serverPath, "./pages/create.css"));
+    });
+    router.get("/create.js", (req, res) => {
+        res.sendFile(path.join(serverPath, "./pages/create.js"));
+    });
+
+    //Paper css
+    router.get("/paper.min.css", (req, res) => {
+        res.sendFile(paperCssPath);
+    });
+
+    //Json editor
+    router.get("/json-editor.min.css", (req, res) => {
+        res.sendFile(jsonEditorPaths.css);
+    });
+    router.get("/json-editor.min.js", (req, res) => {
+        res.sendFile(jsonEditorPaths.js);
+    });
+    router.get("/jsoneditor.map", (req, res) => {
+        res.sendFile(jsonEditorPaths.map);
+    });
+    router.get("/img/jsoneditor-icons.svg", (req, res) => {
+        res.sendFile(jsonEditorPaths.svg);
+    });
+
+    //Static directories
+    router.use("/common", express.static(webPath));
+    router.use("/common", express.static(commonPath));
+
+    router.use("/web", express.static(webPath));
+    
+    router.use("/static", express.static(path.join(serverPath, "./static")));
+
+    return router;
+};
+
 exports.Animation = Animation;
 exports.Camera = Camera;
 exports.Caption = Caption;
@@ -4106,6 +4211,7 @@ exports.Scene = Scene;
 exports.Shape = Shape;
 exports.Video = Video;
 exports.checkFfmpegPath = checkFfmpegPath;
+exports.createRouter = createRouter;
 exports.getFfmpegPath = getFfmpegPath;
 exports.setFfmpegPath = setFfmpegPath;
 exports.setTempPath = setTempPath;

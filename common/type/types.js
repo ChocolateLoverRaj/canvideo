@@ -3,7 +3,7 @@
 //They return a string error; which is false if there is no error.
 
 //Dependencies
-import tinyColor from 'tinycolor2';
+import tinyColor from "../color/tiny-color.js";
 
 //Anything
 export const ANY = a => false;
