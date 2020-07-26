@@ -1,9 +1,25 @@
 import getEditor from "/web/json-editor.js";
 import { list } from "/common/shapes/shapes.js";
+import { hexStringSchema } from "/common/color/color-schema.js";
+
+//TODO no need for default schema
+const defaultShapeDataSchema = {
+    title: "Data",
+    type: "null"
+}
 
 const shapeNames = [];
-for(let {shapeName} of list){
+const shapeDataSchemas = [];
+for (let { shapeName, jsonSchema } of list) {
     shapeNames.push(shapeName);
+    shapeDataSchemas.push({
+        if: {
+            properties: { name: { const: shapeName } }
+        },
+        then: {
+            properties: { data: jsonSchema || defaultShapeDataSchema }
+        }
+    });
 }
 
 const oldShapeDataSchema = {
@@ -172,7 +188,8 @@ const shapeSchema = {
                 enum: shapeNames
             }
         },
-        required: ["name", "data"]
+        required: ["name", "data"],
+        allOf: shapeDataSchemas
     },
     else: {
         properties: {
@@ -217,9 +234,7 @@ const sceneSchema = {
     title: "Scene",
     description: "A scene containing shapes that can be animated.",
     properties: {
-        backgroundColor: {
-            $ref: "color"
-        },
+        backgroundColor: hexStringSchema,
         drawables: {
             title: "Drawables",
             description: "Drawables in a scene.",
@@ -263,13 +278,6 @@ const schema = {
     required: ["width", "height", "fps", "scenes"]
 };
 
-const colorSchema = {
-    title: "Color",
-    description: "Color hex string.",
-    type: "string",
-    pattern: "^#?([0-9a-fA-F]{2}){3,4}$"
-}
-
 const anySchema = {
     title: "Any",
     description: "Anything is fine.",
@@ -284,10 +292,6 @@ const anySchema = {
 
 const options = {
     schema: schema,
-    schemaRefs: {
-        color: colorSchema,
-        any: anySchema
-    },
     mode: 'code',
     modes: ['code', 'tree']
 }
@@ -304,7 +308,19 @@ const initialJson = {
                 layer: 0,
                 shape: {
                     isBuiltin: true,
-                    name: "rectangle"
+                    name: "rectangle",
+                    data: {
+                        animations: [
+                            {
+                                startTime: 0,
+                                duration: 5,
+                                isBuiltin: true,
+                                name: "a",
+                                lasts: true
+                            }
+                        ],
+                        sets: []
+                    }
                 }
             }
         ]
