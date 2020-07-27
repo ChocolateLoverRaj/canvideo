@@ -8,6 +8,7 @@ import either from "../type/either.js";
 import arrayOf from "../type/array-of.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
+import numberSchema from "../schema/number.js";
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)
@@ -38,11 +39,6 @@ const horizontalCornerRoundInterface = new Interface(false)
     .toType();
 //Horizontal corner round type
 const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCornerRoundInterface, twoCornersArray);
-
-//Number schema
-const numberSchema = {
-    type: "number"
-}
 
 //Rectangle class
 class Rectangle extends Shape {

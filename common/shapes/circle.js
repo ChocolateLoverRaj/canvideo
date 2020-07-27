@@ -8,11 +8,36 @@ import Overloader from "../type/overloader.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
+import numberSchema from "../schema/number.js";
 
 //Circle class
 class Circle extends Shape {
     static shapeName = "circle";
     shapeName = "circle";
+
+    static jsonPropertiesSchema = {
+        ...super.jsonPropertiesSchema,
+        cx: numberSchema,
+        cy: numberSchema,
+        r: { ...numberSchema, exclusiveMinimum: 0 }
+    }
+    static jsonRequiredProperties = [
+        ...super.jsonRequiredProperties,
+        "cx",
+        "cy",
+        "r"
+    ]
+    static animateProperties = {
+        ...super.animateProperties,
+        cx: "number",
+        cy: "number",
+        r: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
