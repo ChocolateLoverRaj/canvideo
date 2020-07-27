@@ -310,15 +310,7 @@ const initialJson = {
                     isBuiltin: true,
                     name: "rectangle",
                     data: {
-                        animations: [
-                            {
-                                startTime: 0,
-                                duration: 5,
-                                isBuiltin: true,
-                                name: "a",
-                                lasts: true
-                            }
-                        ],
+                        animations: [],
                         sets: []
                     }
                 }

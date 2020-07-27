@@ -39,10 +39,42 @@ const horizontalCornerRoundInterface = new Interface(false)
 //Horizontal corner round type
 const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCornerRoundInterface, twoCornersArray);
 
+//Number schema
+const numberSchema = {
+    type: "number"
+}
+
 //Rectangle class
 class Rectangle extends Shape {
     static shapeName = "rectangle";
     shapeName = "rectangle";
+
+    static jsonPropertiesSchema = {
+        ...super.jsonPropertiesSchema,
+        x: numberSchema,
+        y: numberSchema,
+        width: numberSchema,
+        height: numberSchema
+    }
+    static jsonRequiredProperties = [
+        ...super.jsonRequiredProperties,
+        "x",
+        "y",
+        "width",
+        "height"
+    ]
+    static animateProperties = {
+        ...super.animateProperties,
+        x: "number",
+        y: "number",
+        width: "number",
+        height: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },

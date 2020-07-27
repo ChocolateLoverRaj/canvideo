@@ -9,6 +9,15 @@ class Animation {
     static animationName = "animation";
     animationName = "animation";
 
+    static getJsonSchema = (valueSchema) => ({
+        properties: {
+            startValue: valueSchema,
+            endValue: valueSchema,
+            reversed: { type: "boolean" }
+        },
+        required: ["startValue", "endValue", "reversed"]
+    })
+
     static fromJson(json, parse = true, throwErrors = false) {
         if (typeof json === 'string' && parse === true) {
             try {

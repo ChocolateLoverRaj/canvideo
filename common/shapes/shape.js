@@ -10,61 +10,118 @@ import Types from "../type/types.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import colorType from "../color/color.js";
-import { hexStringSchema, rgbaSchema } from "../color/color-schema.js";
+import { hexStringSchema } from "../color/color-schema.js";
+import Animation from "../animations/animation.js";
+import Precomputed from "../animations/precomputed.js";
 
 //Figure out whether ctx given is actually ctx.
 const ctxType = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
 
-//Either color schema
-const colorSchema = {
-    oneOf: [
-        hexStringSchema,
-        rgbaSchema
-    ]
+//Both fillColor and strokeColor use this
+const animateColor = {
+    r: "number",
+    g: "number",
+    b: "number",
+    a: "number"
 };
+
+//Get a value schema
+const getValueSchema = (properties) => {
+    const getSchema = properties => {
+        let valueProperties = {};
+        for (let k in properties) {
+            let v = properties[k];
+            valueProperties[k] = v === "number" ?
+                {
+                    type: "number"
+                } :
+                getSchema(v);
+        }
+        return { properties: valueProperties, type: "object", additionalProperties: false };
+    }
+    return getSchema(properties);
+}
 
 //Shape class
 class Shape {
     static shapeName = "shape";
     shapeName = "shape";
 
-    static jsonPropertiesSchema = {
-        fillColor: colorSchema,
-        strokeColor: colorSchema,
-        strokeWidth: { type: "number", minimum: 0 }
-    }
-    static jsonRequiredProperties = new Set()
-    static getJsonSchema = (properties, requiredProperties) => ({
-        properties: {
-            ...properties,
-            animations: {
-                type: "array",
-                items: {
-                    properties: {
-                        startTime: { type: "number", minimum: 0 },
-                        duration: { type: "number", minimum: 0 },
-                        isBuiltin: { ype: "boolean" },
-                        name: { type: "string" },
-                        lasts: { type: "boolean" }
-                    },
-                    required: ["startTime", "duration", "isBuiltin", "lasts"],
-                    if: { properties: { isBuiltin: { const: true } } },
-                    then: {
-                        properties: { name: { enum: ["animation", "precomputed"] } },
-                        required: ["name", "data"],
-                        allOf: [
-                            
-                        ]
-                    },
-                    else: {
-                        properties: { name: { type: "string" } }
+    static getJsonSchema = (properties, requiredProperties, animateProperties) => {
+        let animateSchema = getValueSchema(animateProperties);
+        return {
+            properties: {
+                ...properties,
+                animations: {
+                    type: "array",
+                    items: {
+                        properties: {
+                            startTime: { type: "number", minimum: 0 },
+                            duration: { type: "number", minimum: 0 },
+                            isBuiltin: { ype: "boolean" },
+                            name: { type: "string" },
+                            lasts: { type: "boolean" }
+                        },
+                        required: ["startTime", "duration", "isBuiltin", "lasts"],
+                        if: { properties: { isBuiltin: { const: true } } },
+                        then: {
+                            properties: { name: { enum: ["animation", "precomputed"] } },
+                            required: ["name", "data"],
+                            allOf: [
+                                {
+                                    if: { properties: { name: { const: "animation" } } },
+                                    then: {
+                                        properties: {
+                                            data: Animation.getJsonSchema(animateSchema)
+                                        }
+                                    }
+                                },
+                                {
+                                    if: { properties: { name: { const: "precomputed" } } },
+                                    then: {
+                                        properties: {
+                                            data: Precomputed.getJsonSchema(animateSchema)
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        else: {
+                            properties: { name: { type: "string" } }
+                        }
+                    }
+                },
+                sets: {
+                    type: "array",
+                    items: {
+                        properties: {
+                            at: { type: "number", minimum: 0 },
+                            value: animateSchema
+                        },
+                        required: ["at", "value"]
                     }
                 }
-            }
-        },
-        required: [...new Set([...requiredProperties, "animations", "sets"])]
-    })
-    static jsonSchema = this.getJsonSchema(this.jsonPropertiesSchema, this.jsonRequiredProperties)
+            },
+            required: [...new Set([...requiredProperties, "animations", "sets"])],
+            additionalProperties: false
+        }
+    }
+    static jsonPropertiesSchema = {
+        fillColor: hexStringSchema,
+        strokeColor: hexStringSchema,
+        strokeWidth: { type: "number", minimum: 0 }
+    }
+    static jsonRequiredProperties = []
+    static animateProperties = {
+        fillColor: animateColor,
+        strokeColor: animateColor,
+        strokeWidth: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
