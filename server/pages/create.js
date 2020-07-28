@@ -310,22 +310,9 @@ const initialJson = {
                 layer: 0,
                 shape: {
                     isBuiltin: true,
-                    name: "group",
+                    name: "numberLine",
                     data: {
-                        children: [
-                            {
-                                isBuiltin: true,
-                                name: "group"
-                            }
-                        ],
-                        x: 0,
-                        y: 0,
-                        width: 1,
-                        height: 1,
-                        refX: 0,
-                        refY: 0,
-                        originalWidth: 1,
-                        originalHeight: 1,
+                        
                         animations: [],
                         sets: []
                     }
