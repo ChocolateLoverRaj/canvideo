@@ -6,11 +6,104 @@ import Types from "../type/types.js";
 import typedFunction from "../type/typed-function.js";
 import arrayOf from "../type/array-of.js";
 import instanceOf from "../type/instanceOf.js";
+import { numberSchema, positiveNumberSchema } from "../schema/number.js";
 
 //Path class
 class Path extends Shape {
     static shapeName = "path";
     shapeName = "path";
+
+    static jsonPropertiesSchema = {
+        ...super.jsonPropertiesSchema,
+        doFill: { type: "boolean" },
+        strokeDash: { type: "array", items: numberSchema },
+        strokeDashOffset: numberSchema,
+        operations: {
+            type: "array",
+            items: {
+                anyOf: [
+                    {
+                        type: "array",
+                        items: [
+                            {
+                                const: "moveTo"
+                            },
+                            {
+                                type: "array",
+                                items: [
+                                    numberSchema,
+                                    numberSchema
+                                ],
+                                minItems: 2,
+                                maxItems: 2
+                            }
+                        ],
+                        minItems: 2,
+                        maxItems: 2
+                    },
+                    {
+                        type: "array",
+                        items: [
+                            {
+                                const: "lineTo"
+                            },
+                            {
+                                type: "array",
+                                items: [
+                                    numberSchema,
+                                    numberSchema
+                                ],
+                                minItems: 2,
+                                maxItems: 2
+                            }
+                        ],
+                        minItems: 2,
+                        maxItems: 2
+                    },
+                    {
+                        type: "array",
+                        items: [
+                            {
+                                const: "arc"
+                            },
+                            {
+                                type: "array",
+                                items: [
+                                    numberSchema,
+                                    numberSchema,
+                                    positiveNumberSchema,
+                                    numberSchema,
+                                    numberSchema,
+                                    { type: "boolean" }
+                                ],
+                                minItems: 6,
+                                maxItems: 6
+                            }
+                        ],
+                        minItems: 2,
+                        maxItems: 2
+                    }
+                ]
+            }
+        }
+    }
+    static jsonRequiredProperties = [
+        ...super.jsonRequiredProperties,
+        "doFill",
+        "strokeDash",
+        "strokeDashOffset",
+        "operations"
+    ]
+    static animateProperties = {
+        ...super.animateProperties,
+        strokeDash: ["number"],
+        strokeDashOffset: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },

@@ -28,16 +28,37 @@ const animateColor = {
 //Get a value schema
 const getValueSchema = (properties) => {
     const getSchema = properties => {
-        let valueProperties = {};
-        for (let k in properties) {
-            let v = properties[k];
-            valueProperties[k] = v === "number" ?
-                {
-                    type: "number"
-                } :
-                getSchema(v);
+        const getProperty = v => {
+            switch (typeof v) {
+                case "string":
+                    if (v === "number") {
+                        return { type: "number" };
+                    }
+                    else {
+                        throw new TypeError("Unknown type");
+                    }
+                case "object": {
+                    return getSchema(v);
+                }
+            }
         }
-        return { properties: valueProperties, type: "object", additionalProperties: false };
+        if (properties instanceof Array) {
+            return {
+                type: "array",
+                items: getProperty(properties[0])
+            };
+        }
+        else {
+            let valueProperties = {};
+            for (let k in properties) {
+                valueProperties[k] = getProperty(properties[k]);
+            }
+            return {
+                properties: valueProperties,
+                type: "object",
+                additionalProperties: false
+            };
+        }
     }
     return getSchema(properties);
 }

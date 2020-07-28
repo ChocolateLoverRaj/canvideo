@@ -3,7 +3,8 @@ import { list } from "/common/shapes/shapes.js";
 import { hexStringSchema } from "/common/color/color-schema.js";
 import { refs } from "/common/schema/refs.js";
 
-//TODO no need for default schema
+//FIXME problems with rollup and super with inheriting properties
+
 const shapeNames = [];
 const shapeDataSchemas = [];
 for (let { shapeName, jsonSchema } of list) {
@@ -310,9 +311,14 @@ const initialJson = {
                 layer: 0,
                 shape: {
                     isBuiltin: true,
-                    name: "numberLine",
+                    name: "path",
                     data: {
-                        
+                        operations: [
+                            ["moveTo"]
+                        ],
+                        doFill: false,
+                        strokeDash: [],
+                        strokeDashOffset: 0,
                         animations: [],
                         sets: []
                     }
