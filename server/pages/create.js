@@ -1,13 +1,9 @@
 import getEditor from "/web/json-editor.js";
 import { list } from "/common/shapes/shapes.js";
 import { hexStringSchema } from "/common/color/color-schema.js";
+import { refs } from "/common/schema/refs.js";
 
 //TODO no need for default schema
-const defaultShapeDataSchema = {
-    title: "Data",
-    type: "null"
-}
-
 const shapeNames = [];
 const shapeDataSchemas = [];
 for (let { shapeName, jsonSchema } of list) {
@@ -17,7 +13,7 @@ for (let { shapeName, jsonSchema } of list) {
             properties: { name: { const: shapeName } }
         },
         then: {
-            properties: { data: jsonSchema || defaultShapeDataSchema }
+            properties: { data: jsonSchema }
         }
     });
 }
@@ -290,8 +286,14 @@ const anySchema = {
         "null"]
 }
 
+const schemaRefs = {};
+for (let [k, v] of refs) {
+    schemaRefs[k] = v;
+}
+
 const options = {
-    schema: schema,
+    schema,
+    schemaRefs,
     mode: 'code',
     modes: ['code', 'tree']
 }
@@ -308,8 +310,22 @@ const initialJson = {
                 layer: 0,
                 shape: {
                     isBuiltin: true,
-                    name: "rectangle",
+                    name: "group",
                     data: {
+                        children: [
+                            {
+                                isBuiltin: true,
+                                name: "group"
+                            }
+                        ],
+                        x: 0,
+                        y: 0,
+                        width: 1,
+                        height: 1,
+                        refX: 0,
+                        refY: 0,
+                        originalWidth: 1,
+                        originalHeight: 1,
                         animations: [],
                         sets: []
                     }

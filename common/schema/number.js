@@ -1,6 +1,9 @@
 //Because this is used by so many shapes
-const numberSchema = {
+export const numberSchema = {
     type: "number"
 };
 
-export default numberSchema;
+export const positiveNumberSchema = {
+    ...numberSchema,
+    exclusiveMinimum: 0
+}

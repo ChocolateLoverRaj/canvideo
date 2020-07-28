@@ -8,7 +8,7 @@ import either from "../type/either.js";
 import arrayOf from "../type/array-of.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
-import numberSchema from "../schema/number.js";
+import { numberSchema } from "../schema/number.js";
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)

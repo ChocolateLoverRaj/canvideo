@@ -8,7 +8,7 @@ import Overloader from "../type/overloader.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
-import numberSchema from "../schema/number.js";
+import { numberSchema, positiveNumberSchema } from "../schema/number.js";
 
 //Circle class
 class Circle extends Shape {
@@ -19,7 +19,7 @@ class Circle extends Shape {
         ...super.jsonPropertiesSchema,
         cx: numberSchema,
         cy: numberSchema,
-        r: { ...numberSchema, exclusiveMinimum: 0 }
+        r: positiveNumberSchema
     }
     static jsonRequiredProperties = [
         ...super.jsonRequiredProperties,
