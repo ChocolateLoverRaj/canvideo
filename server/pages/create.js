@@ -311,14 +311,9 @@ const initialJson = {
                 layer: 0,
                 shape: {
                     isBuiltin: true,
-                    name: "path",
+                    name: "polygon",
                     data: {
-                        operations: [
-                            ["moveTo"]
-                        ],
-                        doFill: false,
-                        strokeDash: [],
-                        strokeDashOffset: 0,
+                        points: [],
                         animations: [],
                         sets: []
                     }
