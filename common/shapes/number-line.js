@@ -8,11 +8,45 @@ import arrayOf from "../type/array-of.js";
 import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
 import typedFunction from "../type/typed-function.js";
+import { numberSchema, positiveNumberSchema } from "../schema/number.js";
 
 //Number line class
 class NumberLine extends Shape {
     static shapeName = "numberLine";
     shapeName = "numberLine";
+
+    static jsonPropertiesSchema = {
+        ...super.jsonPropertiesSchema,
+        startNumber: numberSchema,
+        endNumber: numberSchema,
+        x: numberSchema,
+        y: numberSchema,
+        width: positiveNumberSchema,
+        height: positiveNumberSchema
+    }
+    static jsonRequiredProperties = [
+        ...super.jsonRequiredProperties,
+        "startNumber",
+        "endNumber",
+        "x",
+        "y",
+        "width",
+        "height"
+    ]
+    static animateProperties = {
+        ...super.animateProperties,
+        startNumber: "number",
+        endNumber: "number",
+        x: "number",
+        y: "number",
+        width: "number",
+        height: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },

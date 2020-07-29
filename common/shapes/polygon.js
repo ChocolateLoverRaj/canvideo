@@ -7,11 +7,42 @@ import typedFunction from "../type/typed-function.js";
 import Types from "../type/types.js";
 import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
+import { numberSchema } from "../schema/number.js";
 
 //Polygon class
 class Polygon extends Shape {
     static shapeName = "polygon";
     shapeName = "polygon";
+
+    static jsonPropertiesSchema = {
+        ...super.jsonPropertiesSchema,
+        points: {
+            type: "array",
+            items: {
+                properties: {
+                    x: numberSchema,
+                    y: numberSchema
+                },
+                required: ["x", "y"]
+            }
+        }
+    }
+    static jsonRequiredProperties = [
+        ...super.jsonRequiredProperties,
+        "points"
+    ]
+    static animateProperties = {
+        ...super.animateProperties,
+        "points": [{
+            x: "number",
+            y: "number"
+        }]
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },

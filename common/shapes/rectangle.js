@@ -8,6 +8,7 @@ import either from "../type/either.js";
 import arrayOf from "../type/array-of.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
+import { numberSchema } from "../schema/number.js";
 
 //Corner round interface
 const cornerRoundInterface = new Interface(false)
@@ -43,6 +44,33 @@ const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCo
 class Rectangle extends Shape {
     static shapeName = "rectangle";
     shapeName = "rectangle";
+
+    static jsonPropertiesSchema = {
+        ...super.jsonPropertiesSchema,
+        x: numberSchema,
+        y: numberSchema,
+        width: numberSchema,
+        height: numberSchema
+    }
+    static jsonRequiredProperties = [
+        ...super.jsonRequiredProperties,
+        "x",
+        "y",
+        "width",
+        "height"
+    ]
+    static animateProperties = {
+        ...super.animateProperties,
+        x: "number",
+        y: "number",
+        width: "number",
+        height: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },

@@ -5,6 +5,19 @@ class Precomputed {
     static animationName = "precomputed";
     animationName = "precomputed";
 
+    static getJsonSchema = (valueSchema) => ({
+        type: "array",
+        items: {
+            type: "array",
+            items: [
+                { type: "number", minimum: 0 },
+                valueSchema
+            ],
+            minItems: 2,
+            maxItems: 2
+        }
+    })
+
     static fromJson(json, parse = true, throwErrors = false) {
         if (typeof json === 'string' && parse === true) {
             try {

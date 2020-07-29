@@ -1,11 +1,12 @@
 import { Canvas } from "canvas";
 
-import { Shape, ShapeProperties } from "../shapes/shape";
-import Camera from "./camera";
-import { setColor, GetColor } from "../color";
-import csMappings from "../shapes/cs-mappings";
-import { caMappings } from "../animations/animanaged";
-import { Caption, captionJson } from "../caption";
+import Shape from "../../common/shapes/shape";
+import { ShapeProperties } from "../../common/shapes/shape-properties";
+import Camera from "../camera/camera";
+import { setColor, GetColor } from "../../common/color/get-set";
+import csMappings from "../../common/shapes/cs-mappings";
+import { caMappings } from "../../common/animations/animanaged";
+import Caption from "../captions/caption";
 import SceneJson from "./scene-json";
 
 type shape = Shape<any, any>;
@@ -26,22 +27,6 @@ interface AddOptions {
 interface RenderOptions {
     width: number;
     height: number;
-}
-
-interface CaptionsJson {
-    [key: string]: captionJson;
-}
-
-interface DrawableJson {
-    startTime: number;
-    endTime: number;
-    layer: number;
-    shape: {
-        isBuiltin: boolean;
-        name: string | undefined;
-        data: object;
-    };
-    captions: CaptionsJson;
 }
 
 type aam = caMappings<any & ShapeProperties>;

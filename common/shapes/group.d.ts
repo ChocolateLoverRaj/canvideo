@@ -17,6 +17,7 @@ interface GroupProperties extends ShapeProperties {
 }
 
 interface ChildJson {
+    isBuiltin: boolean;
     name: string | undefined;
     data: object;
 }

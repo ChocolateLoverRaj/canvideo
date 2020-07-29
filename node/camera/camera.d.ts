@@ -1,15 +1,7 @@
-import Animanaged from "../animations/animanaged";
+import Animanaged from "../../common/animations/animanaged";
+import CameraJson from "./camera-json";
 
 interface CameraProperties{
-    scaleX: number;
-    scaleY: number;
-    refX: number;
-    refY: number;
-    x: number;
-    y: number;
-}
-
-interface CameraJson{
     scaleX: number;
     scaleY: number;
     refX: number;

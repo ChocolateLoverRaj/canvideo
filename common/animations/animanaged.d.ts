@@ -25,12 +25,12 @@ export interface AnimationJson {
 export interface SetJson<Properties> {
     at: number;
     value: Properties;
-};
+}
 
-type fromJson<Properties> = (json?: any & object, parse?: any & false, throwErrors?: any & true) => animator<Properties>;
+type fromJson<Properties extends {}> = (json?: any & object, parse?: any & false, throwErrors?: any & true) => animator<Properties>;
 export type caMappings<Properties> = Map<string, fromJson<Properties>>;
 
-abstract class Animations<Properties> extends Array<Animation<Properties>>{
+export abstract class Animations<Properties extends {}> extends Array<Animation<Properties>>{
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): object;
 
@@ -38,7 +38,7 @@ abstract class Animations<Properties> extends Array<Animation<Properties>>{
     importJson(json: any, parse: false, caMappings?: caMappings<Properties>): this;
 }
 
-abstract class Sets<Properties> extends Array<Set<Properties>>{
+export abstract class Sets<Properties extends {}> extends Array<Set<Properties>>{
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): object;
 

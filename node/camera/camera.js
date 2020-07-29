@@ -1,9 +1,9 @@
 //Camera for scenes
 
 //Dependencies
-import Types from "../type/types.js";
-import typedFunction from "../type/typed-function.js";
-import { animanage } from "../animations/animanage.js";
+import Types from "../../common/type/types.js";
+import typedFunction from "../../common/type/typed-function.js";
+import { animanage } from "../../common/animations/animanage.js";
 
 //Camera class
 class Camera {

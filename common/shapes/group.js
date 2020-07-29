@@ -14,6 +14,22 @@ import { Interface } from "../type/interface.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import pointInterface from "./point-interface.js";
+import { numberSchema, positiveNumberSchema } from "../schema/number.js";
+import { addRef, setRef } from "../schema/refs.js";
+
+//This is referenced by the schema
+const shapeNames = ["group"];
+const groupRefKey = addRef();
+const shapeDataSchemas = [
+    {
+        if: {
+            properties: { name: { const: "group" } }
+        },
+        then: {
+            properties: { data: { $ref: groupRefKey } }
+        }
+    }
+];
 
 //Size interface
 const sizeInterface = new Interface(false)
@@ -25,6 +41,74 @@ const sizeInterface = new Interface(false)
 class Group extends Shape {
     static shapeName = "group";
     shapeName = "group";
+
+    static jsonPropertiesSchema = {
+        ...super.jsonPropertiesSchema,
+        x: numberSchema,
+        y: numberSchema,
+        originalWidth: positiveNumberSchema,
+        originalHeight: positiveNumberSchema,
+        refX: numberSchema,
+        refY: numberSchema,
+        width: positiveNumberSchema,
+        height: positiveNumberSchema,
+        children: {
+            type: "array",
+            items: {
+                properties: {
+                    isBuiltin: {
+                        type: "boolean"
+                    }
+                },
+                required: ["isBuiltin"],
+                if: { properties: { isBuiltin: { const: true } } },
+                then: {
+                    properties: {
+                        name: {
+                            enum: shapeNames
+                        }
+                    },
+                    required: ["name", "data"],
+                    allOf: shapeDataSchemas
+                },
+                else: {
+                    properties: {
+                        name: {
+                            type: "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    static jsonRequiredProperties = [
+        ...super.jsonRequiredProperties,
+        "x",
+        "y",
+        "originalWidth",
+        "originalHeight",
+        "refX",
+        "refY",
+        "width",
+        "height",
+        "children"
+    ]
+    static animateProperties = {
+        ...super.animateProperties,
+        x: "number",
+        y: "number",
+        originalWidth: "number",
+        originalHeight: "number",
+        refX: "number",
+        refY: "number",
+        width: "number",
+        height: "number",
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
@@ -274,7 +358,8 @@ class Group extends Shape {
 };
 
 //List of shapes
-const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
+const otherShapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle];
+const shapesList = [...otherShapesList, Group];
 
 //Check if a shape is builtin
 //This is because requiring ./shapes.js will cause circular dependencies
@@ -286,5 +371,18 @@ const isBuiltin = a => {
     }
     return false;
 }
+
+for (let { shapeName, jsonSchema } of otherShapesList) {
+    shapeNames.push(shapeName);
+    shapeDataSchemas.push({
+        if: {
+            properties: { name: { const: shapeName } }
+        },
+        then: {
+            properties: { data: jsonSchema }
+        }
+    });
+}
+setRef(groupRefKey, Group.jsonSchema);
 
 export default Group;

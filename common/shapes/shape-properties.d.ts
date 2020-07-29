@@ -1,4 +1,5 @@
 import { AnimationJson, SetJson } from "../animations/animanaged";
+import { setColor, GetColor } from "../color/get-set";
 
 export interface ShapeJson<P extends {}> {
     fillColor: string | undefined;
