@@ -124,9 +124,47 @@ const sceneSchema = {
                     required: ["start", "end", "text"]
                 }
             }
+        },
+        camera: {
+            title: "Camera",
+            description: "The camera that transforms the scene.",
+            type: "object",
+            properties: {
+                scaleX: {
+                    title: "Scale X",
+                    description: "The horizontal scale.",
+                    type: "number"
+                },
+                scaleY: {
+                    title: "Scale Y",
+                    description: "The vertical scale.",
+                    type: "number"
+                },
+                refX: {
+                    title: "Ref X",
+                    description: "The x value that stays the same while scaling.",
+                    type: "number"
+                },
+                refY: {
+                    title: "Ref Y",
+                    description: "The y value that stays the same while scaling.",
+                    type: "number"
+                },
+                x: {
+                    title: "X",
+                    description: "The x position of the camera.",
+                    type: "number"
+                },
+                y: {
+                    title: "Y",
+                    description: "The y position of the camera.",
+                    type: "number"
+                }
+            },
+            required: ["scaleX", "scaleY", "refX", "refY", "x", "y"]
         }
     },
-    required: ["backgroundColor", "drawables", "captions"]
+    required: ["backgroundColor", "drawables", "captions", "camera"]
 }
 
 const schema = {
@@ -181,15 +219,8 @@ const initialJson = {
         {
             backgroundColor: "#1e90ff",
             drawables: [],
-            captions: {
-                "english": [
-                    {
-                        start: 4,
-                        end: 10,
-                        text: "Good morning."
-                    }
-                ]
-            }
+            captions: {},
+            camera: {}
         }
     ]
 }
