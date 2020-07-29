@@ -6,7 +6,7 @@ import chai from 'chai';
 
 //My Modules
 import expectError from "./expect-error.js";
-import Animation from "../common/animations/animation.js";
+import Animation from "../animations/animation.js";
 
 const expect = chai.expect;
 
