@@ -19,152 +19,6 @@ for (let { shapeName, jsonSchema } of list) {
     });
 }
 
-const oldShapeDataSchema = {
-    title: "Data",
-    description: "The data that the shape stores as json.",
-    properties: {
-        fillColor: {
-            $ref: "color"
-        },
-        strokeColor: {
-            $ref: "color"
-        },
-        strokeWidth: {
-            title: "Stroke Width",
-            description: "The width of lines in the canvas.",
-            type: "number",
-            minimum: 0
-        },
-        animations: {
-            title: "Animations",
-            description: "An array of animations that are applied to the shape.",
-            type: "array",
-            items: {
-                title: "Animation",
-                description: "An animation animates the properties of a shape.",
-                properties: {
-                    startTime: {
-                        title: "Start Time",
-                        description: "The time the animation is applied.",
-                        type: "number",
-                        minimum: 0
-                    },
-                    duration: {
-                        title: "Duration",
-                        description: "The amount of time the animation lasts",
-                        type: "number",
-                        minimum: 0
-                    },
-                    isBuiltin: {
-                        title: "Is Builtin",
-                        description: "Whether or not the animation is the builtin canvideo animation.",
-                        type: "boolean"
-                    },
-                    name: {
-                        title: "Name",
-                        description: "The name of the animation.",
-                        type: "string"
-                    },
-                    lasts: {
-                        title: "Lasts",
-                        description: "Whether the final values of animation still effect the shape after the animation ends.",
-                        type: "boolean"
-                    }
-                },
-                if: {
-                    properties: { isBuiltin: { const: true } }
-                },
-                then: {
-                    properties: {
-                        name: {
-                            title: "Name",
-                            description: "The name of the builtin animation.",
-                            enum: ["animation", "precomputed"]
-                        }
-                    },
-                    allOf: [
-                        {
-                            if: {
-                                properties: { name: { const: "animation" } }
-                            },
-                            then: {
-                                properties: {
-                                    data: {
-                                        title: "Animation Data",
-                                        description: "Data about the animation",
-                                        properties: {
-                                            startValue: {
-                                                title: "Start Value",
-                                                description: "Value at the beginning of the animation.",
-                                                type: "object"
-                                            },
-                                            endValue: {
-                                                title: "End Value",
-                                                description: "Value at the end of the animation.",
-                                                type: "object"
-                                            },
-                                            reversed: {
-                                                title: "Reversed",
-                                                description: "Wether or not the animation is reversed.",
-                                                type: "boolean"
-                                            }
-                                        },
-                                        required: ["startValue", "endValue", "reversed"]
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            if: {
-                                properties: { name: { const: "precomputed" } }
-                            },
-                            then: {
-                                properties: {
-                                    data: {
-                                        title: "Precomputed Data",
-                                        description: "Data about the precomputed values",
-                                        type: "array",
-                                        items: {
-                                            title: "Value",
-                                            description: "A tuple with the value at a certain time.",
-                                            type: "array",
-                                            items: [
-                                                {
-                                                    title: "At",
-                                                    description: "Time at which value changes.",
-                                                    type: "number",
-                                                    minimum: 0
-                                                },
-                                                {
-                                                    title: "Value",
-                                                    description: "The properties that change.",
-                                                    type: "object"
-                                                }
-                                            ],
-                                            minItems: 2,
-                                            additionalItems: false
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    ],
-                    required: ["name", "data"]
-                },
-                else: {
-                    properties: {
-                        data: {
-                            $ref: "any"
-                        }
-                    }
-                },
-                required: ["startTime", "duration", "isBuiltin", "lasts"]
-            }
-        }
-    },
-    required: ["animations", "sets"]
-}
-
 const shapeSchema = {
     title: "Shape",
     description: "Details and data of shape.",
@@ -237,9 +91,42 @@ const sceneSchema = {
             description: "Drawables in a scene.",
             type: "array",
             items: drawableSchema
+        },
+        captions: {
+            title: "Captions",
+            description: "The captions that go with the scene.",
+            type: "object",
+            additionalProperties: {
+                title: "Caption",
+                description: "A caption track.",
+                type: "array",
+                items: {
+                    title: "Text",
+                    description: "A text in a caption.",
+                    type: "object",
+                    properties: {
+                        start: {
+                            title: "Start",
+                            description: "When the caption appears.",
+                            type: "number"
+                        },
+                        end: {
+                            title: "End",
+                            description: "When the caption disappears.",
+                            type: "number"
+                        },
+                        text: {
+                            title: "Text",
+                            description: "The actual text that gets shown.",
+                            type: "string"
+                        }
+                    },
+                    required: ["start", "end", "text"]
+                }
+            }
         }
     },
-    required: ["backgroundColor", "drawables"]
+    required: ["backgroundColor", "drawables", "captions"]
 }
 
 const schema = {
@@ -275,18 +162,6 @@ const schema = {
     required: ["width", "height", "fps", "scenes"]
 };
 
-const anySchema = {
-    title: "Any",
-    description: "Anything is fine.",
-    type: [
-        "number",
-        "string",
-        "boolean",
-        "object",
-        "array",
-        "null"]
-}
-
 const schemaRefs = {};
 for (let [k, v] of refs) {
     schemaRefs[k] = v;
@@ -302,25 +177,21 @@ const initialJson = {
     width: 400,
     height: 400,
     fps: 24,
-    scenes: [{
-        backgroundColor: "#1e90ff",
-        drawables: [
-            {
-                startTime: 0,
-                endTime: 10,
-                layer: 0,
-                shape: {
-                    isBuiltin: true,
-                    name: "polygon",
-                    data: {
-                        points: [],
-                        animations: [],
-                        sets: []
+    scenes: [
+        {
+            backgroundColor: "#1e90ff",
+            drawables: [],
+            captions: {
+                "english": [
+                    {
+                        start: 4,
+                        end: 10,
+                        text: "Good morning."
                     }
-                }
+                ]
             }
-        ]
-    }]
+        }
+    ]
 }
 
 window.addEventListener("load", async () => {
