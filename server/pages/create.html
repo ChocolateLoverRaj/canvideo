@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- PaperCSS -->
+    <link rel="stylesheet" href="/paper.min.css">
+
+    <!-- Json Editor -->
+    <link rel="stylesheet" href="/json-editor.min.css">
+    <script src="/json-editor.min.js"></script>
+
+    <!-- Tiny Color -->
+    <script src="/tiny-color.min.js"></script>
+
+    <!-- Classic js script -->
+    <script src="/web/json-editor-sender.js"></script>
+
+    <!-- Stuff specifically for this page -->
+    <link rel="stylesheet" href="/create.css">
+    <script type="module" src="/create.js"></script>
+
+    <title>Create a Video with Canvideo</title>
+</head>
+
+<body>
+    <nav class="border split-nav">
+        <div class="nav-brand">
+            <h3><a href="/">Canvideo</a></h3>
+        </div>
+        <div class="collapsible">
+            <input id="collapsible1" type="checkbox" name="collapsible1">
+            <button>
+                <label for="collapsible1">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </label>
+            </button>
+            <div class="collapsible-body">
+                <ul class="inline">
+                    <li><a href="https://github.com/ChocolateLoverRaj/canvideo">Github</a></li>
+                    <li><a href="https://npmjs.com/package/canvideo">Npm</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="content">
+        <div class="row" id="content--row">
+            <div class="col-6">Hi</div>
+            <div class="col-6 background-primary" id="json"></div>
+        </div>
+    </div>
+</body>
+
+</html>

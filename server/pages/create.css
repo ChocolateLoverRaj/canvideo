@@ -1,0 +1,28 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-flow: column;
+}
+
+body>nav {
+    flex: 0 1 auto;
+}
+
+#content {
+    flex: 1 1 auto;
+}
+
+#content--row {
+    height: 100%;
+    margin: 0;
+}
+
+#json {
+    height: 100%;
+    margin: 0;
+    overflow: auto;
+}
