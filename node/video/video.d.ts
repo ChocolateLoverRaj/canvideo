@@ -7,4 +7,4 @@ export declare function setFfmpegPath(path: string): void;
 export declare function getFfmpegPath(): string;
 export declare function checkFfmpegPath(): Promise<void>;
 
-export declare class Video extends VideoClass { };
+export declare class Video extends VideoClass { }

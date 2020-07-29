@@ -1,6 +1,7 @@
 import { Canvas } from "canvas";
 
-import { Shape, ShapeProperties } from "../../common/shapes/shape";
+import Shape from "../../common/shapes/shape";
+import { ShapeProperties } from "../../common/shapes/shape-properties";
 import Camera from "../camera/camera";
 import { setColor, GetColor } from "../../common/color/get-set";
 import csMappings from "../../common/shapes/cs-mappings";

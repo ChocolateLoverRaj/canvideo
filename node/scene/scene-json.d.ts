@@ -1,4 +1,5 @@
-import captionJson from "../captions/caption-json"
+import captionJson from "../captions/caption-json";
+import CameraJson from "../camera/camera-json";
 
 interface CaptionsJson {
     [key: string]: captionJson;
@@ -13,11 +14,11 @@ interface DrawableJson {
         name: string | undefined;
         data: object;
     };
-    captions: CaptionsJson;
 }
 
 export default interface SceneJson {
     backgroundColor: string;
     drawables: Array<DrawableJson>;
     captions: CaptionsJson;
+    camera: CameraJson;
 }

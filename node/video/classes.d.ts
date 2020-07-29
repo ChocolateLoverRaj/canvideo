@@ -1,8 +1,9 @@
 import { EventEmitter } from 'events';
 
-import { SceneJson, Scene } from "./scene";
+import Scene from "../scene/scene";
+import SceneJson from "../scene/scene-json";
 import csMappings from "../../common/shapes/cs-mappings";
-import { caMappings } from '../animations/animanaged';
+import { caMappings } from '../../common/animations/animanaged';
 import { ExportStages } from "./stages";
 import ExportTask from "./export-task";
 
@@ -42,7 +43,7 @@ interface ExportOptions {
     maxStreams?: number;
 }
 
-namespace VideoExport {
+export namespace VideoExport {
     abstract class CheckTempPath extends EventEmitter {
         addListener(event: "start", listener: () => void): this;
         addListener(event: "finish", listener: () => void): this;
@@ -277,7 +278,7 @@ namespace VideoExport {
     }
 }
 
-abstract class VideoExport extends EventEmitter {
+export abstract class VideoExport extends EventEmitter {
     currentStage: ExportStages;
     currentTasks: Set<ExportTask>;
 
