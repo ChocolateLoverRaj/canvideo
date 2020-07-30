@@ -16,13 +16,25 @@ body>nav {
     flex: 1 1 auto;
 }
 
-#content--row {
+#content__grid {
     height: 100%;
     margin: 0;
+    display: grid;
+    grid-template-rows: 100%;
+    grid-template-columns: 50% 50%;
 }
 
 #json {
-    height: 100%;
+    grid-column: 2 / span 1;
     margin: 0;
-    overflow: auto;
+    display: flex;
+    flex-flow: column;
+}
+
+#json__save {
+    flex: 0 1 auto;
+}
+
+#json__editor {
+    flex: 1 1 auto;
 }

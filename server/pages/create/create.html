@@ -12,6 +12,9 @@
     <!-- Tiny Color -->
     <script src="/tiny-color.min.js"></script>
 
+    <!-- Google Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
     <!-- Classic js script -->
     <script src="/web/json-editor-sender.js"></script>
 
@@ -46,9 +49,36 @@
     </nav>
 
     <div id="content">
-        <div class="row" id="content--row">
-            <div class="col-6">Hi</div>
-            <div class="col-6 background-primary" id="json-container"></div>
+        <div id="content__grid">
+            <div id="json">
+                <div id="json__save" class="background-primary">
+                    <a class="paper-btn" id="json__download" download="canvideo.json">
+                        <i class="material-icons md-46">file_download</i>
+                    </a>
+                    <label for="json__upload__modal" class="paper-btn">
+                        <i class="material-icons md-46">file_upload</i>
+                    </label>
+
+
+
+                    <input class="modal-state" id="json__upload__modal" type="checkbox" checked>
+                    <div class="modal">
+                        <label class="modal-bg" for="json__upload__modal"></label>
+                        <div class="modal-body">
+                            <label class="btn-close" for="json__upload__modal">X</label>
+                            <h4 class="modal-title">Upload Json File</h4>
+                            <h5 class="modal-subtitle">Open picker or drag and drop into this modal.</h5>
+                            <p class="modal-text"><input type="file" accept=".json"></p>
+                        </div>
+                    </div>
+
+
+                    <button id="json__local-storage">
+                        <i class="material-icons md-46">unarchive</i>
+                    </button>
+                </div>
+                <div id="json__editor"></div>
+            </div>
         </div>
     </div>
 </body>
