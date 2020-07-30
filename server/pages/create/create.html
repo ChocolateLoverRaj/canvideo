@@ -55,23 +55,23 @@
                     <a class="paper-btn" id="json__download" download="canvideo.json">
                         <i class="material-icons md-46">file_download</i>
                     </a>
-                    <label for="json__upload__modal" class="paper-btn">
+                    
+                    <label for="json__upload__checkbox" class="paper-btn">
                         <i class="material-icons md-46">file_upload</i>
                     </label>
-
-
-
-                    <input class="modal-state" id="json__upload__modal" type="checkbox" checked>
+                    <input class="modal-state" id="json__upload__checkbox" type="checkbox">
                     <div class="modal">
-                        <label class="modal-bg" for="json__upload__modal"></label>
+                        <label class="modal-bg" for="json__upload__checkbox"></label>
                         <div class="modal-body">
-                            <label class="btn-close" for="json__upload__modal">X</label>
+                            <label class="btn-close" for="json__upload__checkbox">X</label>
                             <h4 class="modal-title">Upload Json File</h4>
-                            <h5 class="modal-subtitle">Open picker or drag and drop into this modal.</h5>
-                            <p class="modal-text"><input type="file" accept=".json"></p>
+                            <h5 class="modal-subtitle">Open picker or drag and drop into the file picker.</h5>
+                            <p class="modal-text">
+                                <input type="file" accept="application/json" id="json__upload__input">
+                                <span id="json__upload__message"></span>
+                            </p>
                         </div>
                     </div>
-
 
                     <button id="json__local-storage">
                         <i class="material-icons md-46">unarchive</i>
