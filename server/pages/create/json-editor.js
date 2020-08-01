@@ -72,10 +72,138 @@ const uploadInit = () => {
     });
 }
 
+const localStorageInit = () => {
+    var saves;
+    var confirmDeleteListener;
+    var duplicateOverwriteListener;
+
+    const savesForm = document.getElementById("local-storage__form");
+    const savesTableBody = document.getElementById("local-storage__table__body");
+    const confirmDeleteCheckbox = document.getElementById("local-storage__confirm-delete__checkbox");
+    const confirmDeleteName = document.getElementById("local-storage__confirm-delete__name");
+    const confirmDeleteConfirm = document.getElementById("local-storage__confirm-delete__confirm");
+    const duplicateCheckbox = document.getElementById("local-storage__duplicate-modal__checkbox");
+    const duplicateName = document.getElementById("local-storage__duplicate-modal__name");
+    const duplicateOverwrite = document.getElementById("local-storage__duplicate-modal__overwrite");
+
+    confirmDeleteCheckbox.addEventListener('change', () => {
+        if (confirmDeleteCheckbox.checked === false) {
+            confirmDeleteConfirm.removeEventListener('click', confirmDeleteListener);
+        }
+    });
+    duplicateCheckbox.addEventListener('change', () => {
+        if (duplicateCheckbox.checked === false) {
+            duplicateOverwrite.removeEventListener('click', duplicateOverwriteListener);
+        }
+    });
+
+    const saveToLocalStorage = () => {
+        localStorage.setItem("saves", JSON.stringify(saves));
+    };
+
+    const selectSave = name => {
+        saves.saves[name] = editor.getText();
+        saves.selected = name;
+        saveToLocalStorage();
+        refreshTable();
+    }
+
+    savesForm.addEventListener('submit', e => {
+        e.preventDefault();
+
+        function addSave() {
+            if (savesForm.text.value.length > 0) {
+                selectSave(savesForm.text.value);
+                savesForm.text.value = '';
+            }
+        }
+
+        if (saves.saves.hasOwnProperty(savesForm.text.value)) {
+            duplicateCheckbox.checked = true;
+            duplicateName.innerText = savesForm.text.value;
+            duplicateOverwriteListener = addSave;
+            duplicateOverwrite.addEventListener('click', duplicateOverwriteListener);
+        }
+        else {
+            addSave();
+        }
+    });
+
+    const refreshTable = () => {
+        let savesString = localStorage.getItem("saves");
+        saves = savesString ? JSON.parse(savesString) : { saves: {}, selected: null };
+        savesTableBody.innerHTML = '';
+
+        //TODO make a toggle input for auto-saving. Maybe add another input for auto-save frequency.
+        //TODO listen for json updates and Ctrl+S.
+        function uploadSave() {
+            selectSave(this.getAttribute("name"));
+        }
+
+        //TODO add a function for loading saves.
+
+        function deleteSave() {
+            let name = this.getAttribute("name");
+            confirmDeleteCheckbox.checked = true;
+            confirmDeleteName.innerText = name;
+            confirmDeleteListener = function () {
+                delete saves.saves[name];
+                if(saves.selected === name){
+                    saves.selected = null;
+                }
+                saveToLocalStorage();
+                refreshTable();
+            };
+            confirmDeleteConfirm.addEventListener('click', confirmDeleteListener);
+        }
+
+        for (let saveName in saves.saves) {
+            let row = document.createElement('tr');
+
+            let nameCell = document.createElement('td');
+            nameCell.innerText = saveName;
+            row.appendChild(nameCell);
+
+            let saveCell = document.createElement('td');
+            let saveIcon = document.createElement('i');
+            saveIcon.setAttribute("name", saveName);
+            saveIcon.classList.add('material-icons');
+            saveIcon.classList.add('save-icon');
+            saveIcon.innerHTML = saveName === saves.selected ? 'check' : 'save';
+            saveIcon.addEventListener('click', uploadSave);
+            saveCell.appendChild(saveIcon);
+            row.appendChild(saveCell);
+
+            let loadCell = document.createElement('td');
+            let loadIcon = document.createElement('i');
+            loadIcon.classList.add('material-icons');
+            loadIcon.classList.add('load-icon');
+            loadIcon.innerHTML = 'archive';
+            loadCell.appendChild(loadIcon);
+            row.appendChild(loadCell);
+
+            let deleteCell = document.createElement('td');
+            let deleteIcon = document.createElement('i');
+            deleteIcon.setAttribute("name", saveName);
+            deleteIcon.classList.add('material-icons');
+            deleteIcon.classList.add('delete-icon');
+            deleteIcon.innerHTML = 'delete';
+            deleteIcon.addEventListener('click', deleteSave);
+            deleteCell.appendChild(deleteIcon);
+            row.appendChild(deleteCell);
+
+            savesTableBody.appendChild(row);
+        }
+    };
+
+    refreshTable();
+};
+
 const init = async () => {
     jsonEditorInit();
     downloaderInit();
     uploadInit();
+    localStorageInit();
 }
 
 export default init;
