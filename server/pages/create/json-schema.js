@@ -1,9 +1,6 @@
-import getEditor from "/web/json-editor.js";
 import { list } from "/common/shapes/shapes.js";
 import { hexStringSchema } from "/common/color/color-schema.js";
 import { refs } from "/common/schema/refs.js";
-
-//FIXME problems with rollup and super with inheriting properties
 
 const shapeNames = [];
 const shapeDataSchemas = [];
@@ -205,13 +202,12 @@ for (let [k, v] of refs) {
     schemaRefs[k] = v;
 }
 
-const options = {
+export const options = {
     schema,
-    schemaRefs,
-    mode: 'code',
-    modes: ['code', 'tree']
+    schemaRefs
 }
-const initialJson = {
+
+export const initialJson = {
     width: 400,
     height: 400,
     fps: 24,
@@ -220,15 +216,14 @@ const initialJson = {
             backgroundColor: "#1e90ff",
             drawables: [],
             captions: {},
-            camera: {}
+            camera: {
+                scaleX: 1,
+                scaleY: 1,
+                refX: 0,
+                refY: 0,
+                x: 0,
+                y: 0
+            }
         }
     ]
 }
-
-window.addEventListener("load", async () => {
-    const container = document.getElementById("json");
-
-    let JsonEditor = await getEditor();
-
-    const editor = new JsonEditor(container, options, initialJson);
-});

@@ -61,19 +61,14 @@ const createRouter = async () => {
 
     //Main page
     router.get("/", (req, res) => {
-        res.sendFile(join(serverPath, "./pages/index.html"));
+        res.sendFile(join(serverPath, "./pages/index/index.html"));
     });
 
     //Create page
     router.get("/create", (req, res) => {
-        res.sendFile(join(serverPath, "./pages/create.html"));
+        res.sendFile(join(serverPath, "./pages/create/create.html"));
     });
-    router.get("/create.css", (req, res) => {
-        res.sendFile(join(serverPath, "./pages/create.css"));
-    });
-    router.get("/create.js", (req, res) => {
-        res.sendFile(join(serverPath, "./pages/create.js"));
-    });
+    router.use("/create", express.static(join(serverPath, "./pages/create/")));
 
     //Paper css
     router.get("/paper.min.css", (req, res) => {
