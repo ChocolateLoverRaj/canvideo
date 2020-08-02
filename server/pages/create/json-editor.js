@@ -41,6 +41,7 @@ const uploadInit = () => {
     const uploadInput = document.getElementById("json__upload__input");
     const uploadMessage = document.getElementById("json__upload__message");
     const uploadCheckbox = document.getElementById("json__upload__checkbox");
+    const uploadSuccess = document.getElementById("json__upload__success");
 
     const displayError = err => {
         uploadInput.disabled = false;
@@ -66,6 +67,7 @@ const uploadInit = () => {
             });
             reader.addEventListener('load', e => {
                 editor.setText(reader.result);
+                uploadSuccess.checked = true;
                 uploadCheckbox.checked = false;
                 uploadInput.disabled = false;
                 uploadMessage.innerText = '';
@@ -98,6 +100,7 @@ const localStorageInit = () => {
     const duplicateCheckbox = document.getElementById("local-storage__duplicate-modal__checkbox");
     const duplicateName = document.getElementById("local-storage__duplicate-modal__name");
     const duplicateOverwrite = document.getElementById("local-storage__duplicate-modal__overwrite");
+    const loadSuccessCheckbox = document.getElementById("local-storage__load-success");
 
     enableSaveButton = () => {
         saveButton.setAttribute('title', "Save Changes");
@@ -131,8 +134,8 @@ const localStorageInit = () => {
         }
     };
     addEventListener('keydown', e => {
-        if(!saveKeyDown){
-            if(e.key === "s" && e.ctrlKey){
+        if (!saveKeyDown) {
+            if (e.key === "s" && e.ctrlKey) {
                 console.log("ctrl s")
                 e.preventDefault();
                 saveKeyDown = true;
@@ -141,7 +144,7 @@ const localStorageInit = () => {
         }
     });
     addEventListener('keyup', e => {
-        if(e.key === "s" && e.ctrlKey){
+        if (e.key === "s" && e.ctrlKey) {
             saveKeyDown = false;
         }
     });
@@ -187,6 +190,11 @@ const localStorageInit = () => {
         refreshTable();
     }
 
+    const loadSave = name => {
+        editor.setText(saves.saves[name]);
+        loadSuccessCheckbox.checked = true;
+    }
+
     savesForm.addEventListener('submit', e => {
         e.preventDefault();
 
@@ -221,12 +229,15 @@ const localStorageInit = () => {
         autoSaveForm.frequency.value = saves.autoSaveFrequency;
         savesTableBody.innerHTML = '';
 
-        //TODO listen for Ctrl+S.
         function uploadSave() {
             selectSave(this.getAttribute("name"));
         }
 
-        //TODO add a function for loading saves.
+        function downloadSave() {
+            let name = this.getAttribute("name");
+            loadSave(name);
+            selectSave(name);
+        }
 
         function deleteSave() {
             let name = this.getAttribute("name");
@@ -263,9 +274,11 @@ const localStorageInit = () => {
 
             let loadCell = document.createElement('td');
             let loadIcon = document.createElement('i');
+            loadIcon.setAttribute("name", saveName);
             loadIcon.classList.add('material-icons');
             loadIcon.classList.add('load-icon');
             loadIcon.innerHTML = 'archive';
+            loadIcon.addEventListener('click', downloadSave);
             loadCell.appendChild(loadIcon);
             row.appendChild(loadCell);
 
@@ -284,10 +297,13 @@ const localStorageInit = () => {
     };
 
     refreshTable();
+    if (saves.selected) {
+        loadSave(saves.selected);
+    }
 };
 
 const init = async () => {
-    jsonEditorInit();
+    await jsonEditorInit();
     downloaderInit();
     uploadInit();
     localStorageInit();

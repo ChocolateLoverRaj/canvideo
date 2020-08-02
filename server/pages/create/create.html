@@ -51,7 +51,8 @@
     <div id="alerts">
         <input class="alert-state" id="local-storage__no-save-selected" type="checkbox" checked>
         <div class="alert alert-warning dismissible">
-            <label id="local-storage__no-save-selected__pointer" for="local-storage__checkbox">Couldn't save because no save is selected. Click on this text to open
+            <label id="local-storage__no-save-selected__pointer" for="local-storage__checkbox">Couldn't save because no
+                save is selected. Click on this text to open
                 save settings.</label>
             <label class="btn-close" for="local-storage__no-save-selected">X</label>
         </div>
@@ -79,6 +80,16 @@
                                 <input type="file" accept="application/json" id="json__upload__input">
                                 <span id="json__upload__message"></span>
                             </p>
+                        </div>
+                    </div>
+                    <input class="modal-state" id="json__upload__success" type="checkbox">
+                    <div class="modal">
+                        <label class="modal-bg" for="json__upload__success"></label>
+                        <div class="modal-body">
+                            <label class="btn-close" for="json__upload__success">X</label>
+                            <h4 class="modal-title">Json Successfully Uploaded</h4>
+                            <h5 class="modal-subtitle">You can save your changes by saving to local storage or
+                                downloading the json file.</h5>
                         </div>
                     </div>
 
@@ -134,6 +145,15 @@
                                     placeholder="New Project" maxlength="25" required>
                                 <button type="submit">Add Save</button>
                             </form>
+                        </div>
+                    </div>
+                    <input class="modal-state" id="local-storage__load-success" type="checkbox">
+                    <div class="modal">
+                        <label class="modal-bg" for="local-storage__load-success"></label>
+                        <div class="modal-body">
+                            <label class="btn-close" for="local-storage__load-success">X</label>
+                            <h4 class="modal-title">Successfully Loaded Save</h4>
+                            <h5 class="modal-subtitle">Now you can make changes to the save.</h5>
                         </div>
                     </div>
                     <input class="modal-state" id="local-storage__confirm-delete__checkbox" type="checkbox">
