@@ -8,8 +8,16 @@ body {
     flex-flow: column;
 }
 
-body>nav {
+body>nav, #alerts {
     flex: 0 1 auto;
+}
+
+#alerts * {
+    margin: 0;
+}
+
+#local-storage__no-save-selected__pointer {
+    cursor: pointer;
 }
 
 #content {

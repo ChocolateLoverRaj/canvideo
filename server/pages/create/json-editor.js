@@ -8,15 +8,20 @@ const options = {
     ...jsonSchemaOptions,
     mode: 'code',
     modes: ['code', 'tree'],
-    search: false
+    search: false,
+    onChange: () => {
+        enableSaveButton();
+        autoSave();
+    }
 }
 
 const editorPromise = getEditor();
+var editorContainer;
 var editor;
 const jsonEditorInit = async () => {
-    const container = document.getElementById("json__editor");
+    editorContainer = document.getElementById("json__editor");
     let JsonEditor = await editorPromise;
-    editor = new JsonEditor(container, options, initialJson);
+    editor = new JsonEditor(editorContainer, options, initialJson);
 }
 
 const downloaderInit = () => {
@@ -72,11 +77,19 @@ const uploadInit = () => {
     });
 }
 
+var enableSaveButton;
+var autoSave;
 const localStorageInit = () => {
     var saves;
     var confirmDeleteListener;
     var duplicateOverwriteListener;
+    var lastSaved = -Infinity;
+    var scheduledSave = false;
+    var saveKeyDown = false;
 
+    const noSaveSelectedAlert = document.getElementById("local-storage__no-save-selected");
+    const saveButton = document.getElementById("local-storage__save");
+    const autoSaveForm = document.getElementById("local-storage__auto-save");
     const savesForm = document.getElementById("local-storage__form");
     const savesTableBody = document.getElementById("local-storage__table__body");
     const confirmDeleteCheckbox = document.getElementById("local-storage__confirm-delete__checkbox");
@@ -85,6 +98,71 @@ const localStorageInit = () => {
     const duplicateCheckbox = document.getElementById("local-storage__duplicate-modal__checkbox");
     const duplicateName = document.getElementById("local-storage__duplicate-modal__name");
     const duplicateOverwrite = document.getElementById("local-storage__duplicate-modal__overwrite");
+
+    enableSaveButton = () => {
+        saveButton.setAttribute('title', "Save Changes");
+        saveButton.disabled = false;
+    }
+    const save = () => {
+        if (saves.selected) {
+            saves.saves[saves.selected] = editor.getText();
+            saveToLocalStorage();
+            saveButton.setAttribute('title', "Changes Saved");
+            saveButton.disabled = true;
+        }
+        else {
+            noSaveSelectedAlert.checked = false;
+        }
+        lastSaved = Date.now();
+    };
+    autoSave = () => {
+        if (saves.autoSave) {
+            if (Date.now() - saves.autoSaveFrequency * 1000 > lastSaved) {
+                save();
+            }
+            else {
+                if (!scheduledSave) {
+                    setTimeout(() => {
+                        save();
+                        scheduledSave = false;
+                    }, lastSaved + saves.autoSaveFrequency * 1000 - Date.now());
+                }
+            }
+        }
+    };
+    addEventListener('keydown', e => {
+        if(!saveKeyDown){
+            if(e.key === "s" && e.ctrlKey){
+                console.log("ctrl s")
+                e.preventDefault();
+                saveKeyDown = true;
+                save();
+            }
+        }
+    });
+    addEventListener('keyup', e => {
+        if(e.key === "s" && e.ctrlKey){
+            saveKeyDown = false;
+        }
+    });
+    saveButton.addEventListener('click', save);
+
+    autoSaveForm.addEventListener('submit', e => {
+        e.preventDefault();
+    });
+    autoSaveForm.checkbox.addEventListener('change', () => {
+        let checked = autoSaveForm.checkbox.checked;
+        autoSaveForm.frequency.disabled = !checked;
+        saves.autoSave = checked;
+        saveToLocalStorage();
+    });
+    autoSaveForm.frequency.addEventListener('change', () => {
+        let frequency = parseInt(autoSaveForm.frequency.value);
+        if (Number.isInteger(frequency) && frequency > 0 && frequency <= 60 * 60) {
+            saves.autoSaveFrequency = frequency;
+            saveToLocalStorage();
+        }
+    });
 
     confirmDeleteCheckbox.addEventListener('change', () => {
         if (confirmDeleteCheckbox.checked === false) {
@@ -105,6 +183,7 @@ const localStorageInit = () => {
         saves.saves[name] = editor.getText();
         saves.selected = name;
         saveToLocalStorage();
+        noSaveSelectedAlert.checked = true;
         refreshTable();
     }
 
@@ -131,11 +210,18 @@ const localStorageInit = () => {
 
     const refreshTable = () => {
         let savesString = localStorage.getItem("saves");
-        saves = savesString ? JSON.parse(savesString) : { saves: {}, selected: null };
+        saves = savesString ? JSON.parse(savesString) : {
+            saves: {},
+            selected: null,
+            autoSave: false,
+            autoSaveFrequency: 10
+        };
+        autoSaveForm.checkbox.checked = saves.autoSave;
+        autoSaveForm.frequency.disabled = !saves.autoSave;
+        autoSaveForm.frequency.value = saves.autoSaveFrequency;
         savesTableBody.innerHTML = '';
 
-        //TODO make a toggle input for auto-saving. Maybe add another input for auto-save frequency.
-        //TODO listen for json updates and Ctrl+S.
+        //TODO listen for Ctrl+S.
         function uploadSave() {
             selectSave(this.getAttribute("name"));
         }
@@ -148,8 +234,9 @@ const localStorageInit = () => {
             confirmDeleteName.innerText = name;
             confirmDeleteListener = function () {
                 delete saves.saves[name];
-                if(saves.selected === name){
+                if (saves.selected === name) {
                     saves.selected = null;
+                    saves.autoSave = false;
                 }
                 saveToLocalStorage();
                 refreshTable();

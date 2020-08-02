@@ -48,15 +48,24 @@
         </div>
     </nav>
 
+    <div id="alerts">
+        <input class="alert-state" id="local-storage__no-save-selected" type="checkbox" checked>
+        <div class="alert alert-warning dismissible">
+            <label id="local-storage__no-save-selected__pointer" for="local-storage__checkbox">Couldn't save because no save is selected. Click on this text to open
+                save settings.</label>
+            <label class="btn-close" for="local-storage__no-save-selected">X</label>
+        </div>
+    </div>
+
     <div id="content">
         <div id="content__grid">
             <div id="json">
                 <div id="json__save" class="background-primary">
-                    <a class="paper-btn" id="json__download" download="canvideo.json">
+                    <a class="paper-btn" id="json__download" title="Download Json" download="canvideo.json">
                         <i class="material-icons md-46">file_download</i>
                     </a>
 
-                    <label for="json__upload__checkbox" class="paper-btn">
+                    <label for="json__upload__checkbox" class="paper-btn" title="Upload Json">
                         <i class="material-icons md-46">file_upload</i>
                     </label>
                     <input class="modal-state" id="json__upload__checkbox" type="checkbox">
@@ -73,16 +82,40 @@
                         </div>
                     </div>
 
-                    <label for="local-storage__checkbox" class="paper-btn">
+                    <label for="local-storage__checkbox" class="paper-btn" title="Save Settings">
                         <i class="material-icons md-46">unarchive</i>
                     </label>
-                    <input class="modal-state" id="local-storage__checkbox" type="checkbox" checked>
+                    <button id="local-storage__save" title="Save Changes">
+                        <i class="material-icons">save</i>
+                    </button>
+                    <input class="modal-state" id="local-storage__checkbox" type="checkbox">
                     <div class="modal">
                         <label class="modal-bg" for="local-storage__checkbox"></label>
                         <div class="modal-body" id="local-storage__modal">
                             <label class="btn-close" for="local-storage__checkbox">X</label>
                             <h4 class="modal-title">Save to Local Storage</h4>
                             <h5 class="modal-subtitle">Choose a local storage save or create a new one.</h5>
+                            <form id="local-storage__auto-save">
+                                <fieldset class="form-group">
+                                    <div class="row flex-middle">
+                                        <label for="local-storage__auto-save__checkbox"
+                                            class="paper-switch-2-label">Auto
+                                            Save</label>
+                                        <label class="paper-switch-2">
+                                            <input id="local-storage__auto-save__checkbox" name="checkbox"
+                                                type="checkbox" />
+                                            <span class="paper-switch-slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div class="row flex-middle">
+                                        <label for="local-storage__auto-save__frequency">Auto Save
+                                            Frequency</label>
+                                        <input id="local-storage__auto-save__frequency" name="frequency" type="number"
+                                            min="1" multiple="1" max="3600" value="10" disabled>
+                                    </div>
+                                </fieldset>
+                            </form>
+
                             <table id="local-storage__table">
                                 <thead>
                                     <tr>
