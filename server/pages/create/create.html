@@ -60,6 +60,16 @@
 
     <div id="content">
         <div id="content__grid">
+            <div id="preview">
+                <div id="preview__canvas-container">
+                    <canvas id="preview__canvas"></canvas>
+                    <div id="preview__errors">
+                        <div id="preview__errors__bad-json" class="hidden">
+                            <h1>Bad Json.</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="json">
                 <div id="json__save" class="background-primary">
                     <a class="paper-btn" id="json__download" title="Download Json" download="canvideo.json">

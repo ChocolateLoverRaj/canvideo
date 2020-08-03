@@ -24,6 +24,8 @@ const jsonEditorInit = async () => {
     editor = new JsonEditor(editorContainer, options, initialJson);
 }
 
+export const getEditorText = () => editor.getText();
+
 const downloaderInit = () => {
     const download = document.getElementById("json__download");
     download.addEventListener('click', () => {
@@ -302,11 +304,9 @@ const localStorageInit = () => {
     }
 };
 
-const init = async () => {
+export const init = async () => {
     await jsonEditorInit();
     downloaderInit();
     uploadInit();
     localStorageInit();
 }
-
-export default init;
