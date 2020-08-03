@@ -136,7 +136,6 @@ const localStorageInit = () => {
     addEventListener('keydown', e => {
         if (!saveKeyDown) {
             if (e.key === "s" && e.ctrlKey) {
-                console.log("ctrl s")
                 e.preventDefault();
                 saveKeyDown = true;
                 save();
