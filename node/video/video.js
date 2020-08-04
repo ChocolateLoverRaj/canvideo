@@ -3,11 +3,11 @@
 //Dependencies
 //Node.js Modules
 import fs, { promises as fsPromises } from 'fs';
-import { EventEmitter, once } from 'events';
 import path from 'path';
 import { exec } from 'child_process';
 
 //My Modules
+import { EventEmitter, once } from "../../common/event-emitter/event-emitter.js";
 import Overloader from "../../common/type/overloader.js";
 import Types from "../../common/type/types.js";
 import { Interface } from "../../common/type/interface.js";
