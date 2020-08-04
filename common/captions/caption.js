@@ -1,8 +1,8 @@
 //Create captions and generate .vtt files
 
 //Dependencies
-import typedFunction from "../../common/type/typed-function.js";
-import Types from "../../common/type/types.js";
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
 
 //Zero pad a number to the left
 function zeroPad(n, length) {

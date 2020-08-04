@@ -1,22 +1,22 @@
 //Manage a scene and add shapes
 
 //Dependencies
-import tinyColor from "../../common/color/tiny-color.js";
-import { createCanvas } from "../../common/canvas/canvas.js";
-import typedFunction from "../../common/type/typed-function.js";
-import Types from "../../common/type/types.js";
-import Overloader from "../../common/type/overloader.js";
-import { Interface } from "../../common/type/interface.js";
-import instanceOf from "../../common/type/instanceOf.js";
+import tinyColor from "../color/tiny-color.js";
+import { createCanvas } from "../canvas/canvas.js";
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
+import Overloader from "../type/overloader.js";
+import { Interface } from "../type/interface.js";
+import instanceOf from "../type/instanceOf.js";
 import Camera from "../camera/camera.js";
-import colorType from "../../common/color/color.js";
-import typify from "../../common/properties/typify.js";
+import colorType from "../color/color.js";
+import typify from "../properties/typify.js";
 import cameraInterface from "../camera/camera-interface.js";
 import { 
     fromJson as shapeFromJson, 
     isBuiltin as isShapeBuiltin 
-} from "../../common/shapes/shapes.js";
-import Shape from "../../common/shapes/shape.js";
+} from "../shapes/shapes.js";
+import Shape from "../shapes/shape.js";
 import Caption from "../captions/caption.js";
 
 //Config
