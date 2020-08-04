@@ -1,2 +1,2 @@
-//Directly export eventemitter3 module.
-export { default } from 'eventemitter3';
+export { default as EventEmitter } from "./emitter.js";
+export { default as once } from "./once.js";
