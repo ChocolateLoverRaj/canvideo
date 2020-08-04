@@ -17,7 +17,8 @@ const resPaths = (async () => {
     const paperCss = import.meta.resolve('papercss/dist/paper.min.css');
     const jsonEditor = import.meta.resolve('jsoneditor');
     const tinyColor = import.meta.resolve('tinycolor2/dist/tinycolor-min.js');
-    await Promise.all([paperCss, jsonEditor, tinyColor]);
+    const eventEmitter = import.meta.resolve('eventemitter3/umd/eventemitter3.min.js');
+    await Promise.all([paperCss, jsonEditor, tinyColor, eventEmitter]);
 
     const jsonEditorDist = join(dirname(await jsonEditor).substring(8), './dist/');
 
@@ -29,7 +30,9 @@ const resPaths = (async () => {
             map: join(jsonEditorDist, "./jsoneditor.map"),
             svg: join(jsonEditorDist, "./img/jsoneditor-icons.svg")
         },
-        tinyColor: (await tinyColor).substring(8)
+        tinyColor: (await tinyColor).substring(8),
+        eventEmitter: (await eventEmitter).substring(8)
+        
     };
 })();
 
@@ -39,7 +42,8 @@ const createRouter = async () => {
     const {
         paperCss: paperCssPath,
         jsonEditor: jsonEditorPaths,
-        tinyColor: tinyColorPath
+        tinyColor: tinyColorPath,
+        eventEmitter: eventEmitterPath
     } = await resPaths;
 
     //Server path
@@ -92,6 +96,11 @@ const createRouter = async () => {
     //Tiny Color
     router.get("/tiny-color.min.js", (req, res) => {
         res.sendFile(tinyColorPath);
+    });
+
+    //eventemitter3
+    router.get("/event-emitter.min.js", (req, res) => {
+        res.sendFile(eventEmitterPath);
     });
 
     //Static directories
