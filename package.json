@@ -33,6 +33,7 @@
   "dependencies": {
     "@types/express-serve-static-core": "^4.17.8",
     "canvas": "^2.6.1",
+    "eventemitter3": "^4.0.4",
     "express": "^4.17.1",
     "jsoneditor": "^9.0.3",
     "papercss": "^1.7.0",

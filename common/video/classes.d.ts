@@ -1,5 +1,4 @@
-import { EventEmitter } from 'events';
-
+import { EventEmitter } from "../../common/event-emitter/event-emitter";
 import Scene from "../scene/scene";
 import SceneJson from "../scene/scene-json";
 import csMappings from "../shapes/cs-mappings";
@@ -44,107 +43,31 @@ interface ExportOptions {
 }
 
 export namespace VideoExport {
-    abstract class CheckTempPath extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOnceListener(event: "start", listener: () => void): this;
-        prependOnceListener(event: "finish", listener: () => void): this;
+    interface CheckTempPathEvents {
+        start: () => void;
+        finish: () => void;
     }
 
-    abstract class DeleteExtraFrames extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "readDir", listener: () => void): this;
-        addListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        addListener(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "readDir", listener: () => void): this;
-        on(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        on(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "readDir", listener: () => void): this;
-        once(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        once(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "readDir", listener: () => void): this;
-        prependListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        prependListener(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOncListener(event: "start", listener: () => void): this;
-        prependOncListener(event: "readDir", listener: () => void): this;
-        prependOncListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        prependOncListener(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        prependOncListener(event: "finish", listener: () => void): this;
+    interface DeleteExtraFramesEvents {
+        start: () => void;
+        readDir: () => void;
+        deleteStart: (frameNumber?: number) => void;
+        deleteFinish: (frameNumber?: number) => void;
+        finish: () => void;
     }
 
-    abstract class RenderNewFrames extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "renderStart", listener: (frameNumber?: number) => void): this;
-        addListener(event: "renderFinish", listener: (frameNumber?: number) => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "renderStart", listener: (frameNumber?: number) => void): this;
-        on(event: "renderFinish", listener: (frameNumber?: number) => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "renderStart", listener: (frameNumber?: number) => void): this;
-        once(event: "renderFinish", listener: (frameNumber?: number) => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "renderStart", listener: (frameNumber?: number) => void): this;
-        prependListener(event: "renderFinish", listener: (frameNumber?: number) => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOnceListener(event: "start", listener: () => void): this;
-        prependOnceListener(event: "renderStart", listener: (frameNumber?: number) => void): this;
-        prependOnceListener(event: "renderFinish", listener: (frameNumber?: number) => void): this;
-        prependOnceListener(event: "finish", listener: () => void): this;
+    interface RenderNewFramesEvents {
+        start: () => void;
+        deleteStart: (frameNumber?: number) => void;
+        deleteFinish: (frameNumber?: number) => void;
+        finish: () => void;
     }
 
-    abstract class GenerateEmbeddedCaptions extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "writeStart", listener: (id?: string) => void): this;
-        addListener(event: "writeFinish", listener: (id?: string) => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "writeStart", listener: (id?: string) => void): this;
-        on(event: "writeFinish", listener: (id?: string) => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "writeStart", listener: (id?: string) => void): this;
-        once(event: "writeFinish", listener: (id?: string) => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "writeStart", listener: (id?: string) => void): this;
-        prependListener(event: "writeFinish", listener: (id?: string) => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOnceListener(event: "start", listener: () => void): this;
-        prependOnceListener(event: "writeStart", listener: (id?: string) => void): this;
-        prependOnceListener(event: "writeFinish", listener: (id?: string) => void): this;
-        prependOnceListener(event: "finish", listener: () => void): this;
+    interface GenerateEmbeddedCaptionsEvents {
+        write: () => void;
+        writeStart: (id?: string) => void;
+        writeFinish: (id?: string) => void;
+        finish: () => void;
     }
 
     interface GenerateVideoProgress {
@@ -154,379 +77,99 @@ export namespace VideoExport {
         progress: number;
         finished: boolean;
     }
-    abstract class GenerateVideo extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "checkFfmpegPathStart", listener: () => void): this;
-        addListener(event: "checkFfmpegPathFinish", listener: () => void): this;
-        addListener(event: "generateStart", listener: () => void): this;
-        addListener(event: "generateProgress", listener: (progress?: GenerateVideoProgress) => void): this;
-        addListener(event: "generateFinish", listener: () => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "checkFfmpegPathStart", listener: () => void): this;
-        on(event: "checkFfmpegPathFinish", listener: () => void): this;
-        on(event: "generateStart", listener: () => void): this;
-        on(event: "generateProgress", listener: (progress?: GenerateVideoProgress) => void): this;
-        on(event: "generateFinish", listener: () => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "checkFfmpegPathStart", listener: () => void): this;
-        once(event: "checkFfmpegPathFinish", listener: () => void): this;
-        once(event: "generateStart", listener: () => void): this;
-        once(event: "generateProgress", listener: (progress?: GenerateVideoProgress) => void): this;
-        once(event: "generateFinish", listener: () => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "checkFfmpegPathStart", listener: () => void): this;
-        prependListener(event: "checkFfmpegPathFinish", listener: () => void): this;
-        prependListener(event: "generateStart", listener: () => void): this;
-        prependListener(event: "generateProgress", listener: (progress?: GenerateVideoProgress) => void): this;
-        prependListener(event: "generateFinish", listener: () => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOnceListener(event: "start", listener: () => void): this;
-        prependOnceListener(event: "checkFfmpegPathStart", listener: () => void): this;
-        prependOnceListener(event: "checkFfmpegPathFinish", listener: () => void): this;
-        prependOnceListener(event: "generateStart", listener: () => void): this;
-        prependOnceListener(event: "generateProgress", listener: (progress?: GenerateVideoProgress) => void): this;
-        prependOnceListener(event: "generateFinish", listener: () => void): this;
-        prependOnceListener(event: "finish", listener: () => void): this;
+    interface GenerateVideoEvents {
+        start: () => void;
+        checkFfmpegPathStart: () => void;
+        checkFfmpegPathFinish: () => void;
+        generateStart: () => void;
+        generateProgress: (progress?: GenerateVideoProgress) => void;
+        generateFinish: () => void;
+        finish: () => void;
     }
 
-    abstract class DeleteFrames extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        addListener(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        on(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        once(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        prependListener(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOnceListener(event: "start", listener: () => void): this;
-        prependOnceListener(event: "deleteStart", listener: (frameNumber?: number) => void): this;
-        prependOnceListener(event: "deleteFinish", listener: (frameNumber?: number) => void): this;
-        prependOnceListener(event: "finish", listener: () => void): this;
+    interface DeleteFramesEvents {
+        start: () => void;
+        deleteStart: (frameNumber?: number) => void;
+        deleteFinish: (frameNumber?: number) => void;
+        finish: () => void;
     }
 
-    abstract class DeleteCaptions extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "deleteStart", listener: (id?: string) => void): this;
-        addListener(event: "deleteFinish", listener: (id?: string) => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "deleteStart", listener: (id?: string) => void): this;
-        on(event: "deleteFinish", listener: (id?: string) => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "deleteStart", listener: (id?: string) => void): this;
-        once(event: "deleteFinish", listener: (id?: string) => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "deleteStart", listener: (id?: string) => void): this;
-        prependListener(event: "deleteFinish", listener: (id?: string) => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOnceListener(event: "start", listener: () => void): this;
-        prependOnceListener(event: "deleteStart", listener: (id?: string) => void): this;
-        prependOnceListener(event: "deleteFinish", listener: (id?: string) => void): this;
-        prependOnceListener(event: "finish", listener: () => void): this;
+    interface DeleteCaptionsEvents {
+        start: () => void;
+        deleteStart: (id?: string) => void;
+        deleteFinish: (id?: string) => void;
+        finish: () => void;
     }
 
-    abstract class GenerateSeparateCaptions extends EventEmitter {
-        addListener(event: "start", listener: () => void): this;
-        addListener(event: "writeStart", listener: (id?: string) => void): this;
-        addListener(event: "writeFinish", listener: (id?: string) => void): this;
-        addListener(event: "finish", listener: () => void): this;
-
-        on(event: "start", listener: () => void): this;
-        on(event: "writeStart", listener: (id?: string) => void): this;
-        on(event: "writeFinish", listener: (id?: string) => void): this;
-        on(event: "finish", listener: () => void): this;
-
-        once(event: "start", listener: () => void): this;
-        once(event: "writeStart", listener: (id?: string) => void): this;
-        once(event: "writeFinish", listener: (id?: string) => void): this;
-        once(event: "finish", listener: () => void): this;
-
-        prependListener(event: "start", listener: () => void): this;
-        prependListener(event: "writeStart", listener: (id?: string) => void): this;
-        prependListener(event: "writeFinish", listener: (id?: string) => void): this;
-        prependListener(event: "finish", listener: () => void): this;
-
-        prependOnceListener(event: "start", listener: () => void): this;
-        prependOnceListener(event: "writeStart", listener: (id?: string) => void): this;
-        prependOnceListener(event: "writeFinish", listener: (id?: string) => void): this;
-        prependOnceListener(event: "finish", listener: () => void): this;
+    interface GenerateSeparateCaptionsEvents {
+        start: () => void;
+        writeStart: (id?: string) => void;
+        writeFinish: (id?: string) => void;
+        finish: () => void;
     }
 }
 
-export abstract class VideoExport extends EventEmitter {
+interface VideoExportEvents {
+    checkTempPath_start: () => void;
+    checkTempPath_finish: () => void;
+
+    deleteExtraFrames_start: () => void;
+    deleteExtraFrames_readDir: () => void;
+    deleteExtraFrames_deleteStart: (frameNumber?: number) => void;
+    deleteExtraFrames_deleteFinish: (frameNumber?: number) => void;
+    deleteExtraFrames_finish: () => void;
+
+    renderNewFrames_start: () => void;
+    renderNewFrames_renderStart: (frameNumber?: number) => void;
+    renderNewFrames_renderFinish: (frameNumber?: number) => void;
+    renderNewFrames_finish: () => void;
+
+    generateEmbeddedCaptions_start: () => void;
+    generateEmbeddedCaptions_writeStart: (id?: string) => void;
+    generateEmbeddedCaptions_writeFinish: (id?: string) => void;
+    generateEmbeddedCaptions_finish: () => void;
+
+    generateVideo_start: () => void;
+    generateVideo_checkFfmpegPathStart: () => void;
+    generateVideo_generateStart: () => void;
+    generateVideo_generateProgress: (progress?: VideoExport.GenerateVideoProgress) => void;
+    generateVideo_generateFinish: () => void;
+    generateVideo_finish: () => void;
+
+    deleteFrames_start: () => void;
+    deleteFrames_deleteStart: (frameNumber?: number) => void;
+    deleteFrames_deleteFinish: (frameNumber?: number) => void;
+    deleteFrames_finish: () => void;
+
+    deleteCaptions_start: () => void;
+    deleteCaptions_deleteStart: (id?: string) => void;
+    deleteCaptions_deleteFinish: (id?: string) => void;
+    deleteCaptions_finish: () => void;
+
+    generateSeparateCaptions_start: () => void;
+    generateSeparateCaptions_writeStart: (id?: string) => void;
+    generateSeparateCaptions_writeFinish: (id?: string) => void;
+    generateSeparateCaptions_finish: () => void;
+
+    start: () => void;
+    finish: () => void;
+    error: (err: Error) => void;
+}
+export abstract class VideoExport extends EventEmitter<VideoExportEvents> {
     currentStage: ExportStages;
     currentTasks: Set<ExportTask>;
 
-    checkTempPath: VideoExport.CheckTempPath;
-    deleteExtraFrames: VideoExport.DeleteExtraFrames;
-    renderNewFrames: VideoExport.RenderNewFrames;
-    generateEmbeddedCaptions: VideoExport.GenerateEmbeddedCaptions;
-    generateVideo: VideoExport.GenerateVideo;
-    deleteFrames: VideoExport.DeleteFrames;
-    deleteCaptions: VideoExport.DeleteCaptions;
-    generateSeparateCaptions: VideoExport.GenerateSeparateCaptions;
+    checkTempPath: EventEmitter<VideoExport.CheckTempPathEvents>;
+    deleteExtraFrames: EventEmitter<VideoExport.DeleteExtraFramesEvents>;
+    renderNewFrames: EventEmitter<VideoExport.RenderNewFramesEvents>;
+    generateEmbeddedCaptions: EventEmitter<VideoExport.GenerateEmbeddedCaptionsEvents>;
+    generateVideo: EventEmitter<VideoExport.GenerateVideoEvents>;
+    deleteFrames: EventEmitter<VideoExport.DeleteFramesEvents>;
+    deleteCaptions: EventEmitter<VideoExport.DeleteCaptionsEvents>;
+    generateSeparateCaptions: EventEmitter<VideoExport.GenerateSeparateCaptionsEvents>;
 
     totalFrames: number;
     video: Video;
-
-    addListener(event: "checkTempPath_start", listener: () => void): this;
-    addListener(event: "checkTempPath_finish", listener: () => void): this;
-
-    addListener(event: "deleteExtraFrames_start", listener: () => void): this;
-    addListener(event: "deleteExtraFrames_readDir", listener: () => void): this;
-    addListener(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    addListener(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    addListener(event: "deleteExtraFrames_finish", listener: () => void): this;
-
-    addListener(event: "renderNewFrames_start", listener: () => void): this;
-    addListener(event: "renderNewFrames_renderStart", listener: (frameNumber?: number) => void): this;
-    addListener(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number) => void): this;
-    addListener(event: "renderNewFrames_finish", listener: () => void): this;
-
-    addListener(event: "generateEmbeddedCaptions_start", listener: () => void): this;
-    addListener(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string) => void): this;
-    addListener(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string) => void): this;
-    addListener(event: "generateEmbeddedCaptions_finish", listener: () => void): this;
-
-    addListener(event: "generateVideo_start", listener: () => void): this;
-    addListener(event: "generateVideo_checkFfmpegPathStart", listener: () => void): this;
-    addListener(event: "generateVideo_checkFfmpegPathFinish", listener: () => void): this;
-    addListener(event: "generateVideo_generateStart", listener: () => void): this;
-    addListener(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress) => void): this;
-    addListener(event: "generateVideo_generateFinish", listener: () => void): this;
-    addListener(event: "generateVideo_finish", listener: () => void): this;
-
-    addListener(event: "deleteFrames_start", listener: () => void): this;
-    addListener(event: "deleteFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    addListener(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    addListener(event: "deleteFrames_finish", listener: () => void): this;
-
-    addListener(event: "deleteCaptions_start", listener: () => void): this;
-    addListener(event: "deleteCaptions_deleteStart", listener: (id?: string) => void): this;
-    addListener(event: "deleteCaptions_deleteFinish", listener: (id?: string) => void): this;
-    addListener(event: "deleteCaptions_finish", listener: () => void): this;
-
-    addListener(event: "start", listener: () => void): this;
-    addListener(event: "writeStart", listener: (id?: string) => void): this;
-    addListener(event: "writeFinish", listener: (id?: string) => void): this;
-    addListener(event: "finish", listener: () => void): this;
-
-    addListener(event: "start", listener: () => void): this;
-    addListener(event: "finish", listener: () => void): this;
-    addListener(event: "error", listener: (err: Error) => void): this;
-
-
-    on(event: "checkTempPath_start", listener: () => void): this;
-    on(event: "checkTempPath_finish", listener: () => void): this;
-
-    on(event: "deleteExtraFrames_start", listener: () => void): this;
-    on(event: "deleteExtraFrames_readDir", listener: () => void): this;
-    on(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    on(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    on(event: "deleteExtraFrames_finish", listener: () => void): this;
-
-    on(event: "renderNewFrames_start", listener: () => void): this;
-    on(event: "renderNewFrames_renderStart", listener: (frameNumber?: number) => void): this;
-    on(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number) => void): this;
-    on(event: "renderNewFrames_finish", listener: () => void): this;
-
-    on(event: "generateEmbeddedCaptions_start", listener: () => void): this;
-    on(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string) => void): this;
-    on(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string) => void): this;
-    on(event: "generateEmbeddedCaptions_finish", listener: () => void): this;
-
-    on(event: "generateVideo_start", listener: () => void): this;
-    on(event: "generateVideo_checkFfmpegPathStart", listener: () => void): this;
-    on(event: "generateVideo_checkFfmpegPathFinish", listener: () => void): this;
-    on(event: "generateVideo_generateStart", listener: () => void): this;
-    on(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress) => void): this;
-    on(event: "generateVideo_generateFinish", listener: () => void): this;
-    on(event: "generateVideo_finish", listener: () => void): this;
-
-    on(event: "deleteFrames_start", listener: () => void): this;
-    on(event: "deleteFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    on(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    on(event: "deleteFrames_finish", listener: () => void): this;
-
-    on(event: "deleteCaptions_start", listener: () => void): this;
-    on(event: "deleteCaptions_deleteStart", listener: (id?: string) => void): this;
-    on(event: "deleteCaptions_deleteFinish", listener: (id?: string) => void): this;
-    on(event: "deleteCaptions_finish", listener: () => void): this;
-
-    on(event: "start", listener: () => void): this;
-    on(event: "writeStart", listener: (id?: string) => void): this;
-    on(event: "writeFinish", listener: (id?: string) => void): this;
-    on(event: "finish", listener: () => void): this;
-
-    on(event: "start", listener: () => void): this;
-    on(event: "finish", listener: () => void): this;
-    on(event: "error", listener: (err: Error) => void): this;
-
-
-    once(event: "checkTempPath_start", listener: () => void): this;
-    once(event: "checkTempPath_finish", listener: () => void): this;
-
-    once(event: "deleteExtraFrames_start", listener: () => void): this;
-    once(event: "deleteExtraFrames_readDir", listener: () => void): this;
-    once(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    once(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    once(event: "deleteExtraFrames_finish", listener: () => void): this;
-
-    once(event: "renderNewFrames_start", listener: () => void): this;
-    once(event: "renderNewFrames_renderStart", listener: (frameNumber?: number) => void): this;
-    once(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number) => void): this;
-    once(event: "renderNewFrames_finish", listener: () => void): this;
-
-    once(event: "generateEmbeddedCaptions_start", listener: () => void): this;
-    once(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string) => void): this;
-    once(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string) => void): this;
-    once(event: "generateEmbeddedCaptions_finish", listener: () => void): this;
-
-    once(event: "generateVideo_start", listener: () => void): this;
-    once(event: "generateVideo_checkFfmpegPathStart", listener: () => void): this;
-    once(event: "generateVideo_checkFfmpegPathFinish", listener: () => void): this;
-    once(event: "generateVideo_generateStart", listener: () => void): this;
-    once(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress) => void): this;
-    once(event: "generateVideo_generateFinish", listener: () => void): this;
-    once(event: "generateVideo_finish", listener: () => void): this;
-
-    once(event: "deleteFrames_start", listener: () => void): this;
-    once(event: "deleteFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    once(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    once(event: "deleteFrames_finish", listener: () => void): this;
-
-    once(event: "deleteCaptions_start", listener: () => void): this;
-    once(event: "deleteCaptions_deleteStart", listener: (id?: string) => void): this;
-    once(event: "deleteCaptions_deleteFinish", listener: (id?: string) => void): this;
-    once(event: "deleteCaptions_finish", listener: () => void): this;
-
-    once(event: "start", listener: () => void): this;
-    once(event: "writeStart", listener: (id?: string) => void): this;
-    once(event: "writeFinish", listener: (id?: string) => void): this;
-    once(event: "finish", listener: () => void): this;
-
-    once(event: "start", listener: () => void): this;
-    once(event: "finish", listener: () => void): this;
-    once(event: "error", listener: (err: Error) => void): this;
-
-
-    prependListener(event: "checkTempPath_start", listener: () => void): this;
-    prependListener(event: "checkTempPath_finish", listener: () => void): this;
-
-    prependListener(event: "deleteExtraFrames_start", listener: () => void): this;
-    prependListener(event: "deleteExtraFrames_readDir", listener: () => void): this;
-    prependListener(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    prependListener(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    prependListener(event: "deleteExtraFrames_finish", listener: () => void): this;
-
-    prependListener(event: "renderNewFrames_start", listener: () => void): this;
-    prependListener(event: "renderNewFrames_renderStart", listener: (frameNumber?: number) => void): this;
-    prependListener(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number) => void): this;
-    prependListener(event: "renderNewFrames_finish", listener: () => void): this;
-
-    prependListener(event: "generateEmbeddedCaptions_start", listener: () => void): this;
-    prependListener(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string) => void): this;
-    prependListener(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string) => void): this;
-    prependListener(event: "generateEmbeddedCaptions_finish", listener: () => void): this;
-
-    prependListener(event: "generateVideo_start", listener: () => void): this;
-    prependListener(event: "generateVideo_checkFfmpegPathStart", listener: () => void): this;
-    prependListener(event: "generateVideo_checkFfmpegPathFinish", listener: () => void): this;
-    prependListener(event: "generateVideo_generateStart", listener: () => void): this;
-    prependListener(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress) => void): this;
-    prependListener(event: "generateVideo_generateFinish", listener: () => void): this;
-    prependListener(event: "generateVideo_finish", listener: () => void): this;
-
-    prependListener(event: "deleteFrames_start", listener: () => void): this;
-    prependListener(event: "deleteFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    prependListener(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    prependListener(event: "deleteFrames_finish", listener: () => void): this;
-
-    prependListener(event: "deleteCaptions_start", listener: () => void): this;
-    prependListener(event: "deleteCaptions_deleteStart", listener: (id?: string) => void): this;
-    prependListener(event: "deleteCaptions_deleteFinish", listener: (id?: string) => void): this;
-    prependListener(event: "deleteCaptions_finish", listener: () => void): this;
-
-    prependListener(event: "start", listener: () => void): this;
-    prependListener(event: "writeStart", listener: (id?: string) => void): this;
-    prependListener(event: "writeFinish", listener: (id?: string) => void): this;
-    prependListener(event: "finish", listener: () => void): this;
-
-    prependListener(event: "start", listener: () => void): this;
-    prependListener(event: "finish", listener: () => void): this;
-    prependListener(event: "error", listener: (err: Error) => void): this;
-
-
-    prependOnceListener(event: "checkTempPath_start", listener: () => void): this;
-    prependOnceListener(event: "checkTempPath_finish", listener: () => void): this;
-
-    prependOnceListener(event: "deleteExtraFrames_start", listener: () => void): this;
-    prependOnceListener(event: "deleteExtraFrames_readDir", listener: () => void): this;
-    prependOnceListener(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    prependOnceListener(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    prependOnceListener(event: "deleteExtraFrames_finish", listener: () => void): this;
-
-    prependOnceListener(event: "renderNewFrames_start", listener: () => void): this;
-    prependOnceListener(event: "renderNewFrames_renderStart", listener: (frameNumber?: number) => void): this;
-    prependOnceListener(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number) => void): this;
-    prependOnceListener(event: "renderNewFrames_finish", listener: () => void): this;
-
-    prependOnceListener(event: "generateEmbeddedCaptions_start", listener: () => void): this;
-    prependOnceListener(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string) => void): this;
-    prependOnceListener(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string) => void): this;
-    prependOnceListener(event: "generateEmbeddedCaptions_finish", listener: () => void): this;
-
-    prependOnceListener(event: "generateVideo_start", listener: () => void): this;
-    prependOnceListener(event: "generateVideo_checkFfmpegPathStart", listener: () => void): this;
-    prependOnceListener(event: "generateVideo_checkFfmpegPathFinish", listener: () => void): this;
-    prependOnceListener(event: "generateVideo_generateStart", listener: () => void): this;
-    prependOnceListener(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress) => void): this;
-    prependOnceListener(event: "generateVideo_generateFinish", listener: () => void): this;
-    prependOnceListener(event: "generateVideo_finish", listener: () => void): this;
-
-    prependOnceListener(event: "deleteFrames_start", listener: () => void): this;
-    prependOnceListener(event: "deleteFrames_deleteStart", listener: (frameNumber?: number) => void): this;
-    prependOnceListener(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number) => void): this;
-    prependOnceListener(event: "deleteFrames_finish", listener: () => void): this;
-
-    prependOnceListener(event: "deleteCaptions_start", listener: () => void): this;
-    prependOnceListener(event: "deleteCaptions_deleteStart", listener: (id?: string) => void): this;
-    prependOnceListener(event: "deleteCaptions_deleteFinish", listener: (id?: string) => void): this;
-    prependOnceListener(event: "deleteCaptions_finish", listener: () => void): this;
-
-    prependOnceListener(event: "start", listener: () => void): this;
-    prependOnceListener(event: "writeStart", listener: (id?: string) => void): this;
-    prependOnceListener(event: "writeFinish", listener: (id?: string) => void): this;
-    prependOnceListener(event: "finish", listener: () => void): this;
-
-    prependOnceListener(event: "start", listener: () => void): this;
-    prependOnceListener(event: "finish", listener: () => void): this;
-    prependOnceListener(event: "error", listener: (err: Error) => void): this;
 }
 
 interface VideoJson {
@@ -542,7 +185,53 @@ type output = string | {
     embeddedCaptions?: boolean | Set<string>;
 };
 
-export default class Video extends EventEmitter {
+interface VideoEvents {
+    checkTempPath_start: (videoExport?: VideoExport) => void;
+    checkTempPath_finish: (videoExport?: VideoExport) => void;
+
+    deleteExtraFrames_start: (videoExport?: VideoExport) => void;
+    deleteExtraFrames_readDir: (videoExport?: VideoExport) => void;
+    deleteExtraFrames_deleteStart: (frameNumber?: number, videoExport?: VideoExport) => void;
+    deleteExtraFrames_deleteFinish: (frameNumber?: number, videoExport?: VideoExport) => void;
+    deleteExtraFrames_finish: (videoExport?: VideoExport) => void;
+
+    renderNewFrames_start: (videoExport?: VideoExport) => void;
+    renderNewFrames_renderStart: (frameNumber?: number, videoExport?: VideoExport) => void;
+    renderNewFrames_renderFinish: (frameNumber?: number, videoExport?: VideoExport) => void;
+    renderNewFrames_finish: (videoExport?: VideoExport) => void;
+
+    generateEmbeddedCaptions_start: (videoExport?: VideoExport) => void;
+    generateEmbeddedCaptions_writeStart: (id?: string, videoExport?: VideoExport) => void;
+    generateEmbeddedCaptions_writeFinish: (id?: string, videoExport?: VideoExport) => void;
+    generateEmbeddedCaptions_finish: (videoExport?: VideoExport) => void;
+
+    generateVideo_start: (videoExport?: VideoExport) => void;
+    generateVideo_checkFfmpegPathStart: (videoExport?: VideoExport) => void;
+    generateVideo_generateStart: (videoExport?: VideoExport) => void;
+    generateVideo_generateProgress: (progress?: VideoExport.GenerateVideoProgress, videoExport?: VideoExport) => void;
+    generateVideo_generateFinish: (videoExport?: VideoExport) => void;
+    generateVideo_finish: (videoExport?: VideoExport) => void;
+
+    deleteFrames_start: (videoExport?: VideoExport) => void;
+    deleteFrames_deleteStart: (frameNumber?: number, videoExport?: VideoExport) => void;
+    deleteFrames_deleteFinish: (frameNumber?: number, videoExport?: VideoExport) => void;
+    deleteFrames_finish: (videoExport?: VideoExport) => void;
+
+    deleteCaptions_start: (videoExport?: VideoExport) => void;
+    deleteCaptions_deleteStart: (id?: string, videoExport?: VideoExport) => void;
+    deleteCaptions_deleteFinish: (id?: string, videoExport?: VideoExport) => void;
+    deleteCaptions_finish: (videoExport?: VideoExport) => void;
+
+    generateSeparateCaptions_start: (videoExport?: VideoExport) => void;
+    generateSeparateCaptions_writeStart: (id?: string, videoExport?: VideoExport) => void;
+    generateSeparateCaptions_writeFinish: (id?: string, videoExport?: VideoExport) => void;
+    generateSeparateCaptions_finish: (videoExport?: VideoExport) => void;
+
+    start: (videoExport?: VideoExport) => void;
+    finish: (videoExport?: VideoExport) => void;
+    error: (err: Error, videoExport?: VideoExport) => void;
+}
+export default class Video extends EventEmitter<VideoEvents> {
     static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;
     static fromJson(json: string, parse: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): Video;
     static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;
@@ -587,238 +276,4 @@ export default class Video extends EventEmitter {
     export(output: output, options: ExportOptions, returnPromise: true): Promise<undefined>;
     export(output: output, callback: (videoExport?: VideoExport) => void): this;
     export(output: output, options: ExportOptions, callback: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "checkTempPath_start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "checkTempPath_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "deleteExtraFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteExtraFrames_readDir", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteExtraFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "renderNewFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "renderNewFrames_renderStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    addListener(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    addListener(event: "renderNewFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "generateEmbeddedCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    addListener(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    addListener(event: "generateEmbeddedCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "generateVideo_start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "generateVideo_checkFfmpegPathStart", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "generateVideo_checkFfmpegPathFinish", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "generateVideo_generateStart", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress, videoExport?: VideoExport) => void): this;
-    addListener(event: "generateVideo_generateFinish", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "generateVideo_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "deleteFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "deleteCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteCaptions_deleteStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteCaptions_deleteFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    addListener(event: "deleteCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    addListener(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    addListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-
-    addListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-    addListener(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
-
-
-    on(event: "checkTempPath_start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "checkTempPath_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "deleteExtraFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "deleteExtraFrames_readDir", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    on(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    on(event: "deleteExtraFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "renderNewFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "renderNewFrames_renderStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    on(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    on(event: "renderNewFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "generateEmbeddedCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    on(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    on(event: "generateEmbeddedCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "generateVideo_start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "generateVideo_checkFfmpegPathStart", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "generateVideo_checkFfmpegPathFinish", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "generateVideo_generateStart", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress, videoExport?: VideoExport) => void): this;
-    on(event: "generateVideo_generateFinish", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "generateVideo_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "deleteFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "deleteFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    on(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    on(event: "deleteFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "deleteCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "deleteCaptions_deleteStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    on(event: "deleteCaptions_deleteFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    on(event: "deleteCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    on(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    on(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-
-    on(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-    on(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
-
-
-    once(event: "checkTempPath_start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "checkTempPath_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "deleteExtraFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "deleteExtraFrames_readDir", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    once(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    once(event: "deleteExtraFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "renderNewFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "renderNewFrames_renderStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    once(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    once(event: "renderNewFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "generateEmbeddedCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    once(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    once(event: "generateEmbeddedCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "generateVideo_start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "generateVideo_checkFfmpegPathStart", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "generateVideo_checkFfmpegPathFinish", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "generateVideo_generateStart", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress, videoExport?: VideoExport) => void): this;
-    once(event: "generateVideo_generateFinish", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "generateVideo_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "deleteFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "deleteFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    once(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    once(event: "deleteFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "deleteCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "deleteCaptions_deleteStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    once(event: "deleteCaptions_deleteFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    once(event: "deleteCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    once(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    once(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-
-    once(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-    once(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
-
-
-    prependListener(event: "checkTempPath_start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "checkTempPath_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "deleteExtraFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteExtraFrames_readDir", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteExtraFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "renderNewFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "renderNewFrames_renderStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependListener(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependListener(event: "renderNewFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "generateEmbeddedCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateEmbeddedCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "generateVideo_start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateVideo_checkFfmpegPathStart", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateVideo_checkFfmpegPathFinish", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateVideo_generateStart", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress, videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateVideo_generateFinish", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "generateVideo_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "deleteFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "deleteCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteCaptions_deleteStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteCaptions_deleteFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependListener(event: "deleteCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependListener(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-    prependListener(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
-
-
-    prependOnceListener(event: "checkTempPath_start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "checkTempPath_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "deleteExtraFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteExtraFrames_readDir", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteExtraFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteExtraFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteExtraFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "renderNewFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "renderNewFrames_renderStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "renderNewFrames_renderFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "renderNewFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "generateEmbeddedCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateEmbeddedCaptions_writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateEmbeddedCaptions_writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateEmbeddedCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "generateVideo_start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateVideo_checkFfmpegPathStart", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateVideo_checkFfmpegPathFinish", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateVideo_generateStart", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateVideo_generateProgress", listener: (progress?: VideoExport.GenerateVideoProgress, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateVideo_generateFinish", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "generateVideo_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "deleteFrames_start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteFrames_deleteStart", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteFrames_deleteFinish", listener: (frameNumber?: number, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteFrames_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "deleteCaptions_start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteCaptions_deleteStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteCaptions_deleteFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "deleteCaptions_finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "writeStart", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "writeFinish", listener: (id?: string, videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-
-    prependOnceListener(event: "start", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "finish", listener: (videoExport?: VideoExport) => void): this;
-    prependOnceListener(event: "error", listener: (err: Error, videoExport?: VideoExport) => void): this;
 }

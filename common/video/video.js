@@ -6,21 +6,17 @@ import CommonVideo from "./common-video.js";
 
 //Node.js Modules
 import fs, { promises as fsPromises } from 'fs';
-import { EventEmitter, once } from 'events';
 import path from 'path';
 import { exec } from 'child_process';
 
 //My Modules
+import { EventEmitter, once } from "../event-emitter/event-emitter.js";
 import Overloader from "../type/overloader.js";
 import Types from "../type/types.js";
 import { Interface } from "../type/interface.js";
-import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import either from "../type/either.js";
-import { sizeType, regularSizeInterface, shortSizeInterface } from "./size.js";
-import typify from "../properties/typify.js";
 import defaultify from "../lib/defaultify.js";
-import Scene from "../scene/scene.js";
 import { ExportStages, ExportTasks } from "./stages.js";
 
 //Image regex
