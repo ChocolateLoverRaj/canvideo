@@ -98,7 +98,7 @@ const localStorageInit = () => {
     const duplicateCheckbox = document.getElementById("local-storage__duplicate-modal__checkbox");
     const duplicateName = document.getElementById("local-storage__duplicate-modal__name");
     const duplicateOverwrite = document.getElementById("local-storage__duplicate-modal__overwrite");
-    const loadSuccessCheckbox = document.getElementById("local-storage__load-success");
+    const loadSuccessAlert = document.getElementById("local-storage__load-success");
 
     enableSaveButton = () => {
         saveButton.setAttribute('title', "Save Changes");
@@ -189,7 +189,7 @@ const localStorageInit = () => {
 
     const loadSave = name => {
         editor.setText(saves.saves[name]);
-        loadSuccessCheckbox.checked = true;
+        loadSuccessAlert.checked = false;
     }
 
     savesForm.addEventListener('submit', e => {
