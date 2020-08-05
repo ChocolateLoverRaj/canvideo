@@ -18,6 +18,7 @@ import instanceOf from "../type/instanceOf.js";
 import either from "../type/either.js";
 import defaultify from "../lib/defaultify.js";
 import { ExportStages, ExportTasks } from "./stages.js";
+import typify from "../properties/typify.js";
 
 //Image regex
 const imageRegex = /canvideo \d+\.png/i;
@@ -88,8 +89,26 @@ const outputInterface = new Interface(false)
 //Output type
 const outputType = either(Types.STRING, outputInterface);
 
+//Export options interface
+const exportOptionsInterface = new Interface(false)
+    .optional("keepImages", Types.BOOLEAN)
+    .optional("maxStreams", Types.POSITIVE_INTEGER)
+    .toType();
+
 //Video class
 export class Video extends CommonVideo {
+    constructor(){
+        super(...arguments);
+        typify(this, {
+            tempPath: {
+                type: Types.STRING,
+                setter(v, set) {
+                    set(directoryExists(v));
+                }
+            }
+        });
+    }
+
     setTempPath(path) {
         this.tempPath = path;
         return this;

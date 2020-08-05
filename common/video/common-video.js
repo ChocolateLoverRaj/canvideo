@@ -1,17 +1,15 @@
 //Render the final video
 
 //Dependencies
+import { EventEmitter } from "../event-emitter/event-emitter.js";
 import Overloader from "../type/overloader.js";
 import Types from "../type/types.js";
 import { Interface } from "../type/interface.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
-import either from "../type/either.js";
 import { sizeType, regularSizeInterface, shortSizeInterface } from "./size.js";
 import typify from "../properties/typify.js";
-import defaultify from "../lib/defaultify.js";
 import Scene from "../scene/scene.js";
-import { ExportStages, ExportTasks } from "./stages.js";
 
 //Video options
 const optionsInterface = new Interface(false)
@@ -87,12 +85,6 @@ class Video extends EventEmitter {
     constructor() {
         super();
         typify(this, {
-            tempPath: {
-                type: Types.STRING,
-                setter(v, set) {
-                    set(directoryExists(v));
-                }
-            },
             width: sizeType,
             height: sizeType,
             fps: Types.POSITIVE_NUMBER,
