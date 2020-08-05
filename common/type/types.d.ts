@@ -1,31 +1,32 @@
 import type from "./type";
 
-export const ANY: type;
+export declare const ANY: type;
 
-export const NUMBER: type;
-export const POSITIVE_NUMBER: type;
-export const NON_NEGATIVE_NUMBER: type;
-export const INTEGER: type;
-export const POSITIVE_INTEGER: type;
-export const NON_NEGATIVE_INTEGER: type;
-export const UNIT_INTERVAL: type;
-export const RGB_INTENSITY: type;
+export declare const NUMBER: type;
+export declare const POSITIVE_NUMBER: type;
+export declare const NON_NEGATIVE_NUMBER: type;
+export declare const INTEGER: type;
+export declare const POSITIVE_INTEGER: type;
+export declare const NON_NEGATIVE_INTEGER: type;
+export declare const UNIT_INTERVAL: type;
+export declare const RGB_INTENSITY: type;
 
-export const STRING: type;
-export const COLOR: type;
+export declare const STRING: type;
+export declare const COLOR: type;
 
-export const BOOLEAN: type;
-export const TRUTHY: type;
-export const FALSY: type;
+export declare const BOOLEAN: type;
+export declare const TRUTHY: type;
+export declare const FALSY: type;
 
-export const FUNCTION: type;
+export declare const FUNCTION: type;
 
-export const OBJECT: type;
-export const ARRAY: type;
+export declare const OBJECT: type;
+export declare const ARRAY: type;
+export declare const CANVAS_CTX: type;
 
-export const KEY: type;
+export declare const KEY: type;
 
-export const TYPE: type;
+export declare const TYPE: type;
 
 export default {
     ANY,
@@ -45,6 +46,7 @@ export default {
     FUNCTION,
     OBJECT,
     ARRAY,
+    CANVAS_CTX,
     KEY,
     TYPE,
 }

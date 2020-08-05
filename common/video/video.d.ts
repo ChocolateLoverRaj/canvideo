@@ -1,4 +1,4 @@
-import VideoClass from "./classes";
+import { Video as VideoClass } from "./classes";
 
 export declare var tempPath: string;
 export declare function setTempPath(path: string): Promise<string>;
