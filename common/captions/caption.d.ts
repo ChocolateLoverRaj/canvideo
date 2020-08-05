@@ -18,6 +18,8 @@ declare class Caption{
 
     add(start: number, end: number, text: string): this;
 
+    textsAt(time: number): Array<string>;
+
     toVtt(includeHeader?: boolean, offset?: number): string;
 
     toJson(stringify?: true): string;

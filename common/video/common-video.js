@@ -10,6 +10,7 @@ import instanceOf from "../type/instanceOf.js";
 import { sizeType, regularSizeInterface, shortSizeInterface } from "./size.js";
 import typify from "../properties/typify.js";
 import Scene from "../scene/scene.js";
+import { createCanvas } from "../canvas/canvas.js";
 
 //Video options
 const optionsInterface = new Interface(false)
@@ -31,6 +32,86 @@ const shortSquashedOptionsInterface = new Interface(false)
     .required("size", shortSizeInterface)
     .required("fps", Types.POSITIVE_NUMBER)
     .toType();
+
+//Video Player, for basic canvas drawing. No fs operations.
+class VideoPlayer {
+    constructor(video) {
+        this.video = video;
+        this._at = 0;
+        this.timeInScene = 0;
+        this.currentScene = 0;
+        this.currentSceneStartTime = 0;
+        this.currentSceneDuration = this.video.scenes[0].duration;
+    }
+
+    set at(time) {
+        this.seek(time);
+    }
+    get at() {
+        return this._at;
+    }
+
+    get duration() {
+        return this.video.duration;
+    }
+
+    seek(time) {
+        if (time < 0 && time >= this.duration) {
+            throw new RangeError("Time is out of bounds. Time must be >= 0 and < duration.");
+        }
+        this.currentScene = 0;
+        this.currentSceneStartTime = 0;
+        this.currentSceneDuration = this.video.scenes[0].duration;
+        while (this.currentSceneStartTime + this.currentSceneDuration < time) {
+            this.currentScene++;
+            this.currentSceneStartTime += this.currentSceneDuration;
+            this.currentSceneDuration = this.video.scenes[this.currentScene].duration;
+        }
+        this.timeInScene = time - this.currentSceneStartTime;
+        this._at = time;
+
+        return this;
+    }
+
+    forward(time) {
+        if (time <= 0) {
+            throw new RangeError("time must be greater than 0, because you are moving forward.");
+        }
+        if (this.at + time >= this.duration) {
+            throw new RangeError("Cannot go forward past end of video.");
+        }
+        var timeLeftInScene = this.currentSceneDuration - this.timeInScene;
+        while (timeLeftInScene <= time) {
+            this.currentSceneStartTime += this.currentSceneDuration;
+            this.currentScene++;
+            this._at += timeLeftInScene;
+            time -= timeLeftInScene;
+            this.timeInScene = 0;
+            this.currentSceneDuration = this.video.scenes[this.currentScene].duration;
+            timeLeftInScene = this.currentSceneDuration;
+        }
+        this.timeInScene += time;
+        this._at += time;
+
+        return this;
+    }
+
+    draw(ctx = createCanvas(this.video.width, this.video.height).getContext('2d')) {
+        return typedFunction([{ name: "ctx", type: Types.CANVAS_CTX }], ctx => {
+            return this.video.scenes[this.currentScene].render(this.timeInScene, this.video, ctx);
+        })(ctx);
+    }
+
+    getCaptions(id = "Caption Track 0"){
+        let caption = this.video.scenes[this.currentScene].captions.get(id);
+        if(caption){
+            return caption.textsAt(this.at);
+        }
+        else{
+            return [];
+        }
+    }
+}
 
 //Video class
 class Video extends EventEmitter {
@@ -191,6 +272,10 @@ class Video extends EventEmitter {
         else {
             throw new TypeError("stringify must be boolean.");
         }
+    }
+
+    createPlayer() {
+        return new VideoPlayer(this);
     }
 }
 

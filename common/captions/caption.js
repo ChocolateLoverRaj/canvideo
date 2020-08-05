@@ -74,6 +74,19 @@ class Caption {
         return this;
     }
 
+    textsAt(time){
+        if(typeof time !== 'number' || time < 0){
+            throw new TypeError("Time must be a non negative number.");
+        }
+        let texts = [];
+        for(let text of this.texts){
+            if(text.start <= time && time < text.end){
+                texts.push(text.text);
+            }
+        }
+        return texts;
+    }
+
     toVtt(includeHeader = true, offset = 0) {
         if (typeof includeHeader === 'boolean' && typeof offset === 'number') {
             let vtt = includeHeader ? Caption.vttHeader : '';

@@ -1,3 +1,5 @@
+import { CanvasRenderingContext2D } from 'canvas';
+
 import { EventEmitter } from "../../common/event-emitter/event-emitter";
 import Scene from "../scene/scene";
 import SceneJson from "../scene/scene-json";
@@ -231,11 +233,27 @@ interface VideoEvents {
     finish: (videoExport?: VideoExport) => void;
     error: (err: Error, videoExport?: VideoExport) => void;
 }
-export default class Video extends EventEmitter<VideoEvents> {
-    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;
-    static fromJson(json: string, parse: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): Video;
-    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): Video | false;
-    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): Video;
+
+export class VideoPlayer {
+    video: CommonVideo;
+    at: number;
+    timeInScene: number;
+    currentScene: number;
+    currentSceneStartTime: number;
+    currentSceneDuration: number;
+    readonly duration: number;
+
+    seek(time: number): this;
+    forward(time: number): this;
+    draw(ctx?: CanvasRenderingContext2D): CanvasRenderingContext2D;
+    getCaptions(id?: string): Array<string>;
+}
+
+export class CommonVideo extends EventEmitter<VideoEvents> {
+    static fromJson(json: string, parse?: true, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): CommonVideo | false;
+    static fromJson(json: string, parse: true, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): CommonVideo;
+    static fromJson(json: any, parse: false, throwErrors?: false, csMappings?: csMappings, caMappings?: caMappings<any>): CommonVideo | false;
+    static fromJson(json: any, parse: false, throwErrors: true, csMappings?: csMappings, caMappings?: caMappings<any>): CommonVideo;
 
     constructor(width: number, height: number, fps: number);
     constructor(size: RegularSize, fps: number);
@@ -251,7 +269,6 @@ export default class Video extends EventEmitter<VideoEvents> {
     height: number;
     fps: number;
     spf: number;
-    tempPath: string;
 
     setWidth(width: number): this;
     setHeight(width: number): this;
@@ -263,12 +280,18 @@ export default class Video extends EventEmitter<VideoEvents> {
     setFps(fps: number): this;
     setSpf(spf: number): this;
 
-    setTempPath(path: string): this;
-
     add(scene: Scene): this;
 
     toJson(stringify?: true, fps?: number): string;
     toJson(stringify: false, fps?: number): VideoJson;
+
+    createPlayer(): VideoPlayer;
+}
+
+export class Video extends CommonVideo {
+    tempPath: string;
+
+    setTempPath(path: string): this;
 
     export(output: output, returnPromise?: false): this;
     export(output: output, returnPromise: true): Promise<undefined>;

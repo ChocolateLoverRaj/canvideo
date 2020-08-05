@@ -97,7 +97,7 @@ const exportOptionsInterface = new Interface(false)
 
 //Video class
 export class Video extends CommonVideo {
-    constructor(){
+    constructor() {
         super(...arguments);
         typify(this, {
             tempPath: {
@@ -344,26 +344,27 @@ export class Video extends CommonVideo {
                     }
                 };
 
-                for (let scene of this.scenes) {
-                    for (let sceneFrame = 0; sceneFrame < scene.duration * this.fps; sceneFrame++) {
-                        let currentFrame = f;
+                let player = this.createPlayer();
+                for (let i = 0; i < this.duration * this.fps; i++) {
+                    let currentFrame = i;
 
-                        await nextTurn();
+                    await nextTurn();
 
-                        emit("renderStart", currentFrame);
-                        let canvas = scene.render(sceneFrame / this.fps, this);
-                        addWrite(new Promise((resolve, reject) => {
+                    emit("renderStart", currentFrame);
+                    let canvas = player.draw().canvas;
+                    addWrite(
+                        new Promise((resolve, reject) => {
                             let framePath = path.join(tempPathToUse, `./canvideo ${currentFrame}.png`);
                             framePaths.push(framePath);
 
                             canvas.createPNGStream()
                                 .once('end', resolve)
                                 .pipe(fs.createWriteStream(framePath))
-                        }).then(() => {
-                            emit("renderFinish", currentFrame);
-                        }));
-                        f++;
-                    }
+                        })
+                            .then(() => {
+                                emit("renderFinish", currentFrame);
+                            })
+                    );
                 }
                 startedAll = true;
 

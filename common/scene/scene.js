@@ -227,7 +227,7 @@ class Scene {
         return this;
     };
 
-    render(at, { width, height }) {
+    render(at, { width, height }, ctx = createCanvas(width, height).getContext('2d')) {
         if (!(0 < at < this.duration)) {
             throw new TypeError("At is out of range.");
         }
@@ -237,10 +237,9 @@ class Scene {
         if (!(height > 0 && height < Infinity) || height & 1) {
             throw new TypeError("Invalid width.");
         }
-
-        //Create a new canvas
-        let canvas = createCanvas(width, height);
-        let ctx = canvas.getContext('2d');
+        if(Types.CANVAS_CTX(ctx)){
+            throw new TypeError("Invalid Canvas Ctx.");
+        }
 
         //Draw the background
         ctx.fillStyle = this.backgroundColor.hexString;
@@ -274,7 +273,7 @@ class Scene {
             drawables[i].shape.at(at).draw(ctx);
         }
 
-        return canvas;
+        return ctx;
     }
 
     setDuration(duration) {
