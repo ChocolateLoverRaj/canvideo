@@ -1,4 +1,4 @@
-import getEditor from "/web/json-editor.js";
+import JsonEditor from "/web/json-editor.js";
 import {
     options as jsonSchemaOptions,
     initialJson
@@ -15,12 +15,10 @@ const options = {
     }
 }
 
-const editorPromise = getEditor();
 var editorContainer;
 var editor;
-const jsonEditorInit = async () => {
+const jsonEditorInit = () => {
     editorContainer = document.getElementById("json__editor");
-    let JsonEditor = await editorPromise;
     editor = new JsonEditor(editorContainer, options, initialJson);
 }
 
@@ -301,8 +299,8 @@ const localStorageInit = () => {
     }
 };
 
-const init = async () => {
-    await jsonEditorInit();
+const init = () => {
+    jsonEditorInit();
     downloaderInit();
     uploadInit();
     localStorageInit();
