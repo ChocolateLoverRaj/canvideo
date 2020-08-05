@@ -5,7 +5,8 @@
   "type": "module",
   "main": "truck.js",
   "scripts": {
-    "start": "node --experimental-modules --experimental-import-meta-resolve server.js"
+    "start": "node --experimental-modules --experimental-import-meta-resolve server.js",
+    "truck": "node --experimental-modules --experimental-import-meta-resolve truck.js"
   },
   "author": "",
   "license": "ISC",
