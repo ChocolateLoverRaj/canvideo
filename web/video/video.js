@@ -1,1 +1,1 @@
-export { default } from "./common-video.js";
+export { default as Video } from "./common-video.js";

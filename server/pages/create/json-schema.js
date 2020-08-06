@@ -214,7 +214,32 @@ export const initialJson = {
     scenes: [
         {
             backgroundColor: "#1e90ff",
-            drawables: [],
+            drawables: [
+                {
+                    startTime: 0,
+                    endTime: 5,
+                    layer: 0,
+                    shape: {
+                        isBuiltin: true,
+                        name: "rectangle",
+                        data: {
+                            x: 0,
+                            y: 0,
+                            width: 200,
+                            height: 200,
+                            cornerRound: {
+                                topLeft: 0,
+                                topRight: 0,
+                                bottomLeft: 0,
+                                bottomRight: 0
+                            },
+                            animations: [],
+                            sets: [],
+                            fillColor: "pink"
+                        }
+                    }
+                }
+            ],
             captions: {},
             camera: {
                 scaleX: 1,

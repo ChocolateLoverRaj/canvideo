@@ -3,6 +3,7 @@ import {
     options as jsonSchemaOptions,
     initialJson
 } from "./json-schema.js";
+import { updateVideo } from "./preview.js";
 
 const options = {
     ...jsonSchemaOptions,
@@ -12,6 +13,7 @@ const options = {
     onChange: () => {
         enableSaveButton();
         autoSave();
+        updateVideo(editor.getText());
     }
 }
 
@@ -21,8 +23,6 @@ const jsonEditorInit = () => {
     editorContainer = document.getElementById("json__editor");
     editor = new JsonEditor(editorContainer, options, initialJson);
 }
-
-export const getEditorText = () => editor.getText();
 
 const downloaderInit = () => {
     const download = document.getElementById("json__download");
@@ -190,8 +190,10 @@ const localStorageInit = () => {
     }
 
     const loadSave = name => {
-        editor.setText(saves.saves[name]);
+        let text = saves.saves[name];
+        editor.setText(text);
         loadSuccessCheckbox.checked = true;
+        updateVideo(text);
     }
 
     savesForm.addEventListener('submit', e => {
@@ -298,6 +300,9 @@ const localStorageInit = () => {
     refreshTable();
     if (saves.selected) {
         loadSave(saves.selected);
+    }
+    else{
+        updateVideo(editor.getText());
     }
 };
 

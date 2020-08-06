@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="/json-editor.min.css">
     <script src="/json-editor.min.js"></script>
 
+    <!-- EventEmitter3 -->
+    <script src="/event-emitter.min.js"></script>
+
     <!-- Tiny Color -->
     <script src="/tiny-color.min.js"></script>
 
@@ -58,11 +61,21 @@
     <div id="content">
         <div id="content__grid">
             <div id="preview">
-                <div id="preview__canvas-container">
-                    <canvas id="preview__canvas"></canvas>
+                <div id="preview__container">
+                    <div id="preview__canvas-container" class="hidden">
+                        <canvas id="preview__canvas"></canvas>
+                    </div>
                     <div id="preview__errors">
                         <div id="preview__errors__bad-json" class="hidden">
-                            <h1>Bad Json.</h1>
+                            <h2>Bad Json.</h2>
+                        </div>
+                        <div id="preview__errors__invalid-video" class="hidden">
+                            <h2>Invalid Video</h2>
+                            <h3>Error constructing video.</h3>
+                        </div>
+                        <div id="preview__errors__no-duration" class="hidden">
+                            <h2>No Duration</h2>
+                            <h3>Cannot play video because it has a duration of 0 seconds.</h3>
                         </div>
                     </div>
                 </div>

@@ -40,13 +40,14 @@ body>nav, #alerts {
     display: none;
 }
 
-#preview__canvas-container {
+#preview__container {
+    background-color: black;
     position: relative;
     width: 100%;
     padding-top: 56.25%;
 }
 
-#preview__canvas, #preview__errors {
+#preview__canvas-container, #preview__errors {
     position: absolute;
     top: 0;
     left: 0;
@@ -54,6 +55,12 @@ body>nav, #alerts {
     right: 0;
     width: 100%;
     height: 100%;
+}
+
+#preview__canvas{
+    position: absolute;
+    left: auto;
+    right: auto;
 }
 
 #preview__errors {
