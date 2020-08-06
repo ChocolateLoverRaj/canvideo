@@ -80,7 +80,6 @@ export const updateVideo = text => {
             }
             noErrors();
             videoPlayer.draw(ctx);
-            console.log("draw");
         }
         else if (video) {
             showError(PreviewErrors.NO_DURATION);

@@ -1,3 +1,7 @@
+:root {
+    --infinite-border-radius: 9999999px;
+}
+
 html, body {
     height: 100%;
     margin: 0;
@@ -57,7 +61,7 @@ body>nav, #alerts {
     height: 100%;
 }
 
-#preview__canvas{
+#preview__canvas {
     position: absolute;
     left: auto;
     right: auto;
@@ -66,6 +70,58 @@ body>nav, #alerts {
 #preview__errors {
     color: red;
     overflow: auto;
+}
+
+#preview__progress {
+    position: relative;
+    width: calc(100% - 20px);
+    height: 50px;
+    margin-top: 0;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#preview__progress__background, #preview__progress__fill {
+    position: absolute;
+    top: 10px;
+    height: 10px;
+    border-radius: var(--infinite-border-radius);
+}
+
+#preview__progress__background {
+    left: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+#preview__progress__fill {
+    left: 0;
+    width: 0%;
+}
+
+#preview__progress__time-done,#preview__progress__total-time {
+    top: 25px;
+    height: 20px;
+    position: absolute;
+}
+
+#preview__progress__time-done{
+    left: 0;
+}
+
+#preview__progress__total-time{
+    right: 0;
+}
+
+#preview__controls {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#preview__controls__play {
+    cursor: pointer;
 }
 
 #json {
