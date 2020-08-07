@@ -29,7 +29,7 @@ export const init = () => {
     previewPlayPause = document.getElementById("preview__controls__play-pause");
     previewPlayPause.addEventListener('click', () => {
         if (video) {
-            if (previewPlayPause.classList.contains("playing")) {
+            if (playing) {
                 previewPlayPause.classList.remove("playing");
                 playing = false;
                 cancelAnimationFrame(renderAnimationFrame);
@@ -89,7 +89,6 @@ const formatTime = s => {
 
 var video;
 var videoPlayer;
-var timeInVideo = 0;
 var renderAnimationFrame;
 var lastRendered = -Infinity;
 var playing = false;
