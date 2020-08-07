@@ -5,16 +5,18 @@ import {
 } from "./json-schema.js";
 import { updateVideo } from "./preview.js";
 
+const textChangeHandler = text => {
+    enableSaveButton();
+    autoSave();
+    updateVideo(text);
+};
+
 const options = {
     ...jsonSchemaOptions,
     mode: 'code',
     modes: ['code', 'tree'],
     search: false,
-    onChange: () => {
-        enableSaveButton();
-        autoSave();
-        updateVideo(editor.getText());
-    }
+    onChangeText: textChangeHandler
 }
 
 var editorContainer;
@@ -67,6 +69,7 @@ const uploadInit = () => {
             });
             reader.addEventListener('load', e => {
                 editor.setText(reader.result);
+                textChangeHandler(reader.result);
                 uploadSuccess.checked = true;
                 uploadCheckbox.checked = false;
                 uploadInput.disabled = false;
@@ -192,8 +195,8 @@ const localStorageInit = () => {
     const loadSave = name => {
         let text = saves.saves[name];
         editor.setText(text);
+        textChangeHandler(text);
         loadSuccessCheckbox.checked = true;
-        updateVideo(text);
     }
 
     savesForm.addEventListener('submit', e => {
