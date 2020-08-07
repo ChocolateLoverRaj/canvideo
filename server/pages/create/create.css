@@ -99,17 +99,17 @@ body>nav, #alerts {
     width: 0%;
 }
 
-#preview__progress__time-done,#preview__progress__total-time {
+#preview__progress__time-done, #preview__progress__total-time {
     top: 25px;
     height: 20px;
     position: absolute;
 }
 
-#preview__progress__time-done{
+#preview__progress__time-done {
     left: 0;
 }
 
-#preview__progress__total-time{
+#preview__progress__total-time {
     right: 0;
 }
 
@@ -120,8 +120,20 @@ body>nav, #alerts {
     align-items: center;
 }
 
-#preview__controls__play {
+#preview__controls__play-pause {
     cursor: pointer;
+}
+
+#preview__controls__play-pause.bad {
+    cursor: not-allowed;
+}
+
+#preview__controls__play-pause.playing #preview__controls__play {
+    display: none;
+}
+
+#preview__controls__play-pause:not(.playing) #preview__controls__pause {
+    display: none;
 }
 
 #json {

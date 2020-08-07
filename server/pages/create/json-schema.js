@@ -225,7 +225,7 @@ export const initialJson = {
                         data: {
                             x: 0,
                             y: 0,
-                            width: 200,
+                            width: 400,
                             height: 200,
                             cornerRound: {
                                 topLeft: 0,
@@ -233,7 +233,24 @@ export const initialJson = {
                                 bottomLeft: 0,
                                 bottomRight: 0
                             },
-                            animations: [],
+                            animations: [
+                                {
+                                    isBuiltin: true,
+                                    name: "animation",
+                                    startTime: 0,
+                                    duration: 5,
+                                    lasts: false,
+                                    data: {
+                                        startValue: {
+                                            y: 0
+                                        },
+                                        endValue: {
+                                            y: 200
+                                        },
+                                        reversed: false
+                                    }
+                                }
+                            ],
                             sets: [],
                             fillColor: "pink"
                         }
