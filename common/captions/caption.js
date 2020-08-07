@@ -3,12 +3,7 @@
 //Dependencies
 import typedFunction from "../type/typed-function.js";
 import Types from "../type/types.js";
-
-//Zero pad a number to the left
-function zeroPad(n, length) {
-    let s = n.toString();
-    return "0".repeat(length - s.length) + s;
-}
+import zeroPad from "../lib/zero-pad.js";
 
 //Get a formatted time
 function formatTime(s) {
