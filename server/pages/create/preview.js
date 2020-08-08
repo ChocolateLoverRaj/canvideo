@@ -6,10 +6,38 @@ var canvas;
 var ctx;
 var previewErrorsDiv;
 var PreviewErrors = {};
-var previewProgressBar;
+var previewProgressBackground;
+var previewProgressFill;
 var previewProgressTimeDone;
 var previewProgressTotalTime;
 var previewPlayPause;
+
+function progressClickListener(e){
+    if (videoPlayer) {
+        let atFraction = (e.x - 10) / (previewProgressBackground.offsetWidth);
+        moveTo(video.duration * atFraction);
+    }
+}
+
+function playPauseListener(e){
+    if (video) {
+        if (playing) {
+            this.classList.remove("playing");
+            playing = false;
+            cancelAnimationFrame(renderAnimationFrame);
+        }
+        else {
+            this.classList.add("playing");
+            playing = true;
+            if (donePlaying) {
+                donePlaying = false;
+                videoPlayer.at = 0;
+            }
+            lastRendered = Date.now();
+            renderAnimationFrame = requestAnimationFrame(renderNextFrame);
+        }
+    }
+}
 
 export const init = () => {
     canvasContainer = document.getElementById("preview__canvas-container");
@@ -22,40 +50,25 @@ export const init = () => {
     PreviewErrors.INVALID_VIDEO = document.getElementById("preview__errors__invalid-video");
     PreviewErrors.NO_DURATION = document.getElementById("preview__errors__no-duration");
 
-    previewProgressBar = document.getElementById("preview__progress__fill");
+    previewProgressBackground = document.getElementById("preview__progress__background");
+    previewProgressBackground.addEventListener('click', progressClickListener);
+    previewProgressFill = document.getElementById("preview__progress__fill");
+    previewProgressFill.addEventListener('click', progressClickListener);
     previewProgressTimeDone = document.getElementById("preview__progress__time-done");
     previewProgressTotalTime = document.getElementById("preview__progress__total-time");
 
     previewPlayPause = document.getElementById("preview__controls__play-pause");
-    previewPlayPause.addEventListener('click', () => {
-        if (video) {
-            if (playing) {
-                previewPlayPause.classList.remove("playing");
-                playing = false;
-                cancelAnimationFrame(renderAnimationFrame);
-            }
-            else {
-                previewPlayPause.classList.add("playing");
-                playing = true;
-                if (donePlaying) {
-                    donePlaying = false;
-                    videoPlayer.at = 0;
-                }
-                lastRendered = Date.now();
-                renderAnimationFrame = requestAnimationFrame(renderNextFrame);
-            }
-        }
-    });
+    previewPlayPause.addEventListener('click', playPauseListener);
 };
 
 const showError = errElem => {
-    if(videoPlayer){
+    if (videoPlayer) {
         videoPlayer.at = 0;
     }
     playing = false;
     previewPlayPause.classList.remove("playing");
     cancelAnimationFrame(renderAnimationFrame);
-    previewProgressBar.style.width = "0%";
+    previewProgressFill.style.width = "0%";
     previewProgressTimeDone.innerText = formatTime(0);
     previewProgressTotalTime.innerText = formatTime(0);
 
@@ -76,6 +89,7 @@ const noErrors = () => {
     }
     previewErrorsDiv.classList.add("hidden");
     canvasContainer.classList.remove("hidden");
+    previewPlayPause.classList.remove("bad");
 };
 
 const formatTime = s => {
@@ -96,6 +110,27 @@ var donePlaying = false;
 var canvasWidth;
 var canvasHeight;
 
+const moveTo = time => {
+    if(time < videoPlayer.duration - video.spf){
+        donePlaying = false;
+
+        previewProgressFill.style.width = `${time * 100 / videoPlayer.duration}%`;
+        previewProgressTimeDone.innerText = formatTime(time);
+    }
+    else{
+        time = videoPlayer.duration - video.spf;
+        playing = false;
+        donePlaying = true;
+        cancelAnimationFrame(renderAnimationFrame);
+
+        previewProgressFill.style.width = `100%`;
+        previewProgressTimeDone.innerText = formatTime(videoPlayer.duration);
+    }
+
+    videoPlayer.seek(time);
+    videoPlayer.draw(ctx);
+}
+
 const renderNextFrame = () => {
     let dateNow = Date.now();
     let timeForward = (dateNow - lastRendered) / 1000;
@@ -104,7 +139,7 @@ const renderNextFrame = () => {
         renderAnimationFrame = requestAnimationFrame(renderNextFrame);
 
         videoPlayer.forward(timeForward);
-        previewProgressBar.style.width = `${videoPlayer.at * 100 / videoPlayer.duration}%`;
+        previewProgressFill.style.width = `${videoPlayer.at * 100 / videoPlayer.duration}%`;
         previewProgressTimeDone.innerText = formatTime(videoPlayer.at);
     }
     else {
@@ -113,7 +148,7 @@ const renderNextFrame = () => {
         previewPlayPause.classList.remove("playing");
 
         videoPlayer.forward(videoPlayer.duration - video.spf - videoPlayer.at);
-        previewProgressBar.style.width = `100%`;
+        previewProgressFill.style.width = `100%`;
         previewProgressTimeDone.innerText = formatTime(videoPlayer.duration);
     }
 
@@ -134,6 +169,8 @@ export const updateVideo = text => {
     if (goodJson) {
         video = Video.fromJson(videoJson, false, false);
         if (video && video.duration > 0) {
+            noErrors();
+
             if (video.width !== canvasWidth || video.height !== canvasHeight) {
                 var width, height;
                 if (video.width * 9 > video.height * 16) {
@@ -153,26 +190,18 @@ export const updateVideo = text => {
                 canvas.height = video.height;
             }
 
-            var seekTo = 0;
-            if (videoPlayer?.at < video.duration) {
-                seekTo = videoPlayer.at;
-            }
-            else{
-                donePlaying = false;
-            }
-
-            previewProgressBar.style.width = `${seekTo * 100 / video.duration}%`;
-            previewProgressTimeDone.innerText = formatTime(seekTo);
-            previewProgressTotalTime.innerText = formatTime(video.duration);
-
+            let atBefore = videoPlayer?.at;
             videoPlayer = video.createPlayer();
-            if (seekTo) {
-                videoPlayer.seek(seekTo);
+            if (atBefore > 0 && atBefore < video.duration) {
+                moveTo(atBefore);
             }
-            noErrors();
-            videoPlayer.draw(ctx);
-
-            previewPlayPause.classList.remove("bad");
+            else {
+                donePlaying = false;
+                previewProgressFill.style.width = "0%";
+                previewProgressTimeDone.innerText = formatTime(0);
+                previewProgressTotalTime.innerText = formatTime(video.duration);
+                videoPlayer.draw(ctx);
+            }
         }
         else if (video) {
             showError(PreviewErrors.NO_DURATION);

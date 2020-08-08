@@ -81,6 +81,11 @@ body>nav, #alerts {
     margin-right: 10px;
 }
 
+#preview__progress-bar {
+    cursor: pointer;
+    display: contents;
+}
+
 #preview__progress__background, #preview__progress__fill {
     position: absolute;
     top: 10px;
@@ -91,7 +96,6 @@ body>nav, #alerts {
 #preview__progress__background {
     left: 0;
     right: 0;
-    cursor: pointer;
 }
 
 #preview__progress__fill {
