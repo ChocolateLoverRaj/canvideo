@@ -4,27 +4,43 @@ import zeroPad from "/common/lib/zero-pad.js";
 var canvasContainer;
 var canvas;
 var ctx;
+
 var previewErrorsDiv;
 var PreviewErrors = {};
+
 var previewProgressBackground;
 var previewProgressFill;
 var previewProgressTimeDone;
 var previewProgressTotalTime;
-var previewPlayPause;
 
-function progressClickListener(e){
+var previewToStart;
+var previewPlayPause;
+var previewToEnd;
+var loopInput;
+
+function progressClickListener(e) {
     if (videoPlayer) {
         let atFraction = (e.x - 10) / (previewProgressBackground.offsetWidth);
         moveTo(video.duration * atFraction);
     }
 }
 
-function playPauseListener(e){
+function toStartListener(e) {
+    if (video) {
+        moveTo(0);
+    }
+}
+
+function pause() {
+    previewPlayPause.classList.remove("playing");
+    playing = false;
+    cancelAnimationFrame(renderAnimationFrame);
+}
+
+function playPauseListener(e) {
     if (video) {
         if (playing) {
-            this.classList.remove("playing");
-            playing = false;
-            cancelAnimationFrame(renderAnimationFrame);
+            pause();
         }
         else {
             this.classList.add("playing");
@@ -37,6 +53,16 @@ function playPauseListener(e){
             renderAnimationFrame = requestAnimationFrame(renderNextFrame);
         }
     }
+}
+
+function toEndListener(e) {
+    if (video) {
+        moveTo(video.duration);
+    }
+}
+
+function loopInputListener(e) {
+    looping = !looping;
 }
 
 export const init = () => {
@@ -57,8 +83,14 @@ export const init = () => {
     previewProgressTimeDone = document.getElementById("preview__progress__time-done");
     previewProgressTotalTime = document.getElementById("preview__progress__total-time");
 
+    previewToStart = document.getElementById("preview__controls__beginning");
+    previewToStart.addEventListener('click', toStartListener);
     previewPlayPause = document.getElementById("preview__controls__play-pause");
     previewPlayPause.addEventListener('click', playPauseListener);
+    previewToEnd = document.getElementById("preview__controls__ending");
+    previewToEnd.addEventListener('click', toEndListener);
+    loopInput = document.getElementById("preview__controls__loop-checkbox");
+    loopInput.addEventListener('change', loopInputListener);
 };
 
 const showError = errElem => {
@@ -107,21 +139,22 @@ var renderAnimationFrame;
 var lastRendered = -Infinity;
 var playing = false;
 var donePlaying = false;
+var looping = false;
 var canvasWidth;
 var canvasHeight;
 
 const moveTo = time => {
-    if(time < videoPlayer.duration - video.spf){
+    if (time < videoPlayer.duration - video.spf) {
         donePlaying = false;
 
         previewProgressFill.style.width = `${time * 100 / videoPlayer.duration}%`;
         previewProgressTimeDone.innerText = formatTime(time);
     }
-    else{
+    else {
         time = videoPlayer.duration - video.spf;
-        playing = false;
         donePlaying = true;
-        cancelAnimationFrame(renderAnimationFrame);
+
+        pause();
 
         previewProgressFill.style.width = `100%`;
         previewProgressTimeDone.innerText = formatTime(videoPlayer.duration);
@@ -143,13 +176,19 @@ const renderNextFrame = () => {
         previewProgressTimeDone.innerText = formatTime(videoPlayer.at);
     }
     else {
-        playing = false;
-        donePlaying = true;
-        previewPlayPause.classList.remove("playing");
+        if (looping) {
+            moveTo(0);
+            renderAnimationFrame = requestAnimationFrame(renderNextFrame);
+        }
+        else {
+            playing = false;
+            donePlaying = true;
+            previewPlayPause.classList.remove("playing");
 
-        videoPlayer.forward(videoPlayer.duration - video.spf - videoPlayer.at);
-        previewProgressFill.style.width = `100%`;
-        previewProgressTimeDone.innerText = formatTime(videoPlayer.duration);
+            videoPlayer.forward(videoPlayer.duration - video.spf - videoPlayer.at);
+            previewProgressFill.style.width = `100%`;
+            previewProgressTimeDone.innerText = formatTime(videoPlayer.duration);
+        }
     }
 
     videoPlayer.draw(ctx);
