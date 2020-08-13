@@ -14,7 +14,7 @@ class Path extends Shape {
     shapeName = "path";
 
     static jsonPropertiesSchema = {
-        ...super.jsonPropertiesSchema,
+        ...Shape.jsonPropertiesSchema,
         doFill: { type: "boolean" },
         strokeDash: { type: "array", items: numberSchema },
         strokeDashOffset: numberSchema,
@@ -88,14 +88,14 @@ class Path extends Shape {
         }
     }
     static jsonRequiredProperties = [
-        ...super.jsonRequiredProperties,
+        ...Shape.jsonRequiredProperties,
         "doFill",
         "strokeDash",
         "strokeDashOffset",
         "operations"
     ]
     static animateProperties = {
-        ...super.animateProperties,
+        ...Shape.animateProperties,
         strokeDash: ["number"],
         strokeDashOffset: "number"
     }

@@ -4,15 +4,30 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var EventEmitter = _interopDefault(require('eventemitter3'));
+var tinyColor = _interopDefault(require('tinycolor2'));
+var canvas = _interopDefault(require('canvas'));
 var fs = require('fs');
 var fs__default = _interopDefault(fs);
-var events = require('events');
 var path = require('path');
 var path__default = _interopDefault(path);
 var child_process = require('child_process');
-var tinyColor = _interopDefault(require('tinycolor2'));
-var canvas = _interopDefault(require('canvas'));
 var express = _interopDefault(require('express'));
+
+const once = (emitter, event) => new Promise((resolve, reject) => {
+    emitter.once(event, (...args) => {
+        resolve(args);
+    });
+    emitter.once('error', err => {
+        reject(err);
+    });
+});
+
+//Npm Modules
+
+const createCanvas = (width, height) => canvas.createCanvas(width, height);
+
+const Ctx = canvas.CanvasRenderingContext2D;
 
 //File for types.
 
@@ -44,6 +59,7 @@ const FUNCTION = a => typeof a === 'function' ? false : "is not a function.";
 //Object
 const OBJECT = a => typeof a === 'object' ? false : "is not an object.";
 const ARRAY = a => Array.isArray(a) ? false : "is not an Array.";
+const CANVAS_CTX = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
 
 //Object key
 const KEY = a => ['symbol', 'string', 'number'].includes(typeof a) ? false : "is not a valid key type (symbol, string, or number).";
@@ -70,6 +86,7 @@ var Types = {
     FUNCTION,
     OBJECT,
     ARRAY,
+    CANVAS_CTX,
     KEY,
     TYPE,
 };
@@ -586,65 +603,20 @@ const typify = typedFunction(params, function (o, properties) {
     }
 });
 
-//Easily assign default properties to objects
-//For example
-/* Default Object
-{
-    name: "New Thing",
-    description: "A detailed description."
-} */
-/* Given Object
-{
-    name: "Hi"
-} */
-/* Output Object
-{
-    name: "Hi",
-    description: "A detailed description."
-} */
-
-//Declare and export function
-const defaultify = (properties, defaultProperties) => {
-    const anyDefault = (g, d) => {
-        if (typeof d === 'object') {
-            return objectDefault(g, d);
-        }
-        else if (typeof g === 'undefined') {
-            return d;
-        }
-        else {
-            return g;
-        }
-    };
-    const objectDefault = (g, d) => {
-        if (typeof g === 'object') {
-            var o = {};
-            for (var k in d) {
-                o[k] = anyDefault(g[k], d[k]);
-            }
-            return o;
-        }
-        else {
-            return d;
-        }
-    };
-    return anyDefault(properties, defaultProperties);
-};
-
-//Npm Modules
-
-const createCanvas = typedFunction([
-    { name: "width", type: Types.POSITIVE_INTEGER },
-    { name: "height", type: Types.POSITIVE_INTEGER }
-], (width, height) => canvas.createCanvas(width, height));
-
-const Ctx = canvas.CanvasRenderingContext2D;
-
 //File for making linear animations
 
 class Animation {
     static animationName = "animation";
     animationName = "animation";
+
+    static getJsonSchema = (valueSchema) => ({
+        properties: {
+            startValue: valueSchema,
+            endValue: valueSchema,
+            reversed: { type: "boolean" }
+        },
+        required: ["startValue", "endValue", "reversed"]
+    })
 
     static fromJson(json, parse = true, throwErrors = false) {
         if (typeof json === 'string' && parse === true) {
@@ -819,6 +791,19 @@ class Animation {
 class Precomputed {
     static animationName = "precomputed";
     animationName = "precomputed";
+
+    static getJsonSchema = (valueSchema) => ({
+        type: "array",
+        items: {
+            type: "array",
+            items: [
+                { type: "number", minimum: 0 },
+                valueSchema
+            ],
+            minItems: 2,
+            maxItems: 2
+        }
+    })
 
     static fromJson(json, parse = true, throwErrors = false) {
         if (typeof json === 'string' && parse === true) {
@@ -1417,15 +1402,141 @@ const cameraInterface = new Interface(true)
     .required("y", Types.NUMBER)
     .toType();
 
+const hexStringSchema = {
+    title: "Color",
+    description: "Color hex string.",
+    type: "string",
+    pattern: "^#?([0-9a-fA-F]{2}){3,4}$"
+};
+
 //File which contains Shape class
 
-//Figure out whether ctx given is actually ctx.
-const ctxType = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
+//Both fillColor and strokeColor use this
+const animateColor = {
+    r: "number",
+    g: "number",
+    b: "number",
+    a: "number"
+};
+
+//Get a value schema
+const getValueSchema = (properties) => {
+    const getSchema = properties => {
+        const getProperty = v => {
+            switch (typeof v) {
+                case "string":
+                    if (v === "number") {
+                        return { type: "number" };
+                    }
+                    else {
+                        throw new TypeError("Unknown type");
+                    }
+                case "object": {
+                    return getSchema(v);
+                }
+            }
+        };
+        if (properties instanceof Array) {
+            return {
+                type: "array",
+                items: getProperty(properties[0])
+            };
+        }
+        else {
+            let valueProperties = {};
+            for (let k in properties) {
+                valueProperties[k] = getProperty(properties[k]);
+            }
+            return {
+                properties: valueProperties,
+                type: "object",
+                additionalProperties: false
+            };
+        }
+    };
+    return getSchema(properties);
+};
 
 //Shape class
 class Shape {
     static shapeName = "shape";
     shapeName = "shape";
+
+    static getJsonSchema = (properties, requiredProperties, animateProperties) => {
+        let animateSchema = getValueSchema(animateProperties);
+        return {
+            properties: {
+                ...properties,
+                animations: {
+                    type: "array",
+                    items: {
+                        properties: {
+                            startTime: { type: "number", minimum: 0 },
+                            duration: { type: "number", minimum: 0 },
+                            isBuiltin: { ype: "boolean" },
+                            name: { type: "string" },
+                            lasts: { type: "boolean" }
+                        },
+                        required: ["startTime", "duration", "isBuiltin", "lasts"],
+                        if: { properties: { isBuiltin: { const: true } } },
+                        then: {
+                            properties: { name: { enum: ["animation", "precomputed"] } },
+                            required: ["name", "data"],
+                            allOf: [
+                                {
+                                    if: { properties: { name: { const: "animation" } } },
+                                    then: {
+                                        properties: {
+                                            data: Animation.getJsonSchema(animateSchema)
+                                        }
+                                    }
+                                },
+                                {
+                                    if: { properties: { name: { const: "precomputed" } } },
+                                    then: {
+                                        properties: {
+                                            data: Precomputed.getJsonSchema(animateSchema)
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        else: {
+                            properties: { name: { type: "string" } }
+                        }
+                    }
+                },
+                sets: {
+                    type: "array",
+                    items: {
+                        properties: {
+                            at: { type: "number", minimum: 0 },
+                            value: animateSchema
+                        },
+                        required: ["at", "value"]
+                    }
+                }
+            },
+            required: [...new Set([...requiredProperties, "animations", "sets"])],
+            additionalProperties: false
+        }
+    }
+    static jsonPropertiesSchema = {
+        fillColor: hexStringSchema,
+        strokeColor: hexStringSchema,
+        strokeWidth: { type: "number", minimum: 0 }
+    }
+    static jsonRequiredProperties = []
+    static animateProperties = {
+        fillColor: animateColor,
+        strokeColor: animateColor,
+        strokeWidth: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
@@ -1541,7 +1652,7 @@ class Shape {
         return this;
     }
     draw() {
-        return typedFunction([{ name: "ctx", type: ctxType }], function (ctx) {
+        return typedFunction([{ name: "ctx", type: Types.CANVAS_CTX }], function (ctx) {
             if (this.isExplicitlySet("fillColor")) {
                 ctx.fillStyle = this.fillColor.hexString;
             }
@@ -1574,6 +1685,16 @@ class Shape {
         }
     }
 }
+
+//Because this is used by so many shapes
+const numberSchema = {
+    type: "number"
+};
+
+const positiveNumberSchema = {
+    ...numberSchema,
+    exclusiveMinimum: 0
+};
 
 //File for creating rectangle class
 
@@ -1611,6 +1732,33 @@ const horizontalCornerRoundType = either(Types.NON_NEGATIVE_NUMBER, horizontalCo
 class Rectangle extends Shape {
     static shapeName = "rectangle";
     shapeName = "rectangle";
+
+    static jsonPropertiesSchema = {
+        ...Shape.jsonPropertiesSchema,
+        x: numberSchema,
+        y: numberSchema,
+        width: numberSchema,
+        height: numberSchema
+    }
+    static jsonRequiredProperties = [
+        ...Shape.jsonRequiredProperties,
+        "x",
+        "y",
+        "width",
+        "height"
+    ]
+    static animateProperties = {
+        ...Shape.animateProperties,
+        x: "number",
+        y: "number",
+        width: "number",
+        height: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
@@ -1977,6 +2125,30 @@ class Circle extends Shape {
     static shapeName = "circle";
     shapeName = "circle";
 
+    static jsonPropertiesSchema = {
+        ...Shape.jsonPropertiesSchema,
+        cx: numberSchema,
+        cy: numberSchema,
+        r: positiveNumberSchema
+    }
+    static jsonRequiredProperties = [
+        ...Shape.jsonRequiredProperties,
+        "cx",
+        "cy",
+        "r"
+    ]
+    static animateProperties = {
+        ...Shape.animateProperties,
+        cx: "number",
+        cy: "number",
+        r: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
+
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -2077,6 +2249,39 @@ class Circle extends Shape {
 class NumberLine extends Shape {
     static shapeName = "numberLine";
     shapeName = "numberLine";
+
+    static jsonPropertiesSchema = {
+        ...Shape.jsonPropertiesSchema,
+        startNumber: numberSchema,
+        endNumber: numberSchema,
+        x: numberSchema,
+        y: numberSchema,
+        width: positiveNumberSchema,
+        height: positiveNumberSchema
+    }
+    static jsonRequiredProperties = [
+        ...Shape.jsonRequiredProperties,
+        "startNumber",
+        "endNumber",
+        "x",
+        "y",
+        "width",
+        "height"
+    ]
+    static animateProperties = {
+        ...Shape.animateProperties,
+        startNumber: "number",
+        endNumber: "number",
+        x: "number",
+        y: "number",
+        width: "number",
+        height: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
@@ -2216,6 +2421,98 @@ class NumberLine extends Shape {
 class Path extends Shape {
     static shapeName = "path";
     shapeName = "path";
+
+    static jsonPropertiesSchema = {
+        ...Shape.jsonPropertiesSchema,
+        doFill: { type: "boolean" },
+        strokeDash: { type: "array", items: numberSchema },
+        strokeDashOffset: numberSchema,
+        operations: {
+            type: "array",
+            items: {
+                anyOf: [
+                    {
+                        type: "array",
+                        items: [
+                            {
+                                const: "moveTo"
+                            },
+                            {
+                                type: "array",
+                                items: [
+                                    numberSchema,
+                                    numberSchema
+                                ],
+                                minItems: 2,
+                                maxItems: 2
+                            }
+                        ],
+                        minItems: 2,
+                        maxItems: 2
+                    },
+                    {
+                        type: "array",
+                        items: [
+                            {
+                                const: "lineTo"
+                            },
+                            {
+                                type: "array",
+                                items: [
+                                    numberSchema,
+                                    numberSchema
+                                ],
+                                minItems: 2,
+                                maxItems: 2
+                            }
+                        ],
+                        minItems: 2,
+                        maxItems: 2
+                    },
+                    {
+                        type: "array",
+                        items: [
+                            {
+                                const: "arc"
+                            },
+                            {
+                                type: "array",
+                                items: [
+                                    numberSchema,
+                                    numberSchema,
+                                    positiveNumberSchema,
+                                    numberSchema,
+                                    numberSchema,
+                                    { type: "boolean" }
+                                ],
+                                minItems: 6,
+                                maxItems: 6
+                            }
+                        ],
+                        minItems: 2,
+                        maxItems: 2
+                    }
+                ]
+            }
+        }
+    }
+    static jsonRequiredProperties = [
+        ...Shape.jsonRequiredProperties,
+        "doFill",
+        "strokeDash",
+        "strokeDashOffset",
+        "operations"
+    ]
+    static animateProperties = {
+        ...Shape.animateProperties,
+        strokeDash: ["number"],
+        strokeDashOffset: "number"
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
@@ -2363,6 +2660,36 @@ class Polygon extends Shape {
     static shapeName = "polygon";
     shapeName = "polygon";
 
+    static jsonPropertiesSchema = {
+        ...Shape.jsonPropertiesSchema,
+        points: {
+            type: "array",
+            items: {
+                properties: {
+                    x: numberSchema,
+                    y: numberSchema
+                },
+                required: ["x", "y"]
+            }
+        }
+    }
+    static jsonRequiredProperties = [
+        ...Shape.jsonRequiredProperties,
+        "points"
+    ]
+    static animateProperties = {
+        ...Shape.animateProperties,
+        "points": [{
+            x: "number",
+            y: "number"
+        }]
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
+
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -2491,7 +2818,33 @@ class Polygon extends Shape {
     }
 }
 
+const refs = new Map();
+
+const addRef = (v) => {
+    let refsSize = refs.size.toString();
+    refs.set(refsSize, v);
+    return refsSize;
+};
+
+const setRef = (k, v) => {
+    refs.set(k, v);
+};
+
 //Create groups of things
+
+//This is referenced by the schema
+const shapeNames = ["group"];
+const groupRefKey = addRef();
+const shapeDataSchemas = [
+    {
+        if: {
+            properties: { name: { const: "group" } }
+        },
+        then: {
+            properties: { data: { $ref: groupRefKey } }
+        }
+    }
+];
 
 //Size interface
 const sizeInterface$1 = new Interface(false)
@@ -2503,6 +2856,74 @@ const sizeInterface$1 = new Interface(false)
 class Group extends Shape {
     static shapeName = "group";
     shapeName = "group";
+
+    static jsonPropertiesSchema = {
+        ...Shape.jsonPropertiesSchema,
+        x: numberSchema,
+        y: numberSchema,
+        originalWidth: positiveNumberSchema,
+        originalHeight: positiveNumberSchema,
+        refX: numberSchema,
+        refY: numberSchema,
+        width: positiveNumberSchema,
+        height: positiveNumberSchema,
+        children: {
+            type: "array",
+            items: {
+                properties: {
+                    isBuiltin: {
+                        type: "boolean"
+                    }
+                },
+                required: ["isBuiltin"],
+                if: { properties: { isBuiltin: { const: true } } },
+                then: {
+                    properties: {
+                        name: {
+                            enum: shapeNames
+                        }
+                    },
+                    required: ["name", "data"],
+                    allOf: shapeDataSchemas
+                },
+                else: {
+                    properties: {
+                        name: {
+                            type: "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    static jsonRequiredProperties = [
+        ...Shape.jsonRequiredProperties,
+        "x",
+        "y",
+        "originalWidth",
+        "originalHeight",
+        "refX",
+        "refY",
+        "width",
+        "height",
+        "children"
+    ]
+    static animateProperties = {
+        ...Shape.animateProperties,
+        x: "number",
+        y: "number",
+        originalWidth: "number",
+        originalHeight: "number",
+        refX: "number",
+        refY: "number",
+        width: "number",
+        height: "number",
+    }
+    static jsonSchema = this.getJsonSchema(
+        this.jsonPropertiesSchema,
+        this.jsonRequiredProperties,
+        this.animateProperties
+    )
 
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
@@ -2751,7 +3172,8 @@ class Group extends Shape {
     }
 }
 //List of shapes
-const shapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle, Group];
+const otherShapesList = [Shape, Circle, NumberLine, Path, Polygon, Rectangle];
+const shapesList = [...otherShapesList, Group];
 
 //Check if a shape is builtin
 //This is because requiring ./shapes.js will cause circular dependencies
@@ -2763,6 +3185,19 @@ const isBuiltin = a => {
     }
     return false;
 };
+
+for (let { shapeName, jsonSchema } of otherShapesList) {
+    shapeNames.push(shapeName);
+    shapeDataSchemas.push({
+        if: {
+            properties: { name: { const: shapeName } }
+        },
+        then: {
+            properties: { data: jsonSchema }
+        }
+    });
+}
+setRef(groupRefKey, Group.jsonSchema);
 
 //Quick way of getting shapes
 
@@ -2849,13 +3284,10 @@ const fromJson = typedFunction([
     }
 });
 
-//Create captions and generate .vtt files
-
 //Zero pad a number to the left
-function zeroPad(n, length) {
-    let s = n.toString();
-    return "0".repeat(length - s.length) + s;
-}
+const zeroPad = (n, length) => "0".repeat(length - n.toString().length) + n.toString();
+
+//Create captions and generate .vtt files
 
 //Get a formatted time
 function formatTime(s) {
@@ -2919,6 +3351,19 @@ class Caption {
             throw new TypeError("Invalid arguments.");
         }
         return this;
+    }
+
+    textsAt(time){
+        if(typeof time !== 'number' || time < 0){
+            throw new TypeError("Time must be a non negative number.");
+        }
+        let texts = [];
+        for(let text of this.texts){
+            if(text.start <= time && time < text.end){
+                texts.push(text.text);
+            }
+        }
+        return texts;
     }
 
     toVtt(includeHeader = true, offset = 0) {
@@ -3177,7 +3622,7 @@ class Scene {
         return this;
     };
 
-    render(at, { width, height }) {
+    render(at, { width, height }, ctx = createCanvas(width, height).getContext('2d')) {
         if (!(0 < at < this.duration)) {
             throw new TypeError("At is out of range.");
         }
@@ -3187,10 +3632,9 @@ class Scene {
         if (!(height > 0 && height < Infinity) || height & 1) {
             throw new TypeError("Invalid width.");
         }
-
-        //Create a new canvas
-        let canvas = createCanvas(width, height);
-        let ctx = canvas.getContext('2d');
+        if(Types.CANVAS_CTX(ctx)){
+            throw new TypeError("Invalid Canvas Ctx.");
+        }
 
         //Draw the background
         ctx.fillStyle = this.backgroundColor.hexString;
@@ -3224,7 +3668,7 @@ class Scene {
             drawables[i].shape.at(at).draw(ctx);
         }
 
-        return canvas;
+        return ctx;
     }
 
     setDuration(duration) {
@@ -3267,80 +3711,7 @@ class Scene {
     }
 }
 
-//Export enums
-//The export process is split into stages.
-//Each stage has some tasks that it depends on.
-//After those tasks are done, it starts the tasks that depend on the stage to be done.
-
-//Visualization
-
-// START                 CREATE_FILES                     GENERATE_VIDEO       DELETE_TEMPORARY      FINISH
-// | --> CHECK_TEMP_PATH |                                |                    |                     |
-//                       | --> DELETE_EXTRA_FRAMES        |                    |                     |
-//                       | --> RENDER_NEW_FRAMES          |                    |                     |
-//                       | --> GENERATE_EMBEDDED_CAPTIONS |                    |                     |
-//                                                        | --> GENERATE_VIDEO |                     |
-//                                                                             | --> DELETE_FRAMES   |
-//                                                                             | --> DELETE_CAPTIONS |
-//                       | --> GENERATE_SEPARATE_CAPTIONS                                            |
-
-//Export stages enum
-const ExportStages = {
-    START: "START",
-    CREATE_FILES: "CREATE_FILES",
-    GENERATE_VIDEO: "GENERATE_VIDEO",
-    DELETE_TEMPORARY: "DELETE_FRAMES",
-    FINISH: "FINISH"
-};
-
-//Export tasks enum
-const ExportTasks = {
-    CHECK_TEMP_PATH: {
-        name: "CHECK_TEMP_PATH",
-        start: ExportStages.START,
-        end: ExportStages.CREATE_FILES
-    },
-    DELETE_EXTRA_FRAMES: {
-        name: "DELETE_EXTRA_FRAMES",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.GENERATE_VIDEO
-    },
-    RENDER_NEW_FRAMES: {
-        name: "RENDER_NEW_FRAMES",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.GENERATE_VIDEO
-    },
-    GENERATE_SEPARATE_CAPTIONS: {
-        name: "GENERATE_SEPARATE_CAPTIONS",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.FINISH
-    },
-    GENERATE_EMBEDDED_CAPTIONS: {
-        name: "GENERATE_EMBEDDED_CAPTIONS",
-        start: ExportStages.CREATE_FILES,
-        end: ExportStages.GENERATE_VIDEO
-    },
-    GENERATE_VIDEO: {
-        name: "GENERATE_VIDEO",
-        start: ExportStages.GENERATE_VIDEO,
-        end: ExportStages.DELETE_TEMPORARY
-    },
-    DELETE_FRAMES: {
-        name: "DELETE_FRAMES",
-        start: ExportStages.DELETE_TEMPORARY,
-        end: ExportStages.FINISH
-    },
-    DELETE_CAPTIONS: {
-        name: "DELETE_CAPTIONS",
-        start: ExportStages.DELETE_TEMPORARY,
-        end: ExportStages.FINISH
-    }
-};
-
 //Render the final video
-
-//Image regex
-const imageRegex = /canvideo \d+\.png/i;
 
 //Video options
 const optionsInterface = new Interface(false)
@@ -3363,77 +3734,88 @@ const shortSquashedOptionsInterface = new Interface(false)
     .required("fps", Types.POSITIVE_NUMBER)
     .toType();
 
-//Export options interface
-const exportOptionsInterface = new Interface(false)
-    .optional("keepImages", Types.BOOLEAN)
-    .optional("maxStreams", Types.POSITIVE_INTEGER)
-    .toType();
-//Make sure directory exists
-function directoryExists(path) {
-    return new Promise((resolve, reject) => {
-        //Check if directory exists
-        if (fs__default.existsSync(path)) {
-            fs__default.lstat(path, (err, stats) => {
-                if (!err) {
-                    if (stats.isDirectory()) {
-                        resolve(path);
-                    }
-                    else {
-                        reject(`directory: ${path}, is not a directory.`);
-                    }
-                }
-                else {
-                    reject(`Error checking if directory exists: ${err}`);
-                }
-            });
+//Video Player, for basic canvas drawing. No fs operations.
+class VideoPlayer {
+    constructor(video) {
+        this.video = video;
+        this._at = 0;
+        this.timeInScene = 0;
+        this.currentScene = 0;
+        this.currentSceneStartTime = 0;
+        this.currentSceneDuration = this.video.scenes[0].duration;
+    }
+
+    set at(time) {
+        this.seek(time);
+    }
+    get at() {
+        return this._at;
+    }
+
+    get duration() {
+        return this.video.duration;
+    }
+
+    seek(time) {
+        if (time < 0 && time >= this.duration) {
+            throw new RangeError("Time is out of bounds. Time must be >= 0 and < duration.");
+        }
+        this.currentScene = 0;
+        this.currentSceneStartTime = 0;
+        this.currentSceneDuration = this.video.scenes[0].duration;
+        while (this.currentSceneStartTime + this.currentSceneDuration < time) {
+            this.currentScene++;
+            this.currentSceneStartTime += this.currentSceneDuration;
+            this.currentSceneDuration = this.video.scenes[this.currentScene].duration;
+        }
+        this.timeInScene = time - this.currentSceneStartTime;
+        this._at = time;
+
+        return this;
+    }
+
+    forward(time) {
+        if (time <= 0) {
+            throw new RangeError("time must be greater than 0, because you are moving forward.");
+        }
+        if (this.at + time >= this.duration) {
+            throw new RangeError("Cannot go forward past end of video.");
+        }
+        var timeLeftInScene = this.currentSceneDuration - this.timeInScene;
+        while (timeLeftInScene <= time) {
+            this.currentSceneStartTime += this.currentSceneDuration;
+            this.currentScene++;
+            this._at += timeLeftInScene;
+            time -= timeLeftInScene;
+            this.timeInScene = 0;
+            this.currentSceneDuration = this.video.scenes[this.currentScene].duration;
+            timeLeftInScene = this.currentSceneDuration;
+        }
+        this.timeInScene += time;
+        this._at += time;
+
+        return this;
+    }
+
+    draw(ctx = createCanvas(this.video.width, this.video.height).getContext('2d')) {
+        return typedFunction([{ name: "ctx", type: Types.CANVAS_CTX }], ctx => {
+            return this.video.scenes[this.currentScene].render(this.timeInScene, this.video, ctx);
+        })(ctx);
+    }
+
+    getCaptions(id = "Caption Track 0"){
+        let caption = this.video.scenes[this.currentScene].captions.get(id);
+        if(caption){
+            return caption.textsAt(this.at);
         }
         else {
-            reject(`directory: ${path}, does not exist.`);
+            return [];
         }
-    });
+    }
 }
 
-//Set the global tempPath
-const setTempPath = (path) => exports.tempPath = directoryExists(path);
-
-//Check that ffmpeg path is good
-var ffmpegPathStatus;
-const checkFfmpegPath = async () => new Promise((resolve, reject) => {
-    var command = child_process.exec(`${ffmpegPath} -version`);
-    command.once("exit", code => {
-        if (code === 0) {
-            ffmpegPathStatus = true;
-            resolve();
-        }
-        else {
-            ffmpegPathStatus = false;
-            reject(`Check command failed: ${ffmpegPath} -version.`);
-        }
-    });
-});
-
-//Set and get ffmpeg path
-var ffmpegPath = "ffmpeg";
-const setFfmpegPath = (path) => {
-    if (path !== ffmpegPath) {
-        ffmpegPath = path;
-        ffmpegPathStatus = undefined;
-    }
-};
-const getFfmpegPath = () => ffmpegPath;
-
-//Output interface
-const outputInterface = new Interface(false)
-    .required("video", Types.STRING)
-    .optional("captions", either(Types.STRING, instanceOf(Map)))
-    .optional("embeddedCaptions", either(Types.BOOLEAN, instanceOf(Set)))
-    .toType();
-
-//Output type
-const outputType = either(Types.STRING, outputInterface);
-
 //Video class
-class Video extends events.EventEmitter {
+class Video extends EventEmitter {
     static fromJson = typedFunction([
         { name: "json", type: Types.ANY },
         { name: "parse", type: Types.BOOLEAN, optional: true },
@@ -3485,12 +3867,6 @@ class Video extends events.EventEmitter {
     constructor() {
         super();
         typify(this, {
-            tempPath: {
-                type: Types.STRING,
-                setter(v, set) {
-                    set(directoryExists(v));
-                }
-            },
             width: sizeType,
             height: sizeType,
             fps: Types.POSITIVE_NUMBER,
@@ -3577,11 +3953,6 @@ class Video extends events.EventEmitter {
         return this;
     }
 
-    setTempPath(path) {
-        this.tempPath = path;
-        return this;
-    }
-
     toJson(stringify = true, fps = this.fps) {
         var o = {
             width: this.width,
@@ -3602,6 +3973,219 @@ class Video extends events.EventEmitter {
         else {
             throw new TypeError("stringify must be boolean.");
         }
+    }
+
+    createPlayer() {
+        return new VideoPlayer(this);
+    }
+}
+
+//Easily assign default properties to objects
+//For example
+/* Default Object
+{
+    name: "New Thing",
+    description: "A detailed description."
+} */
+/* Given Object
+{
+    name: "Hi"
+} */
+/* Output Object
+{
+    name: "Hi",
+    description: "A detailed description."
+} */
+
+//Declare and export function
+const defaultify = (properties, defaultProperties) => {
+    const anyDefault = (g, d) => {
+        if (typeof d === 'object') {
+            return objectDefault(g, d);
+        }
+        else if (typeof g === 'undefined') {
+            return d;
+        }
+        else {
+            return g;
+        }
+    };
+    const objectDefault = (g, d) => {
+        if (typeof g === 'object') {
+            var o = {};
+            for (var k in d) {
+                o[k] = anyDefault(g[k], d[k]);
+            }
+            return o;
+        }
+        else {
+            return d;
+        }
+    };
+    return anyDefault(properties, defaultProperties);
+};
+
+//Export enums
+//The export process is split into stages.
+//Each stage has some tasks that it depends on.
+//After those tasks are done, it starts the tasks that depend on the stage to be done.
+
+//Visualization
+
+// START                 CREATE_FILES                     GENERATE_VIDEO       DELETE_TEMPORARY      FINISH
+// | --> CHECK_TEMP_PATH |                                |                    |                     |
+//                       | --> DELETE_EXTRA_FRAMES        |                    |                     |
+//                       | --> RENDER_NEW_FRAMES          |                    |                     |
+//                       | --> GENERATE_EMBEDDED_CAPTIONS |                    |                     |
+//                                                        | --> GENERATE_VIDEO |                     |
+//                                                                             | --> DELETE_FRAMES   |
+//                                                                             | --> DELETE_CAPTIONS |
+//                       | --> GENERATE_SEPARATE_CAPTIONS                                            |
+
+//Export stages enum
+const ExportStages = {
+    START: "START",
+    CREATE_FILES: "CREATE_FILES",
+    GENERATE_VIDEO: "GENERATE_VIDEO",
+    DELETE_TEMPORARY: "DELETE_FRAMES",
+    FINISH: "FINISH"
+};
+
+//Export tasks enum
+const ExportTasks = {
+    CHECK_TEMP_PATH: {
+        name: "CHECK_TEMP_PATH",
+        start: ExportStages.START,
+        end: ExportStages.CREATE_FILES
+    },
+    DELETE_EXTRA_FRAMES: {
+        name: "DELETE_EXTRA_FRAMES",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.GENERATE_VIDEO
+    },
+    RENDER_NEW_FRAMES: {
+        name: "RENDER_NEW_FRAMES",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.GENERATE_VIDEO
+    },
+    GENERATE_SEPARATE_CAPTIONS: {
+        name: "GENERATE_SEPARATE_CAPTIONS",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.FINISH
+    },
+    GENERATE_EMBEDDED_CAPTIONS: {
+        name: "GENERATE_EMBEDDED_CAPTIONS",
+        start: ExportStages.CREATE_FILES,
+        end: ExportStages.GENERATE_VIDEO
+    },
+    GENERATE_VIDEO: {
+        name: "GENERATE_VIDEO",
+        start: ExportStages.GENERATE_VIDEO,
+        end: ExportStages.DELETE_TEMPORARY
+    },
+    DELETE_FRAMES: {
+        name: "DELETE_FRAMES",
+        start: ExportStages.DELETE_TEMPORARY,
+        end: ExportStages.FINISH
+    },
+    DELETE_CAPTIONS: {
+        name: "DELETE_CAPTIONS",
+        start: ExportStages.DELETE_TEMPORARY,
+        end: ExportStages.FINISH
+    }
+};
+
+//Render the final video
+
+//Image regex
+const imageRegex = /canvideo \d+\.png/i;
+//Make sure directory exists
+function directoryExists(path) {
+    return new Promise((resolve, reject) => {
+        //Check if directory exists
+        if (fs__default.existsSync(path)) {
+            fs__default.lstat(path, (err, stats) => {
+                if (!err) {
+                    if (stats.isDirectory()) {
+                        resolve(path);
+                    }
+                    else {
+                        reject(`directory: ${path}, is not a directory.`);
+                    }
+                }
+                else {
+                    reject(`Error checking if directory exists: ${err}`);
+                }
+            });
+        }
+        else {
+            reject(`directory: ${path}, does not exist.`);
+        }
+    });
+}
+
+//Set the global tempPath
+const setTempPath = (path) => exports.tempPath = directoryExists(path);
+
+//Check that ffmpeg path is good
+var ffmpegPathStatus;
+const checkFfmpegPath = async () => new Promise((resolve, reject) => {
+    var command = child_process.exec(`${ffmpegPath} -version`);
+    command.once("exit", code => {
+        if (code === 0) {
+            ffmpegPathStatus = true;
+            resolve();
+        }
+        else {
+            ffmpegPathStatus = false;
+            reject(`Check command failed: ${ffmpegPath} -version.`);
+        }
+    });
+});
+
+//Set and get ffmpeg path
+var ffmpegPath = "ffmpeg";
+const setFfmpegPath = (path) => {
+    if (path !== ffmpegPath) {
+        ffmpegPath = path;
+        ffmpegPathStatus = undefined;
+    }
+};
+const getFfmpegPath = () => ffmpegPath;
+
+//Output interface
+const outputInterface = new Interface(false)
+    .required("video", Types.STRING)
+    .optional("captions", either(Types.STRING, instanceOf(Map)))
+    .optional("embeddedCaptions", either(Types.BOOLEAN, instanceOf(Set)))
+    .toType();
+
+//Output type
+const outputType = either(Types.STRING, outputInterface);
+
+//Export options interface
+const exportOptionsInterface = new Interface(false)
+    .optional("keepImages", Types.BOOLEAN)
+    .optional("maxStreams", Types.POSITIVE_INTEGER)
+    .toType();
+
+//Video class
+class Video$1 extends Video {
+    constructor() {
+        super(...arguments);
+        typify(this, {
+            tempPath: {
+                type: Types.STRING,
+                setter(v, set) {
+                    set(directoryExists(v));
+                }
+            }
+        });
+    }
+
+    setTempPath(path) {
+        this.tempPath = path;
+        return this;
     }
 
     export() {
@@ -3640,19 +4224,19 @@ class Video extends events.EventEmitter {
 
             var frameCount = Math.ceil(this.duration * this.fps);
 
-            var emitter = new events.EventEmitter();
+            var emitter = new EventEmitter();
 
             emitter.currentStage = ExportStages.START;
             emitter.currentTasks = new Set();
 
-            emitter.checkTempPath = new events.EventEmitter();
-            emitter.deleteExtraFrames = new events.EventEmitter();
-            emitter.renderNewFrames = new events.EventEmitter();
-            emitter.generateEmbeddedCaptions = new events.EventEmitter();
-            emitter.generateVideo = new events.EventEmitter();
-            emitter.deleteFrames = new events.EventEmitter();
-            emitter.deleteCaptions = new events.EventEmitter();
-            emitter.generateSeparateCaptions = new events.EventEmitter();
+            emitter.checkTempPath = new EventEmitter();
+            emitter.deleteExtraFrames = new EventEmitter();
+            emitter.renderNewFrames = new EventEmitter();
+            emitter.generateEmbeddedCaptions = new EventEmitter();
+            emitter.generateVideo = new EventEmitter();
+            emitter.deleteFrames = new EventEmitter();
+            emitter.deleteCaptions = new EventEmitter();
+            emitter.generateSeparateCaptions = new EventEmitter();
 
             emitter.totalFrames = frameCount;
             emitter.video = this;
@@ -3806,8 +4390,7 @@ class Video extends events.EventEmitter {
                 emit("start");
 
                 let writePromises = 0;
-                let f = 0;
-                let writeEmitter = new events.EventEmitter();
+                let writeEmitter = new EventEmitter();
                 let startedAll = false;
 
                 const addWrite = (write) => {
@@ -3827,34 +4410,35 @@ class Video extends events.EventEmitter {
                         return Promise.resolve();
                     }
                     else {
-                        return events.once(writeEmitter, "ready");
+                        return once(writeEmitter, "ready");
                     }
                 };
 
-                for (let scene of this.scenes) {
-                    for (let sceneFrame = 0; sceneFrame < scene.duration * this.fps; sceneFrame++) {
-                        let currentFrame = f;
+                let player = this.createPlayer();
+                for (let i = 0; i < this.duration * this.fps; i++) {
+                    let currentFrame = i;
 
-                        await nextTurn();
+                    await nextTurn();
 
-                        emit("renderStart", currentFrame);
-                        let canvas = scene.render(sceneFrame / this.fps, this);
-                        addWrite(new Promise((resolve, reject) => {
+                    emit("renderStart", currentFrame);
+                    let canvas = player.draw().canvas;
+                    addWrite(
+                        new Promise((resolve, reject) => {
                             let framePath = path__default.join(tempPathToUse, `./canvideo ${currentFrame}.png`);
                             framePaths.push(framePath);
 
                             canvas.createPNGStream()
                                 .once('end', resolve)
                                 .pipe(fs__default.createWriteStream(framePath));
-                        }).then(() => {
-                            emit("renderFinish", currentFrame);
-                        }));
-                        f++;
-                    }
+                        })
+                            .then(() => {
+                                emit("renderFinish", currentFrame);
+                            })
+                    );
                 }
                 startedAll = true;
 
-                await events.once(writeEmitter, "done");
+                await once(writeEmitter, "done");
                 emit("finish");
             };
 
@@ -4109,7 +4693,9 @@ const myDirname = path.dirname((typeof document === 'undefined' ? new (require('
 const resPaths = (async () => {
     const paperCss = undefined('papercss/dist/paper.min.css');
     const jsonEditor = undefined('jsoneditor');
-    await Promise.all([paperCss, jsonEditor]);
+    const tinyColor = undefined('tinycolor2/dist/tinycolor-min.js');
+    const eventEmitter = undefined('eventemitter3/umd/eventemitter3.min.js');
+    await Promise.all([paperCss, jsonEditor, tinyColor, eventEmitter]);
 
     const jsonEditorDist = path.join(path.dirname(await jsonEditor).substring(8), './dist/');
 
@@ -4120,7 +4706,10 @@ const resPaths = (async () => {
             js: path.join(jsonEditorDist, "./jsoneditor.min.js"),
             map: path.join(jsonEditorDist, "./jsoneditor.map"),
             svg: path.join(jsonEditorDist, "./img/jsoneditor-icons.svg")
-        }
+        },
+        tinyColor: (await tinyColor).substring(8),
+        eventEmitter: (await eventEmitter).substring(8)
+        
     };
 })();
 
@@ -4129,7 +4718,9 @@ const createRouter = async () => {
     //Wait for resource paths
     const {
         paperCss: paperCssPath,
-        jsonEditor: jsonEditorPaths
+        jsonEditor: jsonEditorPaths,
+        tinyColor: tinyColorPath,
+        eventEmitter: eventEmitterPath
     } = await resPaths;
 
     //Server path
@@ -4151,19 +4742,14 @@ const createRouter = async () => {
 
     //Main page
     router.get("/", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/index.html"));
+        res.sendFile(path.join(serverPath, "./pages/index/index.html"));
     });
 
     //Create page
     router.get("/create", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/create.html"));
+        res.sendFile(path.join(serverPath, "./pages/create/create.html"));
     });
-    router.get("/create.css", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/create.css"));
-    });
-    router.get("/create.js", (req, res) => {
-        res.sendFile(path.join(serverPath, "./pages/create.js"));
-    });
+    router.use("/create", express.static(path.join(serverPath, "./pages/create/")));
 
     //Paper css
     router.get("/paper.min.css", (req, res) => {
@@ -4182,6 +4768,16 @@ const createRouter = async () => {
     });
     router.get("/img/jsoneditor-icons.svg", (req, res) => {
         res.sendFile(jsonEditorPaths.svg);
+    });
+
+    //Tiny Color
+    router.get("/tiny-color.min.js", (req, res) => {
+        res.sendFile(tinyColorPath);
+    });
+
+    //eventemitter3
+    router.get("/event-emitter.min.js", (req, res) => {
+        res.sendFile(eventEmitterPath);
     });
 
     //Static directories
@@ -4209,7 +4805,7 @@ exports.Precomputed = Precomputed;
 exports.Rectangle = Rectangle;
 exports.Scene = Scene;
 exports.Shape = Shape;
-exports.Video = Video;
+exports.Video = Video$1;
 exports.checkFfmpegPath = checkFfmpegPath;
 exports.createRouter = createRouter;
 exports.getFfmpegPath = getFfmpegPath;
