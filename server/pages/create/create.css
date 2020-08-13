@@ -1,0 +1,217 @@
+:root {
+    --infinite-border-radius: 9999999px;
+}
+
+.hidden {
+    display: none;
+}
+
+.material-icons {
+    user-select: none;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-flow: column;
+}
+
+body>nav, #alerts {
+    flex: 0 1 auto;
+}
+
+#alerts * {
+    margin: 0;
+}
+
+#local-storage__no-save-selected__pointer {
+    cursor: pointer;
+}
+
+#content {
+    flex: 1 1 auto;
+}
+
+#content__grid {
+    height: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-rows: 100%;
+    grid-template-columns: 50% 50%;
+}
+
+#preview {
+    grid-column: 1 / span 1;
+}
+
+#preview__container {
+    background-color: black;
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+}
+
+#preview__canvas-container, #preview__errors {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#preview__canvas {
+    position: absolute;
+    left: auto;
+    right: auto;
+}
+
+#preview__errors {
+    color: red;
+    overflow: auto;
+}
+
+#preview__progress {
+    position: relative;
+    width: calc(100% - 20px);
+    height: 50px;
+    margin-top: 0;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#preview__progress-bar {
+    cursor: pointer;
+    display: contents;
+}
+
+#preview__progress__background, #preview__progress__fill {
+    position: absolute;
+    top: 10px;
+    height: 10px;
+    border-radius: var(--infinite-border-radius);
+}
+
+#preview__progress__background {
+    left: 0;
+    right: 0;
+}
+
+#preview__progress__fill {
+    left: 0;
+    width: 0%;
+}
+
+#preview__progress__time-done, #preview__progress__total-time {
+    top: 25px;
+    height: 20px;
+    position: absolute;
+}
+
+#preview__progress__time-done {
+    left: 0;
+}
+
+#preview__progress__total-time {
+    right: 0;
+}
+
+#preview__controls {
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#preview__controls__pad-left {
+    color: transparent;
+}
+
+#preview__controls__pad-left, #preview__controls__loop {
+    flex: 1 0 auto;
+    text-align: center;
+}
+
+#preview__controls__beginning, #preview__controls__ending {
+    flex: 2 0 auto;
+    text-align: center;
+    cursor: pointer;
+}
+
+#preview__controls__play-pause-checkbox {
+    display: none;
+}
+
+#preview__controls__play-pause-label {
+    display: contents;
+    cursor: pointer;
+    text-align: center;
+}
+
+#preview__controls__play-pause-checkbox.bad+#preview__controls__play-pause-label {
+    cursor: not-allowed;
+}
+
+#preview__controls__play-pause-checkbox:checked+#preview__controls__play-pause-label #preview__controls__play {
+    display: none;
+}
+
+#preview__controls__play-pause-checkbox:not(:checked)+#preview__controls__play-pause-label #preview__controls__pause {
+    display: none;
+}
+
+#preview__controls__play, #preview__controls__pause {
+    flex: 5 0 auto;
+}
+
+#preview__controls__loop-checkbox {
+    display: none;
+}
+
+#preview__controls__loop-label {
+    display: contents;
+    cursor: pointer;
+}
+
+#preview__controls__loop-checkbox:checked+#preview__controls__loop-label {
+    color: #0071de;
+}
+
+#json {
+    grid-column: 2 / span 1;
+    margin: 0;
+    display: flex;
+    flex-flow: column;
+}
+
+#json__save {
+    flex: 0 1 auto;
+}
+
+#local-storage__modal {
+    max-height: 400px;
+    overflow: auto;
+}
+
+#local-storage__table__body .save-icon, #local-storage__table__body .load-icon, #local-storage__table__body .delete-icon {
+    cursor: pointer;
+}
+
+#local-storage__form {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+}
+
+#local-storage__form__label {
+    grid-column: 1 / span 2;
+}
+
+#json__editor {
+    flex: 1 1 auto;
+}

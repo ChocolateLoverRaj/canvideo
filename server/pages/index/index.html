@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/paper.min.css">
+    <title>Canvideo</title>
+</head>
+
+<body>
+    <nav class="border split-nav">
+        <div class="nav-brand">
+            <h3><a href="javascript:void">Canvideo</a></h3>
+        </div>
+        <div class="collapsible">
+            <input id="collapsible1" type="checkbox" name="collapsible1">
+            <button>
+                <label for="collapsible1">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </label>
+            </button>
+            <div class="collapsible-body">
+                <ul class="inline">
+                    <li><a href="/create">Start Creating</a></li>
+                    <li><a href="https://github.com/ChocolateLoverRaj/canvideo">Github</a></li>
+                    <li><a href="https://npmjs.com/package/canvideo">Npm</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="collapsible">
+        <input id="collapsible-about" type="radio" name="collapsible" checked>
+        <label for="collapsible-about">About Canvideo</label>
+        <div class="collapsible-body">
+            <span>Canvideo is a tool for creating videos. It runs on Node.js. The user adds shapes and scenes to the
+                video, which can be animated. Then canvideo renders all the frames and uses <a
+                    href="https://ffmpeg.org/">ffmpeg</a> to turn them into a video.</span>
+        </div>
+    </div>
+    <div class="collapsible">
+        <input id="collapsible-features" type="radio" name="collapsible">
+        <label for="collapsible-features">Features</label>
+        <div class="collapsible-body">
+            <ul>
+                <li>Use Node.js or this web gui.
+                    <ul>
+                        <li>Canvideo is mainly used in Node.js, and it is an <a href="https://npmjs.com">npm
+                                package</a>. You can use canvideo in any node.js project with the <a
+                                href="https://github.com/ChocolateLoverRaj/canvideo">npm module</a>.
+                        </li>
+                        <li>There is also a user interface to create canvideo compatible videos. The api and user
+                            interface is being made on this website. This is great for people who want to create videos
+                            without programming.</li>
+                    </ul>
+                </li>
+                <li>Create a video.
+                    <ul>
+                        <li>Choose the width, height, and fps of the video.</li>
+                        <li>Add scenes to the video
+                            <ul>
+                                <li>Choose from many different shapes
+                                    <ul>
+                                        <li>Rectangles</li>
+                                        <li>Circles</li>
+                                        <li>Polygons</li>
+                                        <li>Number Lines</li>
+                                        <li>Paths</li>
+                                        <li>Groups of Shapes</li>
+                                    </ul>
+                                </li>
+                                <li>Animate the shapes
+                                    <ul>
+                                        <li>Change the different properties or positions of shapes. For example, with a
+                                            rectangle, you can animate the x, y, width, height, and color. With color
+                                            animations, you can even change individual rgba values. Animations are
+                                            linear, so for example, if an animation starts at 6 seconds with x being 0,
+                                            and ends at 8 seconds with x being 100, then at 9 seconds x would be 50.
+                                        </li>
+                                        <li>Change values of a shape. This doesn't create a linear animation, but it is
+                                            useful for instantly changing the size or color of a shape.</li>
+                                    </ul>
+                                </li>
+                                <li>Add the shapes to the scenes
+                                    <ul>
+                                        <li>When adding shapes, you can specify the time the shape enters the scene and
+                                            the duration that the shape lasts. Scenes are used to separate the video
+                                            into different sections, so that you don't have to add or subtract timings
+                                            from future shapes when adjusting previous ones.
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>Set the background color of scenes</li>
+                            </ul>
+                        </li>
+                        <li>Add subtitles to the video
+                            <ul>
+                                <li>Subtitles can be embedded</li>
+                                <li>Subtitles can be generated as a separate file.</li>
+                                <li>Multiple subtitle tracks can be used. This is useful for having multiple languages.
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="collapsible">
+        <input id="collapsible-sources" type="radio" name="collapsible">
+        <label for="collapsible-sources">Awesome Sources Canvideo Uses</label>
+        <div class="collapsible-body">
+            <ul>
+                <li>
+                    <img width="100" src="/static/node.svg" class="no-responsive"><a href="https://nodejs.org">Node.js</a> is used to basically do everything. Node.js is amazing.
+                </li>
+                <li>
+                    <a href="https://expressjs.com/">Express</a> is a module for Node.js that is used to serve files and create an API on this website.
+                </li>
+                <li>
+                    <a href="https://getpapercss.com">PaperCSS</a> is used for frontend CSS. You are seeing it right now.
+                </li>
+                <li>
+                    <a href="https://ffmpeg.org/">Ffmpeg</a> is used for generating the video from frames. Canvideo wouldn't work without it.
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
