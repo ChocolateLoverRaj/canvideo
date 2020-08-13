@@ -14,7 +14,7 @@ var previewProgressTimeDone;
 var previewProgressTotalTime;
 
 var previewToStart;
-var previewPlayPause;
+var previewPlayPauseCheckbox;
 var previewToEnd;
 var loopInput;
 
@@ -32,7 +32,7 @@ function toStartListener(e) {
 }
 
 function pause() {
-    previewPlayPause.classList.remove("playing");
+    previewPlayPauseCheckbox.checked = false;
     playing = false;
     cancelAnimationFrame(renderAnimationFrame);
 }
@@ -43,7 +43,6 @@ function playPauseListener(e) {
             pause();
         }
         else {
-            this.classList.add("playing");
             playing = true;
             if (donePlaying) {
                 donePlaying = false;
@@ -85,8 +84,8 @@ export const init = () => {
 
     previewToStart = document.getElementById("preview__controls__beginning");
     previewToStart.addEventListener('click', toStartListener);
-    previewPlayPause = document.getElementById("preview__controls__play-pause");
-    previewPlayPause.addEventListener('click', playPauseListener);
+    previewPlayPauseCheckbox = document.getElementById("preview__controls__play-pause-checkbox");
+    previewPlayPauseCheckbox.addEventListener('change', playPauseListener);
     previewToEnd = document.getElementById("preview__controls__ending");
     previewToEnd.addEventListener('click', toEndListener);
     loopInput = document.getElementById("preview__controls__loop-checkbox");
@@ -98,13 +97,13 @@ const showError = errElem => {
         videoPlayer.at = 0;
     }
     playing = false;
-    previewPlayPause.classList.remove("playing");
+    previewPlayPauseCheckbox.checked = false;
     cancelAnimationFrame(renderAnimationFrame);
     previewProgressFill.style.width = "0%";
     previewProgressTimeDone.innerText = formatTime(0);
     previewProgressTotalTime.innerText = formatTime(0);
 
-    previewPlayPause.classList.add("bad");
+    previewPlayPauseCheckbox.classList.add("bad");
     canvasContainer.classList.add("hidden");
     previewErrorsDiv.classList.remove("hidden");
     for (let k in PreviewErrors) {
@@ -121,7 +120,7 @@ const noErrors = () => {
     }
     previewErrorsDiv.classList.add("hidden");
     canvasContainer.classList.remove("hidden");
-    previewPlayPause.classList.remove("bad");
+    previewPlayPauseCheckbox.classList.remove("bad");
 };
 
 const formatTime = s => {
@@ -183,7 +182,7 @@ const renderNextFrame = () => {
         else {
             playing = false;
             donePlaying = true;
-            previewPlayPause.classList.remove("playing");
+            previewPlayPauseCheckbox.checked = false;
 
             videoPlayer.forward(videoPlayer.duration - video.spf - videoPlayer.at);
             previewProgressFill.style.width = `100%`;

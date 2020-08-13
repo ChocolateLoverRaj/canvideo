@@ -142,6 +142,28 @@ body>nav, #alerts {
     text-align: center;
 }
 
+#preview__controls__play-pause-checkbox {
+    display: none;
+}
+
+#preview__controls__play-pause-label {
+    display: contents;
+    cursor: pointer;
+    text-align: center;
+}
+
+#preview__controls__play-pause-checkbox.bad+#preview__controls__play-pause-label {
+    cursor: not-allowed;
+}
+
+#preview__controls__play-pause-checkbox:checked+#preview__controls__play-pause-label #preview__controls__play {
+    display: none;
+}
+
+#preview__controls__play-pause-checkbox:not(:checked)+#preview__controls__play-pause-label #preview__controls__pause {
+    display: none;
+}
+
 #preview__controls__play, #preview__controls__pause {
     flex: 5 0 auto;
 }
@@ -157,24 +179,6 @@ body>nav, #alerts {
 
 #preview__controls__loop-checkbox:checked+#preview__controls__loop-label {
     color: #0071de;
-}
-
-#preview__controls__play-pause {
-    cursor: pointer;
-    display: contents;
-    text-align: center;
-}
-
-#preview__controls__play-pause.bad {
-    cursor: not-allowed;
-}
-
-#preview__controls__play-pause.playing #preview__controls__play {
-    display: none;
-}
-
-#preview__controls__play-pause:not(.playing) #preview__controls__pause {
-    display: none;
 }
 
 #json {
