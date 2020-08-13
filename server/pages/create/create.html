@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="/json-editor.min.css">
     <script src="/json-editor.min.js"></script>
 
+    <!-- EventEmitter3 -->
+    <script src="/event-emitter.min.js"></script>
+
     <!-- Tiny Color -->
     <script src="/tiny-color.min.js"></script>
 
@@ -64,6 +67,50 @@
 
     <div id="content">
         <div id="content__grid">
+            <div id="preview">
+                <div id="preview__container">
+                    <div id="preview__canvas-container" class="hidden">
+                        <canvas id="preview__canvas"></canvas>
+                    </div>
+                    <div id="preview__errors">
+                        <div id="preview__errors__bad-json" class="hidden">
+                            <h2>Bad Json.</h2>
+                        </div>
+                        <div id="preview__errors__invalid-video" class="hidden">
+                            <h2>Invalid Video</h2>
+                            <h3>Error constructing video.</h3>
+                        </div>
+                        <div id="preview__errors__no-duration" class="hidden">
+                            <h2>No Duration</h2>
+                            <h3>Cannot play video because it has a duration of 0 seconds.</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="preview__progress">
+                    <div id="preview__progress-bar">
+                        <div id="preview__progress__background" class="background-primary"></div>
+                        <div id="preview__progress__fill" class="background-secondary"></div>
+                    </div>
+                    <div id="preview__progress__time-done">0:00</div>
+                    <div id="preview__progress__total-time">0:00</div>
+                </div>
+                <div class="background-primary" id="preview__controls">
+                    <i id="preview__controls__pad-left" class="material-icons md-46">repeat</i>
+                    <i id="preview__controls__beginning" class="material-icons md-46">skip_previous</i>
+                    <input type="checkbox" id="preview__controls__play-pause-checkbox">
+                    <label id="preview__controls__play-pause-label" for="preview__controls__play-pause-checkbox"
+                        class="bad">
+                        <i id="preview__controls__play" class="material-icons md-46">play_arrow</i>
+                        <i id="preview__controls__pause" class="md-46 material-icons">pause</i>
+                    </label>
+                    <i id="preview__controls__ending" class="material-icons md-46">skip_next</i>
+                    <input type="checkbox" id="preview__controls__loop-checkbox">
+                    <label id="preview__controls__loop-label" for="preview__controls__loop-checkbox">
+                        <i id="preview__controls__loop" class="material-icons md-46">repeat</i>
+                    </label>
+                </div>
+            </div>
             <div id="json">
                 <div id="json__save" class="background-primary">
                     <a class="paper-btn" id="json__download" title="Download Json" download="canvideo.json">

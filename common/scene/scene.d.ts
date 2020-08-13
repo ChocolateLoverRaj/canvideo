@@ -1,11 +1,11 @@
-import { Canvas } from "canvas";
+import { CanvasRenderingContext2D } from "canvas";
 
-import Shape from "../../common/shapes/shape";
-import { ShapeProperties } from "../../common/shapes/shape-properties";
+import Shape from "../shapes/shape";
+import { ShapeProperties } from "../shapes/shape-properties";
 import Camera from "../camera/camera";
-import { setColor, GetColor } from "../../common/color/get-set";
-import csMappings from "../../common/shapes/cs-mappings";
-import { caMappings } from "../../common/animations/animanaged";
+import { setColor, GetColor } from "../color/get-set";
+import csMappings from "../shapes/cs-mappings";
+import { caMappings } from "../animations/animanaged";
 import Caption from "../captions/caption";
 import SceneJson from "./scene-json";
 
@@ -58,7 +58,7 @@ declare class Scene {
 
     setCamera(camera: Camera): this;
 
-    render(at: number, options: RenderOptions): Canvas;
+    render(at: number, options: RenderOptions, ctx?: CanvasRenderingContext2D): CanvasRenderingContext2D;
 
     setDuration(duration: number): this;
 

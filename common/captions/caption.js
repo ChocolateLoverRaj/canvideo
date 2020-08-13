@@ -1,14 +1,9 @@
 //Create captions and generate .vtt files
 
 //Dependencies
-import typedFunction from "../../common/type/typed-function.js";
-import Types from "../../common/type/types.js";
-
-//Zero pad a number to the left
-function zeroPad(n, length) {
-    let s = n.toString();
-    return "0".repeat(length - s.length) + s;
-}
+import typedFunction from "../type/typed-function.js";
+import Types from "../type/types.js";
+import zeroPad from "../lib/zero-pad.js";
 
 //Get a formatted time
 function formatTime(s) {
@@ -72,6 +67,19 @@ class Caption {
             throw new TypeError("Invalid arguments.");
         }
         return this;
+    }
+
+    textsAt(time){
+        if(typeof time !== 'number' || time < 0){
+            throw new TypeError("Time must be a non negative number.");
+        }
+        let texts = [];
+        for(let text of this.texts){
+            if(text.start <= time && time < text.end){
+                texts.push(text.text);
+            }
+        }
+        return texts;
     }
 
     toVtt(includeHeader = true, offset = 0) {

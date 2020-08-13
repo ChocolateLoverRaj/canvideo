@@ -2,8 +2,8 @@
 //Those numbers must be even
 
 //Dependencies
-import { Interface } from "../../common/type/interface.js";
-import either from "../../common/type/either.js";
+import { Interface } from "../type/interface.js";
+import either from "../type/either.js";
 
 //Size type
 export const sizeType = a => Number.isSafeInteger(a) && a > 0 && !(a & 1) ? false : "is not a valid size.";

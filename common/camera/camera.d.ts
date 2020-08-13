@@ -1,4 +1,4 @@
-import Animanaged from "../../common/animations/animanaged";
+import Animanaged from "../animations/animanaged";
 import CameraJson from "./camera-json";
 
 interface CameraProperties{

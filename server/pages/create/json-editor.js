@@ -3,16 +3,20 @@ import {
     options as jsonSchemaOptions,
     initialJson
 } from "./json-schema.js";
+import { updateVideo } from "./preview.js";
+
+const textChangeHandler = text => {
+    enableSaveButton();
+    autoSave();
+    updateVideo(text);
+};
 
 const options = {
     ...jsonSchemaOptions,
     mode: 'code',
     modes: ['code', 'tree'],
     search: false,
-    onChange: () => {
-        enableSaveButton();
-        autoSave();
-    }
+    onChangeText: textChangeHandler
 }
 
 var editorContainer;
@@ -65,6 +69,7 @@ const uploadInit = () => {
             });
             reader.addEventListener('load', e => {
                 editor.setText(reader.result);
+                textChangeHandler(reader.result);
                 uploadSuccess.checked = true;
                 uploadCheckbox.checked = false;
                 uploadInput.disabled = false;
@@ -188,8 +193,10 @@ const localStorageInit = () => {
     }
 
     const loadSave = name => {
-        editor.setText(saves.saves[name]);
-        loadSuccessAlert.checked = false;
+        let text = saves.saves[name];
+        editor.setText(text);
+        textChangeHandler(text);
+        loadSuccessCheckbox.checked = true;
     }
 
     savesForm.addEventListener('submit', e => {
@@ -297,13 +304,14 @@ const localStorageInit = () => {
     if (saves.selected) {
         loadSave(saves.selected);
     }
+    else{
+        updateVideo(editor.getText());
+    }
 };
 
-const init = () => {
+export const init = () => {
     jsonEditorInit();
     downloaderInit();
     uploadInit();
     localStorageInit();
 }
-
-export default init;

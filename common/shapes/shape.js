@@ -3,7 +3,6 @@
 
 //Dependencies
 import tinyColor from "../color/tiny-color.js";
-import { Ctx } from "../canvas/canvas.js";
 import { propertiesType, animanage } from "../animations/animanage.js";
 import { methodsToBindType } from "../properties/properties-type.js";
 import Types from "../type/types.js";
@@ -13,9 +12,6 @@ import colorType from "../color/color.js";
 import { hexStringSchema } from "../color/color-schema.js";
 import Animation from "../animations/animation.js";
 import Precomputed from "../animations/precomputed.js";
-
-//Figure out whether ctx given is actually ctx.
-const ctxType = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
 
 //Both fillColor and strokeColor use this
 const animateColor = {
@@ -258,7 +254,7 @@ class Shape {
         return this;
     }
     draw() {
-        return typedFunction([{ name: "ctx", type: ctxType }], function (ctx) {
+        return typedFunction([{ name: "ctx", type: Types.CANVAS_CTX }], function (ctx) {
             if (this.isExplicitlySet("fillColor")) {
                 ctx.fillStyle = this.fillColor.hexString;
             }

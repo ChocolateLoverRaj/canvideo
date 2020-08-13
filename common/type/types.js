@@ -4,6 +4,7 @@
 
 //Dependencies
 import tinyColor from "../color/tiny-color.js";
+import { Ctx } from "../canvas/canvas.js";
 
 //Anything
 export const ANY = a => false;
@@ -33,6 +34,7 @@ export const FUNCTION = a => typeof a === 'function' ? false : "is not a functio
 //Object
 export const OBJECT = a => typeof a === 'object' ? false : "is not an object.";
 export const ARRAY = a => Array.isArray(a) ? false : "is not an Array.";
+export const CANVAS_CTX = a => a instanceof Ctx ? false : "is not CanvasRenderingContext2D.";
 
 //Object key
 export const KEY = a => ['symbol', 'string', 'number'].includes(typeof a) ? false : "is not a valid key type (symbol, string, or number).";
@@ -59,6 +61,7 @@ export default {
     FUNCTION,
     OBJECT,
     ARRAY,
+    CANVAS_CTX,
     KEY,
     TYPE,
 }

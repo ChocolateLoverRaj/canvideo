@@ -1,6 +1,6 @@
 import Shape from "./shape";
 import { ShapeProperties, ShapeJson } from "./shape-properties";
-import { caMappings } from '../animations/animanaged';
+import { caMappings } from "../animations/animanaged";
 
 interface PolygonProperties extends ShapeProperties {
     points: Array<Point>;
