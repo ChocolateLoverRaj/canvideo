@@ -57,6 +57,13 @@
             <label class="btn-close" for="local-storage__no-save-selected">X</label>
         </div>
     </div>
+    <div class="alerts">
+        <input type="checkbox" id="local-storage__load-success" class="alert-state" checked="checked">
+        <div class="alert alert-success dismissible">
+            Successfully Loaded Save
+            <label for="local-storage__load-success" class="btn-close">X</label>
+        </div>
+    </div>
 
     <div id="content">
         <div id="content__grid">
@@ -189,15 +196,6 @@
                                     placeholder="New Project" maxlength="25" required>
                                 <button type="submit">Add Save</button>
                             </form>
-                        </div>
-                    </div>
-                    <input class="modal-state" id="local-storage__load-success" type="checkbox">
-                    <div class="modal">
-                        <label class="modal-bg" for="local-storage__load-success"></label>
-                        <div class="modal-body">
-                            <label class="btn-close" for="local-storage__load-success">X</label>
-                            <h4 class="modal-title">Successfully Loaded Save</h4>
-                            <h5 class="modal-subtitle">Now you can make changes to the save.</h5>
                         </div>
                     </div>
                     <input class="modal-state" id="local-storage__confirm-delete__checkbox" type="checkbox">
