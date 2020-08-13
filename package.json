@@ -10,10 +10,10 @@
     "require": "./commonjs/index.js"
   },
   "scripts": {
-    "build": "rollup -c",
-    "prepack": "npm run build",
     "start": "node --experimental-modules --experimental-import-meta-resolve index.js",
-    "test": "mocha --experimental-modules"
+    "test": "mocha --experimental-modules",
+    "build": "rollup -c ./rollup.config.js",
+    "postinstall": "npm run build"
   },
   "repository": {
     "type": "git",
