@@ -140,6 +140,7 @@ body>nav, #alerts {
 #preview__controls__beginning, #preview__controls__ending {
     flex: 2 0 auto;
     text-align: center;
+    cursor: pointer;
 }
 
 #preview__controls__play-pause-checkbox {
