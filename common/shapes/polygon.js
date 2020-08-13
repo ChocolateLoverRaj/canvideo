@@ -15,7 +15,7 @@ class Polygon extends Shape {
     shapeName = "polygon";
 
     static jsonPropertiesSchema = {
-        ...super.jsonPropertiesSchema,
+        ...Shape.jsonPropertiesSchema,
         points: {
             type: "array",
             items: {
@@ -28,11 +28,11 @@ class Polygon extends Shape {
         }
     }
     static jsonRequiredProperties = [
-        ...super.jsonRequiredProperties,
+        ...Shape.jsonRequiredProperties,
         "points"
     ]
     static animateProperties = {
-        ...super.animateProperties,
+        ...Shape.animateProperties,
         "points": [{
             x: "number",
             y: "number"
