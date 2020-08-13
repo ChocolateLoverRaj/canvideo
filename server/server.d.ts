@@ -1,5 +1,5 @@
-import { Router } from "@types/express-serve-static-core";
+import { Router } from "express-serve-static-core";
 
-declare async function createRouter(): Promise<Router>;
+declare function createRouter(): Promise<Router>;
 
 export default createRouter;
