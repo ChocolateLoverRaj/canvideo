@@ -13,7 +13,9 @@
     "start": "node --experimental-modules --experimental-import-meta-resolve index.js",
     "test": "mocha --experimental-modules",
     "build": "rollup -c ./rollup.config.js",
-    "postinstall": "npm run build"
+    "commonignore": "commonignore -c ./commonignore.config.cjs",
+    "postinstall": "npm run build",
+    "prepack": "npm run commonignore"
   },
   "repository": {
     "type": "git",
@@ -41,6 +43,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-asserttype": "^1.0.5",
+    "common-ignore": "^1.0.0",
     "mocha": "^7.2.0",
     "rollup": "^2.23.0"
   }

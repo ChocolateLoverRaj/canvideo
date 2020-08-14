@@ -1,12 +1,16 @@
 # Dependency Tree
-Line 08: git.gitignore
-Line 11:             | --> common.gitignore
+Line 08: npm.npmignore
+Line 15:             | --> common.gitignore
 
 
 # Input Files
 
-# Input: 'git.gitignore'
-# No Unique .gitignore Stuff
+# Input: 'npm.npmignore'
+# Examples
+examples/
+
+# Generated
+generated/
 
 # Input: 'common.gitignore'
 # Compiled CommonJS Script

@@ -1,14 +1,3 @@
-# Dependency Tree
-Line 08: git.gitignore
-Line 11:             | --> common.gitignore
-
-
-# Input Files
-
-# Input: 'git.gitignore'
-# No Unique .gitignore Stuff
-
-# Input: 'common.gitignore'
 # Compiled CommonJS Script
 commonjs/index.js
 
