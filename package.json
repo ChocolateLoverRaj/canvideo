@@ -37,6 +37,7 @@
     "eventemitter3": "^4.0.4",
     "express": "^4.17.1",
     "jsoneditor": "^9.0.3",
+    "leadingzero": "^1.1.0",
     "papercss": "^1.7.0",
     "tinycolor2": "^1.4.1"
   },
