@@ -16,7 +16,7 @@ class NumberLine extends Shape {
     shapeName = "numberLine";
 
     static jsonPropertiesSchema = {
-        ...Shape.jsonPropertiesSchema,
+        ...super.jsonPropertiesSchema,
         startNumber: numberSchema,
         endNumber: numberSchema,
         x: numberSchema,
@@ -25,7 +25,7 @@ class NumberLine extends Shape {
         height: positiveNumberSchema
     }
     static jsonRequiredProperties = [
-        ...Shape.jsonRequiredProperties,
+        ...super.jsonRequiredProperties,
         "startNumber",
         "endNumber",
         "x",
@@ -34,7 +34,7 @@ class NumberLine extends Shape {
         "height"
     ]
     static animateProperties = {
-        ...Shape.animateProperties,
+        ...super.animateProperties,
         startNumber: "number",
         endNumber: "number",
         x: "number",

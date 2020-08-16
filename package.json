@@ -45,6 +45,6 @@
     "chai-asserttype": "^1.0.5",
     "common-ignore": "^1.1.1",
     "mocha": "^7.2.0",
-    "rollup": "^2.23.0"
+    "rollup": "^2.24.0"
   }
 }
