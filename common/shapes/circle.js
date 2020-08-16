@@ -16,19 +16,19 @@ class Circle extends Shape {
     shapeName = "circle";
 
     static jsonPropertiesSchema = {
-        ...Shape.jsonPropertiesSchema,
+        ...super.jsonPropertiesSchema,
         cx: numberSchema,
         cy: numberSchema,
         r: positiveNumberSchema
     }
     static jsonRequiredProperties = [
-        ...Shape.jsonRequiredProperties,
+        ...super.jsonRequiredProperties,
         "cx",
         "cy",
         "r"
     ]
     static animateProperties = {
-        ...Shape.animateProperties,
+        ...super.animateProperties,
         cx: "number",
         cy: "number",
         r: "number"

@@ -46,21 +46,21 @@ class Rectangle extends Shape {
     shapeName = "rectangle";
 
     static jsonPropertiesSchema = {
-        ...Shape.jsonPropertiesSchema,
+        ...super.jsonPropertiesSchema,
         x: numberSchema,
         y: numberSchema,
         width: numberSchema,
         height: numberSchema
     }
     static jsonRequiredProperties = [
-        ...Shape.jsonRequiredProperties,
+        ...super.jsonRequiredProperties,
         "x",
         "y",
         "width",
         "height"
     ]
     static animateProperties = {
-        ...Shape.animateProperties,
+        ...super.animateProperties,
         x: "number",
         y: "number",
         width: "number",

@@ -43,7 +43,7 @@ class Group extends Shape {
     shapeName = "group";
 
     static jsonPropertiesSchema = {
-        ...Shape.jsonPropertiesSchema,
+        ...super.jsonPropertiesSchema,
         x: numberSchema,
         y: numberSchema,
         originalWidth: positiveNumberSchema,
@@ -82,7 +82,7 @@ class Group extends Shape {
         }
     }
     static jsonRequiredProperties = [
-        ...Shape.jsonRequiredProperties,
+        ...super.jsonRequiredProperties,
         "x",
         "y",
         "originalWidth",
@@ -94,7 +94,7 @@ class Group extends Shape {
         "children"
     ]
     static animateProperties = {
-        ...Shape.animateProperties,
+        ...super.animateProperties,
         x: "number",
         y: "number",
         originalWidth: "number",
