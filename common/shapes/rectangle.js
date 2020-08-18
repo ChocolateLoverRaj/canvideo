@@ -50,21 +50,38 @@ class Rectangle extends Shape {
         x: numberSchema,
         y: numberSchema,
         width: numberSchema,
-        height: numberSchema
+        height: numberSchema,
+        cornerRound: {
+            type: "object",
+            properties: {
+                topLeft: numberSchema,
+                topRight: numberSchema,
+                bottomLeft: numberSchema,
+                bottomRight: numberSchema
+            },
+            required: ["topLeft", "topRight", "bottomLeft", "bottomRight"]
+        }
     }
     static jsonRequiredProperties = [
         ...super.jsonRequiredProperties,
         "x",
         "y",
         "width",
-        "height"
+        "height",
+        "cornerRound"
     ]
     static animateProperties = {
         ...super.animateProperties,
         x: "number",
         y: "number",
         width: "number",
-        height: "number"
+        height: "number",
+        cornerRound: {
+            topLeft: "number",
+            topRight: "number",
+            bottomLeft: "number",
+            bottomRight: "number"
+        }
     }
     static jsonSchema = this.getJsonSchema(
         this.jsonPropertiesSchema,
