@@ -9,7 +9,7 @@ import Types from "../type/types.js";
 import typedFunction from "../type/typed-function.js";
 import instanceOf from "../type/instanceOf.js";
 import colorType from "../color/color.js";
-import { hexStringSchema } from "../color/color-schema.js";
+import { colorSchema } from "../color/color-schema.js";
 import Animation from "../animations/animation.js";
 import Precomputed from "../animations/precomputed.js";
 
@@ -124,8 +124,8 @@ class Shape {
         }
     }
     static jsonPropertiesSchema = {
-        fillColor: hexStringSchema,
-        strokeColor: hexStringSchema,
+        fillColor: colorSchema,
+        strokeColor: colorSchema,
         strokeWidth: { type: "number", minimum: 0 }
     }
     static jsonRequiredProperties = []
