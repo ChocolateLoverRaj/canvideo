@@ -1,5 +1,5 @@
 import { list } from "/common/shapes/shapes.js";
-import { hexStringSchema } from "/common/color/color-schema.js";
+import { colorSchema } from "/common/color/color-schema.js";
 import { refs } from "/common/schema/refs.js";
 
 const shapeNames = [];
@@ -82,7 +82,7 @@ const sceneSchema = {
     title: "Scene",
     description: "A scene containing shapes that can be animated.",
     properties: {
-        backgroundColor: hexStringSchema,
+        backgroundColor: colorSchema,
         drawables: {
             title: "Drawables",
             description: "Drawables in a scene.",
