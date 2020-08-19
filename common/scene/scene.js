@@ -12,9 +12,9 @@ import Camera from "../camera/camera.js";
 import colorType from "../color/color.js";
 import typify from "../properties/typify.js";
 import cameraInterface from "../camera/camera-interface.js";
-import { 
-    fromJson as shapeFromJson, 
-    isBuiltin as isShapeBuiltin 
+import {
+    fromJson as shapeFromJson,
+    isBuiltin as isShapeBuiltin
 } from "../shapes/shapes.js";
 import Shape from "../shapes/shape.js";
 import Caption from "../captions/caption.js";
@@ -237,7 +237,7 @@ class Scene {
         if (!(height > 0 && height < Infinity) || height & 1) {
             throw new TypeError("Invalid width.");
         }
-        if(Types.CANVAS_CTX(ctx)){
+        if (Types.CANVAS_CTX(ctx)) {
             throw new TypeError("Invalid Canvas Ctx.");
         }
 
