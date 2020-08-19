@@ -11,6 +11,7 @@ export default {
         "express",
         "canvas",
         "tinycolor2",
-        "eventemitter3"
+        "eventemitter3",
+        "leadingzero"
     ]
 }

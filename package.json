@@ -1,6 +1,6 @@
 {
   "name": "canvideo",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
   "type": "module",
   "main": "./commonjs/index.js",
@@ -37,6 +37,7 @@
     "eventemitter3": "^4.0.4",
     "express": "^4.17.1",
     "jsoneditor": "^9.0.3",
+    "leadingzero": "^1.1.2",
     "papercss": "^1.7.0",
     "rollup": "^2.24.0",
     "tinycolor2": "^1.4.1"

@@ -1,4 +1,3 @@
-//Zero pad a number to the left
-const zeroPad = (n, length) => "0".repeat(length - n.toString().length) + n.toString();
-
-export default zeroPad;
+//This file is just referencing leadingzero module.
+//This file is here so that it can be overridden by web folder.
+export { default } from 'leadingzero';
