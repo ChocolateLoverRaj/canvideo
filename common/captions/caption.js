@@ -3,7 +3,7 @@
 //Dependencies
 import typedFunction from "../type/typed-function.js";
 import Types from "../type/types.js";
-import zeroPad from 'leadingzero';
+import zeroPad from "../lib/zero-pad.js";
 
 //Get a formatted time
 function formatTime(s) {

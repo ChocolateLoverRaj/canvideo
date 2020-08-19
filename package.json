@@ -37,7 +37,7 @@
     "eventemitter3": "^4.0.4",
     "express": "^4.17.1",
     "jsoneditor": "^9.0.3",
-    "leadingzero": "github:ChocolateLoverRaj/leadingzero#rollup-not-dev",
+    "leadingzero": "^1.1.2",
     "papercss": "^1.7.0",
     "rollup": "^2.24.0",
     "tinycolor2": "^1.4.1"
