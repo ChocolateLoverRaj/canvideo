@@ -102,12 +102,12 @@ class VideoPlayer {
         })(ctx);
     }
 
-    getCaptions(id = "Caption Track 0"){
+    getCaptions(id = "Caption Track 0") {
         let caption = this.video.scenes[this.currentScene].captions.get(id);
-        if(caption){
+        if (caption) {
             return caption.textsAt(this.at);
         }
-        else{
+        else {
             return [];
         }
     }
