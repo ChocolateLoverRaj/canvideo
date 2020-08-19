@@ -38,13 +38,13 @@
     "express": "^4.17.1",
     "jsoneditor": "^9.0.3",
     "papercss": "^1.7.0",
+    "rollup": "^2.24.0",
     "tinycolor2": "^1.4.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-asserttype": "^1.0.5",
     "common-ignore": "^1.1.1",
-    "mocha": "^7.2.0",
-    "rollup": "^2.24.0"
+    "mocha": "^7.2.0"
   }
 }
