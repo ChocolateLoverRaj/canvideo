@@ -1,5 +1,5 @@
 import { Video } from "/common/video/video.js";
-import zeroPad from 'leadingzero';
+import zeroPad from "/common/lib/zero-pad.js";
 
 var canvasContainer;
 var canvas;
