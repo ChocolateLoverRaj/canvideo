@@ -18,6 +18,8 @@ const resPaths = (async () => {
     const jsonEditor = import.meta.resolve('jsoneditor');
     const tinyColor = import.meta.resolve('tinycolor2/dist/tinycolor-min.js');
     const eventEmitter = import.meta.resolve('eventemitter3/umd/eventemitter3.min.js');
+    const leadingzero = import.meta.resolve('leadingzero');
+
     await Promise.all([paperCss, jsonEditor, tinyColor, eventEmitter]);
 
     const jsonEditorDist = join(dirname(await jsonEditor).substring(8), './dist/');
@@ -31,8 +33,8 @@ const resPaths = (async () => {
             svg: join(jsonEditorDist, "./img/jsoneditor-icons.svg")
         },
         tinyColor: (await tinyColor).substring(8),
-        eventEmitter: (await eventEmitter).substring(8)
-        
+        eventEmitter: (await eventEmitter).substring(8),
+        leadingzero: (await leadingzero).substring(8)
     };
 })();
 
@@ -43,7 +45,8 @@ const createRouter = async () => {
         paperCss: paperCssPath,
         jsonEditor: jsonEditorPaths,
         tinyColor: tinyColorPath,
-        eventEmitter: eventEmitterPath
+        eventEmitter: eventEmitterPath,
+        leadingzero: leadingzeroPath
     } = await resPaths;
 
     //Server path
@@ -103,12 +106,17 @@ const createRouter = async () => {
         res.sendFile(eventEmitterPath);
     });
 
+    //leadingzero
+    router.get("/leadingzero.js", (req, res) => {
+        res.sendFile(leadingzeroPath);
+    });
+
     //Static directories
     router.use("/common", express.static(webPath));
     router.use("/common", express.static(commonPath));
 
     router.use("/web", express.static(webPath));
-    
+
     router.use("/static", express.static(join(serverPath, "./static")));
 
     return router;
