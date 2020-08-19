@@ -68,51 +68,83 @@ export const animanage = typedFunction(params, function (o, properties, methodsT
     var propertiesToDefine = {};
     var propertiesToJson = new Map();
     for (let k in properties) {
+        //The provided value
         let p = properties[k];
+
+        //P could either have a property called type or be a type itself
         let type = p.type || p;
+
+        //Hidden keys are the key prepended with '_'
         let hiddenKey = '_' + k;
-        if (p.hasOwnProperty("initial")) {
-            Object.defineProperty(o, hiddenKey, {
-                configurable: true,
-                enumerable: false,
-                value: p.initial
-            });
-        }
+
+        //Make the hidden key a non configurable, non enumerable key that can still be chanegd
+        Object.defineProperty(o, hiddenKey, {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: p.initial
+        });
+
+        //A function that sets the hidden key
         let setFunction = function (v) {
-            Object.defineProperty(o, hiddenKey, {
-                configurable: true,
-                enumerable: false,
-                value: v
-            });
+            this[hiddenKey] = v;
         };
-        let setterAfterFilter = (p.setter || setFunction).bind(o);
+
+        //Default to setFunction if setter is not provided
+        let setterAfterFilter = p.setter || setFunction;
+
+        //Function that calls the default / provided setter
+        let callSetter = function (v) {
+            //This was explicitly set
+            explicit.add(k);
+
+            //Call the setter with 'this' so that 'this' refers to whatever is being animated.
+            //Pass setFunction as an argument so that the provided setter can easily set hidden keys.
+            //This is convenient, but would also help if we changed the hidden key prefix to something other than '_'.
+            //Bind the setFunction to 'this' so that the given setter cannot mess up calling the set function.
+            return setterAfterFilter.call(this, v, setFunction.bind(this));
+        }
+
+        //Setter based on if the property is typed
         let setter = type ?
             function (v) {
-                explicit.add(k);
+                //The TypeError, if the value did not match the type constraints.
                 let err = type(v);
                 if (!err) {
-                    return setterAfterFilter(v, setFunction);
+                    //Call the callSetter function now that we've checked the type.
+                    //Remember to return whatever it returns/
+                    //Remember to bind it to 'this'
+                    return callSetter.call(this, v);
                 }
                 else {
                     throw new TypeError(`${k}: ${v}, ${err}`);
                 }
             } :
-            function (v) {
-                explicit.add(k);
-                return setterAfterFilter(v, setFunction);
-            };
+            callSetter;
+
+        //The default getter function simply returns the hidden key.
         let getter = p.getter || function () {
-            return o[hiddenKey];
+            return this[hiddenKey];
         };
+
+        //The options for Object.defineProperty
         let property = {
             configurable: false,
             enumerable: true,
             set: setter,
             get: getter
         };
+
+        //Add to the propertiesToDefine object
         propertiesToDefine[k] = property;
+
+        //Define the property
         Object.defineProperty(o, k, property);
+
+        //Add the type to the interface
         oInterface.optional(k, type || Types.ANY);
+
+        //Add the toJson method to the propertiesToJson map, if specified
         if (p.hasOwnProperty("toJson")) {
             propertiesToJson.set(k, p.toJson);
         }
@@ -369,7 +401,7 @@ export const animanage = typedFunction(params, function (o, properties, methodsT
                     let progress = (time - a.startTime) / a.duration;
                     runCalculator(progress);
                 }
-                else if (time > a.startTime + a.duration && a.lasts) {
+                else if (time > a.startTime + a.duration && a.animator.lasts) {
                     runCalculator(1);
                 }
                 function runCalculator(progress) {

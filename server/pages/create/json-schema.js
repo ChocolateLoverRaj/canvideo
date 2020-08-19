@@ -1,5 +1,5 @@
 import { list } from "/common/shapes/shapes.js";
-import { hexStringSchema } from "/common/color/color-schema.js";
+import { colorSchema } from "/common/color/color-schema.js";
 import { refs } from "/common/schema/refs.js";
 
 const shapeNames = [];
@@ -82,7 +82,7 @@ const sceneSchema = {
     title: "Scene",
     description: "A scene containing shapes that can be animated.",
     properties: {
-        backgroundColor: hexStringSchema,
+        backgroundColor: colorSchema,
         drawables: {
             title: "Drawables",
             description: "Drawables in a scene.",
@@ -217,7 +217,7 @@ export const initialJson = {
             drawables: [
                 {
                     startTime: 0,
-                    endTime: 5,
+                    endTime: 10,
                     layer: 0,
                     shape: {
                         isBuiltin: true,
@@ -253,6 +253,30 @@ export const initialJson = {
                             ],
                             sets: [],
                             fillColor: "pink"
+                        }
+                    }
+                },
+                {
+                    startTime: 7,
+                    endTime: 10,
+                    layer: 0,
+                    shape: {
+                        isBuiltin: true,
+                        name: "rectangle",
+                        data: {
+                            x: 300,
+                            y: 300,
+                            width: 50,
+                            height: 50,
+                            cornerRound: {
+                                topLeft: 0,
+                                topRight: 0,
+                                bottomLeft: 0,
+                                bottomRight: 0
+                            },
+                            animations: [],
+                            sets: [],
+                            fillColor: "brown"
                         }
                     }
                 }

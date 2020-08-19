@@ -1,11 +1,15 @@
 # Dependency Tree
 Line 08: npm.npmignore
-Line 15:             | --> common.gitignore
+Line 19:             | --> common.gitignore
 
 
 # Input Files
 
 # Input: 'npm.npmignore'
+# Common-Ignore
+commonignore/
+commonignore.config.cjs
+
 # Examples
 examples/
 
