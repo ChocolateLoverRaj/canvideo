@@ -61,11 +61,6 @@ const createRouter = async () => {
     //Create an express router
     let router = express.Router();
 
-    //Testing
-    router.get("/module.js", (req, res) => {
-        res.sendFile(join(serverPath, "./pages/module.js"));
-    });
-
     //Main page
     router.get("/", (req, res) => {
         res.sendFile(join(serverPath, "./pages/index/index.html"));
