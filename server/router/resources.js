@@ -2,6 +2,7 @@
 
 //Dependencies
 import { join, dirname } from 'path';
+import options from "./options.js";
 
 //Promise that gets resource paths
 const resPaths = (async () => {
@@ -42,36 +43,36 @@ const serve = async router => {
 
     //Paper css
     router.get("/paper.min.css", (req, res) => {
-        res.sendFile(paperCssPath);
+        res.sendFile(paperCssPath, options);
     });
 
     //Json editor
     router.get("/json-editor.min.css", (req, res) => {
-        res.sendFile(jsonEditorPaths.css);
+        res.sendFile(jsonEditorPaths.css, options);
     });
     router.get("/json-editor.min.js", (req, res) => {
-        res.sendFile(jsonEditorPaths.js);
+        res.sendFile(jsonEditorPaths.js, options);
     });
     router.get("/jsoneditor.map", (req, res) => {
-        res.sendFile(jsonEditorPaths.map);
+        res.sendFile(jsonEditorPaths.map, options);
     });
     router.get("/img/jsoneditor-icons.svg", (req, res) => {
-        res.sendFile(jsonEditorPaths.svg);
+        res.sendFile(jsonEditorPaths.svg, options);
     });
 
     //Tiny Color
     router.get("/tiny-color.min.js", (req, res) => {
-        res.sendFile(tinyColorPath);
+        res.sendFile(tinyColorPath, options);
     });
 
     //eventemitter3
     router.get("/event-emitter.min.js", (req, res) => {
-        res.sendFile(eventEmitterPath);
+        res.sendFile(eventEmitterPath, options);
     });
 
     //leadingzero
     router.get("/leadingzero.js", (req, res) => {
-        res.sendFile(leadingzeroPath);
+        res.sendFile(leadingzeroPath, options);
     });
 };
 

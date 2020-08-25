@@ -2,6 +2,9 @@
   "name": "canvideo",
   "version": "6.3.0",
   "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
+  "engines": {
+    "node": "12"
+  },
   "type": "module",
   "main": "./commonjs/index.js",
   "types": "./index.d.ts",
@@ -10,12 +13,14 @@
     "require": "./commonjs/index.js"
   },
   "scripts": {
-    "start": "node --experimental-modules --experimental-import-meta-resolve index.js",
+    "start": "node --experimental-modules --experimental-import-meta-resolve examples/server.js",
     "test": "mocha --experimental-modules",
     "build": "rollup -c ./rollup.config.js",
     "commonignore": "commonignore -c ./commonignore.config.cjs",
     "postinstall": "npm run build",
-    "prepack": "npm run commonignore"
+    "prepack": "npm run commonignore",
+    "truck": "node --experimental-modules --experimental-import-meta-resolve examples/truck.js",
+    "json": "node --experimental-modules --experimental-import-meta-resolve examples/from-json.js"
   },
   "repository": {
     "type": "git",
