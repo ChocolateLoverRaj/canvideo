@@ -2,6 +2,9 @@
   "name": "canvideo",
   "version": "6.3.0",
   "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
+  "engines": {
+    "node": "12"
+  },
   "type": "module",
   "main": "./commonjs/index.js",
   "types": "./index.d.ts",
