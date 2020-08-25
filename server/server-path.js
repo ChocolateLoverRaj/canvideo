@@ -10,7 +10,7 @@ var myDirname = dirname(import.meta.url).substring(8);
 
 console.log(myDirname)
 
-if (!import.meta.url.split("/")[0].endsWith(":")) {
+if (!myDirname.split("/")[0].endsWith(":")) {
     myDirname = "/" + myDirname;
 }
 
