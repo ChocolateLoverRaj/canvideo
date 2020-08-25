@@ -3,26 +3,23 @@
 //Dependencies
 //Node.js Modules
 import { join } from 'path';
-import { readFileSync } from 'fs';
 
 //Npm Modules
 import express from 'express';
 
 //My Modules
 import serverPath from "../server-path.js";
+import options from "./options.js";
 
 const serve = router => {
     //Main page
     router.get("/", (req, res) => {
-        console.log(import.meta.url)
-        console.log(serverPath);
-        console.log(join(serverPath, "./pages/index/index.html"))
-        res.sendFile(join(serverPath, "./pages/index/index.html"), { root: "/" });
+        res.sendFile(join(serverPath, "./pages/index/index.html"), options);
     });
 
     //Create page
     router.get("/create", (req, res) => {
-        res.sendFile(join(serverPath, "./pages/create/create.html"));
+        res.sendFile(join(serverPath, "./pages/create/create.html"), options);
     });
     router.use("/create", express.static(join(serverPath, "./pages/create/")));
 };
