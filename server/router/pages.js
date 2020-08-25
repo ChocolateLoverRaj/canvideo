@@ -13,6 +13,8 @@ import serverPath from "../server-path.js";
 const serve = router => {
     //Main page
     router.get("/", (req, res) => {
+        console.log(serverPath);
+        console.log(join(serverPath, "./pages/index/index.html"))
         res.sendFile(join(serverPath, "./pages/index/index.html"));
     });
 
