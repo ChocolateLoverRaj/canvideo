@@ -3,6 +3,7 @@
 //Dependencies
 //Node.js Modules
 import { join } from 'path';
+import { readFileSync } from 'fs';
 
 //Npm Modules
 import express from 'express';
@@ -15,6 +16,7 @@ const serve = router => {
     router.get("/", (req, res) => {
         console.log(serverPath);
         console.log(join(serverPath, "./pages/index/index.html"))
+        console.log(readFileSync(join(serverPath, "./pages/index/index.html")))
         res.sendFile(join(serverPath, "./pages/index/index.html"));
     });
 
