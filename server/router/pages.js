@@ -17,7 +17,7 @@ const serve = router => {
         console.log(import.meta.url)
         console.log(serverPath);
         console.log(join(serverPath, "./pages/index/index.html"))
-        res.sendFile(join(serverPath, "./pages/index/index.html"), { root: "." });
+        res.sendFile(join(serverPath, "./pages/index/index.html"), { root: "/" });
     });
 
     //Create page
