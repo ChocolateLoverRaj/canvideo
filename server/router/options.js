@@ -8,7 +8,7 @@ if (serverPath.split("/")[0].endsWith(":")) {
     options = {};
 }
 else {
-    //options = { root: "/" };
+    options = { root: "/" };
 }
 
 //Export the options
