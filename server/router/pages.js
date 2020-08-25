@@ -17,7 +17,6 @@ const serve = router => {
         console.log(import.meta.url)
         console.log(serverPath);
         console.log(join(serverPath, "./pages/index/index.html"))
-        console.log(readFileSync(join(serverPath, "./pages/index/index.html")))
         res.sendFile(join(serverPath, "./pages/index/index.html"), { root: "." });
     });
 
