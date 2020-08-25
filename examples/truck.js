@@ -1,7 +1,7 @@
 //Draws a moving truck in two angles
 
 //Dependencies
-import { Video, Scene, Rectangle, Group, Circle, Animation, Polygon } from 'canvideo';
+import { Video, Scene, Rectangle, Group, Circle, Animation, Polygon } from "../index.js";
 
 function wheel(cx, cy) {
     return new Group()

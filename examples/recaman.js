@@ -1,7 +1,7 @@
 //Draws graph with the recaman sequence visualization.
 
 //Dependencies
-import { Video, Scene, Animation, NumberLine, Path, Camera } from 'canvideo';
+import { Video, Scene, Animation, NumberLine, Path, Camera } from "../index.js";
 
 //You can adjust theses
 const numberCount = 300;
@@ -62,14 +62,14 @@ for (var last = 0, i = 0, increment = 1, under = true; i < numberCount - 1; i++,
             .getCalculator()
         )
     );
-    for(var j = 0; j < hIncrement; j++){
-        if(hIncPositive){
+    for (var j = 0; j < hIncrement; j++) {
+        if (hIncPositive) {
             h++;
         }
-        else{
+        else {
             h--;
         }
-        if(h === minH || h === maxH){
+        if (h === minH || h === maxH) {
             hIncPositive = !hIncPositive;
         }
     }

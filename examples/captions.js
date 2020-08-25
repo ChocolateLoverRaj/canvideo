@@ -1,5 +1,5 @@
 //This example demonstrates how to add captions to videos.
-const { Video, Scene, Rectangle, Caption } = require("../index");
+import { Video, Scene, Rectangle, Caption } from "../index.js";
 
 new Video(400, 400, 24)
     .add(new Scene()
