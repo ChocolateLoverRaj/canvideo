@@ -6,18 +6,18 @@
 //Dependencies
 import fs from 'fs';
 
-import { 
-    Video, 
-    Scene, 
-    Rectangle, 
-    Animation, 
-    Polygon, 
-    Circle, 
-    Group, 
-    Shape, 
-    Camera, 
-    Caption 
-} from 'canvideo';
+import {
+    Video,
+    Scene,
+    Rectangle,
+    Animation,
+    Polygon,
+    Circle,
+    Group,
+    Shape,
+    Camera,
+    Caption
+} from "../index.js";
 
 //This shows how custom classes can also be saved and imported to and from JSON.
 //Here we have a simple class that is basically a shape class that saves some sort of data.
@@ -25,7 +25,7 @@ class Stuff extends Shape {
     shapeName = "stuff";
 
     static fromJson(json, parse, throwErrors, caMappings) {
-        var [cs, { stuff }] = super.fromJson(json, parse, throwErrors, caMappings,   new Stuff(""));
+        var [cs, { stuff }] = super.fromJson(json, parse, throwErrors, caMappings, new Stuff(""));
         cs.stuff = stuff;
         return cs;
     }

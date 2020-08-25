@@ -18,7 +18,9 @@
     "build": "rollup -c ./rollup.config.js",
     "commonignore": "commonignore -c ./commonignore.config.cjs",
     "postinstall": "npm run build",
-    "prepack": "npm run commonignore"
+    "prepack": "npm run commonignore",
+    "truck": "node --experimental-modules --experimental-import-meta-resolve examples/truck.js",
+    "json": "node --experimental-modules --experimental-import-meta-resolve examples/from-json.js"
   },
   "repository": {
     "type": "git",
