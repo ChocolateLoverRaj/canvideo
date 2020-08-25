@@ -11,7 +11,5 @@ else {
     options = { root: "/" };
 }
 
-console.log(serverPath, options);
-
 //Export the options
 export default options;
