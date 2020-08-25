@@ -13,7 +13,7 @@
     "require": "./commonjs/index.js"
   },
   "scripts": {
-    "start": "node --experimental-modules --experimental-import-meta-resolve index.js",
+    "start": "node --experimental-modules --experimental-import-meta-resolve examples/server.js",
     "test": "mocha --experimental-modules",
     "build": "rollup -c ./rollup.config.js",
     "commonignore": "commonignore -c ./commonignore.config.cjs",

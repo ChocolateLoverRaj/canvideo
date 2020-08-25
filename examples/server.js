@@ -4,6 +4,9 @@
 import { createRouter } from 'canvideo';
 import express from 'express';
 
+//The port the server listens to
+const port = process.env.PORT || 2400;
+
 //Create an express app
 const app = express();
 
@@ -13,7 +16,7 @@ createRouter().then(router => {
     app.use("/", router);
 
     //Start the server
-    app.listen(2400, () => {
-        console.log("Started server.");
+    app.listen(port, () => {
+        console.log(`Server is listening on port ${port}`);
     });
 });
