@@ -5,6 +5,7 @@
 
 //Dependencies
 import fs from 'fs';
+import { join, dirname } from 'path';
 
 import {
     Video,
@@ -18,6 +19,9 @@ import {
     Camera,
     Caption
 } from "../index.js";
+
+//This file's dirname
+const _dirname = dirname(import.meta.url.substring(8));
 
 //This shows how custom classes can also be saved and imported to and from JSON.
 //Here we have a simple class that is basically a shape class that saves some sort of data.
@@ -100,10 +104,12 @@ var video = new Video(400, 400, 12)
 
 //Export to JSON and write to file.
 //Note: the file is formatted for readability, but actual method doesn't pretty print the JSON.
-fs.writeFileSync("./from-json.json", video.toJson());
+const jsonPath = join(_dirname, "./from-json.json");
+
+fs.writeFileSync(jsonPath, video.toJson());
 
 //Read JSON
-var read = fs.readFileSync("./from-json.json", "utf-8");
+var read = fs.readFileSync(jsonPath, "utf-8");
 
 //fromJson is a static method in the Video class that returns a Video.
 
