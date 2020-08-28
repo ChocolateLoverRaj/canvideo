@@ -20,7 +20,49 @@ body {
     flex-flow: column;
 }
 
-body>nav, #alerts {
+#menu {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    color: white;
+}
+
+#menu__logo {
+    width: 32px;
+    height: 32px;
+}
+
+.menu {
+    position: relative;
+}
+
+.menu * {
+    margin: 0;
+}
+
+.menu p {
+    height: 100%;
+    line-height: 32px;
+    border: 3px solid transparent;
+    box-sizing: border-box;
+    cursor: default;
+}
+
+.menu:hover>p {
+    background-color: #0071de;
+}
+
+.menu>.sub-menu {
+    position: absolute;
+    display: none;
+    z-index: 1;
+}
+
+.menu:hover>.sub-menu {
+    display: grid;
+}
+
+#alerts {
     flex: 0 1 auto;
 }
 
