@@ -3,6 +3,11 @@
 //Dependencies
 import { Video, Scene, Animation, NumberLine, Path, Camera } from "../index.js";
 
+import { join, dirname } from 'path';
+
+//This dirname
+const _dirname = dirname(import.meta.url.substring(8));
+
 //You can adjust theses
 const numberCount = 300;
 const secondsPerNumber = 1;
@@ -104,8 +109,8 @@ recaman.setCamera(new Camera()
 console.log("starting");
 new Video(1000, 1000, 60)
     .add(recaman)
-    .setTempPath("../generated/")
-    .export("../generated/recaman.mp4", { keepImages: true })
+    .setTempPath(join(_dirname, "../generated"))
+    .export(join(_dirname, "../generated/recaman.mp4"), { keepImages: true })
     .on("frame_progress", ({ count, total, progress }) => {
         progress = Math.round(progress * 1000) / 1000;
         console.log(count, "out of", total, "frames", progress, process.memoryUsage().heapUsed / 1024 ** 2, "MB");
