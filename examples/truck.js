@@ -3,6 +3,11 @@
 //Dependencies
 import { Video, Scene, Rectangle, Group, Circle, Animation, Polygon } from "../index.js";
 
+import { join, dirname } from 'path';
+
+//This dirname
+const _dirname = dirname(import.meta.url.substring(8));
+
 function wheel(cx, cy) {
     return new Group()
         .add(new Circle(cx, cy, 50)
@@ -15,7 +20,7 @@ function wheel(cx, cy) {
 }
 
 new Video(600, 400, 60)
-    .setTempPath("../generated/")
+    .setTempPath(join(_dirname, "../generated/"))
     .add(new Scene()
         .setBackgroundColor("skyBlue")
         .add(0, 5, new Rectangle(0, 250, 600, 350)
@@ -64,7 +69,7 @@ new Video(600, 400, 60)
             ))
         )
     )
-    .export("../generated/truck.mp4", { keepImages: false }, videoExport => {
+    .export(join(_dirname, "../generated/truck.mp4"), { keepImages: false }, videoExport => {
         videoExport
             .on("finish", () => {
                 console.log("done making truck video.");
