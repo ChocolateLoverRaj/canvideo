@@ -44,10 +44,10 @@
                     <i class="material-icons">save</i>
                     <p>Save</p>
                 </div>
-                <div class="menu-item" id="menu__project__save-as">
+                <label for="modals__save-as__checkbox" class="menu-item" id="menu__project__save-as">
                     <i class="material-icons">save</i>
                     <p>Save As</p>
-                </div>
+                </label>
                 <hr>
                 <div class="menu-item" id="menu__project__local-storage">
                     <i class="material-icons">storage</i>
@@ -75,6 +75,24 @@
                     <i class="material-icons">file_download</i>
                     <p>Download</p>
                 </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div>
+        <!-- Save As -->
+        <input type="checkbox" id="modals__save-as__checkbox" class="modal-state">
+        <div class="modal">
+            <label for="modals__save-as__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__save-as__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title">Save As</h4>
+                <h5 class="modal-subtitle">What should we call your current project?</h5>
+                <form id="modals__save-as__form">
+                    <input type="text" name="name" placeholder="New Project">
+                    <button type="submit">Add</button>
+                </form>
             </div>
         </div>
     </div>
