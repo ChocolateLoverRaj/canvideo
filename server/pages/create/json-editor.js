@@ -20,18 +20,10 @@ const options = {
 }
 
 var editorContainer;
-var editor;
+export var editor;
 const jsonEditorInit = () => {
     editorContainer = document.getElementById("json__editor");
     editor = new JsonEditor(editorContainer, options, initialJson);
-}
-
-const downloaderInit = () => {
-    const download = document.getElementById("json__download");
-    download.addEventListener('click', () => {
-        let blob = new Blob([editor.getText()], { type: "application/json;charset=utf-8" });
-        download.setAttribute('href', URL.createObjectURL(blob));
-    });
 }
 
 const uploadInit = () => {
@@ -304,14 +296,13 @@ const localStorageInit = () => {
     if (saves.selected) {
         loadSave(saves.selected);
     }
-    else{
+    else {
         updateVideo(editor.getText());
     }
 };
 
 export const init = () => {
     jsonEditorInit();
-    downloaderInit();
     uploadInit();
     localStorageInit();
 }

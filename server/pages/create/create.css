@@ -80,6 +80,11 @@ body {
     cursor: pointer;
 }
 
+#menu__export__download {
+    text-decoration: none;
+    color: white;
+}
+
 .menu-items>hr {
     padding-top: 5px;
     height: 10px;
