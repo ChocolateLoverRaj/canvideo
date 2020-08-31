@@ -10,7 +10,6 @@ var overwriteConfirm;
 
 const submitHandler = e => {
     e.preventDefault();
-    console.log(e, "default prevented")
 
     const saveName = saveForm.name.value;
 
