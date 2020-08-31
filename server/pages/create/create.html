@@ -49,10 +49,10 @@
                     <p>Save As</p>
                 </label>
                 <hr>
-                <div class="menu-item" id="menu__project__local-storage">
+                <label for="modals__load__checkbox" class="menu-item" id="menu__project__local-storage">
                     <i class="material-icons">storage</i>
                     <p>Load From Local Storage</p>
-                </div>
+                </label>
                 <div class="menu-item" id="menu__project__upload">
                     <i class="material-icons">file_upload</i>
                     <p>Upload</p>
@@ -107,6 +107,25 @@
                     exists. Do you want to overwrite the save?</h5>
                 <label for="modals__overwrite__checkbox" class="paper-btn">Don't Overwrite</label>
                 <button id="modals__overwrite__confirm">Overwrite</button>
+            </div>
+        </div>
+
+        <!-- Save As -->
+        <input type="checkbox" id="modals__load__checkbox" class="modal-state">
+        <div class="modal">
+            <label for="modals__load__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__load__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title">Load Save</h4>
+                <h5 class="modal-subtitle">Choose a save.</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Save Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modals__load__tbody"></tbody>
+                </table>
             </div>
         </div>
     </div>

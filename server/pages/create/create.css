@@ -102,6 +102,14 @@ body {
     flex-direction: row;
 }
 
+#modals__load__tbody>tr {
+    cursor: pointer;
+}
+
+#modals__load__tbody>tr>td>i {
+    float: right;
+}
+
 #alerts {
     flex: 0 1 auto;
 }
