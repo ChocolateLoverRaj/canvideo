@@ -1,10 +1,10 @@
-import { editor } from "./json-editor.js";
+import { getText } from "./json-editor.js";
 
 //Download button
 var downloadButton;
 
 const onclickListener = () => {
-    let blob = new Blob([editor.getText()], { type: "application/json;charset=utf-8" });
+    let blob = new Blob([getText()], { type: "application/json;charset=utf-8" });
     downloadButton.setAttribute('href', URL.createObjectURL(blob));
 };
 

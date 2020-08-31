@@ -90,9 +90,23 @@
                 <h4 class="modal-title">Save As</h4>
                 <h5 class="modal-subtitle">What should we call your current project?</h5>
                 <form id="modals__save-as__form">
-                    <input type="text" name="name" placeholder="New Project">
+                    <input required pattern="^\w([\w ]*\w)?$" type="text" name="name" placeholder="New Project">
                     <button type="submit">Add</button>
                 </form>
+            </div>
+        </div>
+
+        <!-- Overwrite -->
+        <input type="checkbox" id="modals__overwrite__checkbox" class="modal-state">
+        <div class="modal">
+            <label for="modals__overwrite__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__overwrite__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title">Overwrite Save?</h4>
+                <h5 class="modal-subtitle">A save with the name '<span id="modals__overwrite__name"></span>' already
+                    exists. Do you want to overwrite the save?</h5>
+                <label for="modals__overwrite__checkbox" class="paper-btn">Don't Overwrite</label>
+                <button id="modals__overwrite__confirm">Overwrite</button>
             </div>
         </div>
     </div>
