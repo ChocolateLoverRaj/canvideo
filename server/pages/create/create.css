@@ -110,6 +110,11 @@ body {
     float: right;
 }
 
+#modal__upload__form {
+    display: flex;
+    flex-direction: row;
+}
+
 #alerts {
     flex: 0 1 auto;
 }

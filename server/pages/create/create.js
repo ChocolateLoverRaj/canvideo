@@ -3,6 +3,7 @@ import { init as previewInit } from "./preview.js";
 import downloadInit from "./download.js";
 import saveAsInit from "./save-as.js";
 import loadInit from "./load.js";
+import uploadInit from "./upload.js";
 
 window.addEventListener('load', async () => {
     previewInit();
@@ -10,4 +11,5 @@ window.addEventListener('load', async () => {
     downloadInit();
     saveAsInit();
     loadInit();
+    uploadInit();
 });

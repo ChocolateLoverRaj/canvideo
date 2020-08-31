@@ -53,10 +53,10 @@
                     <i class="material-icons">storage</i>
                     <p>Load From Local Storage</p>
                 </label>
-                <div class="menu-item" id="menu__project__upload">
+                <label for="modals__upload__checkbox" class="menu-item" id="menu__project__upload">
                     <i class="material-icons">file_upload</i>
                     <p>Upload</p>
-                </div>
+                </label>
             </div>
         </div>
         <div class="menu">
@@ -110,7 +110,7 @@
             </div>
         </div>
 
-        <!-- Save As -->
+        <!-- Load -->
         <input type="checkbox" id="modals__load__checkbox" class="modal-state">
         <div class="modal">
             <label for="modals__load__checkbox" class="modal-bg"></label>
@@ -126,6 +126,35 @@
                     </thead>
                     <tbody id="modals__load__tbody"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Upload -->
+        <input type="checkbox" id="modals__upload__checkbox" class="modal-state">
+        <div class="modal">
+            <label for="modals__upload__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__upload__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title">Upload</h4>
+                <h5 class="modal-subtitle">Upload a json file or drag and drop into file picker.</h5>
+                <form id="modal__upload__form">
+                    <input type="file" accept="application/json" name="input" required>
+                    <button type="submit">Upload</button>
+                </form>
+                <p class="text-danger hidden" id="modal__upload__invalid">Invalid MIME type. Only application/json is
+                    allowed.
+                </p>
+            </div>
+        </div>
+
+        <!-- Upload Failed -->
+        <input type="checkbox" id="modals__upload-failed__checkbox" class="modal-state">
+        <div class="modal">
+            <label for="modals__upload-failed__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__upload-failed__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title text-danger">Upload Failed</h4>
+                <h5 class="modal-subtitle">We couldn't read your file.</h5>
             </div>
         </div>
     </div>
@@ -195,33 +224,6 @@
             </div>
             <div id="json">
                 <div id="json__save" class="background-primary">
-                    <label for="json__upload__checkbox" class="paper-btn" title="Upload Json">
-                        <i class="material-icons md-46">file_upload</i>
-                    </label>
-                    <input class="modal-state" id="json__upload__checkbox" type="checkbox">
-                    <div class="modal">
-                        <label class="modal-bg" for="json__upload__checkbox"></label>
-                        <div class="modal-body">
-                            <label class="btn-close" for="json__upload__checkbox">X</label>
-                            <h4 class="modal-title">Upload Json File</h4>
-                            <h5 class="modal-subtitle">Open picker or drag and drop into the file picker.</h5>
-                            <p class="modal-text">
-                                <input type="file" accept="application/json" id="json__upload__input">
-                                <span id="json__upload__message"></span>
-                            </p>
-                        </div>
-                    </div>
-                    <input class="modal-state" id="json__upload__success" type="checkbox">
-                    <div class="modal">
-                        <label class="modal-bg" for="json__upload__success"></label>
-                        <div class="modal-body">
-                            <label class="btn-close" for="json__upload__success">X</label>
-                            <h4 class="modal-title">Json Successfully Uploaded</h4>
-                            <h5 class="modal-subtitle">You can save your changes by saving to local storage or
-                                downloading the json file.</h5>
-                        </div>
-                    </div>
-
                     <label for="local-storage__checkbox" class="paper-btn" title="Save Settings">
                         <i class="material-icons md-46">unarchive</i>
                     </label>
