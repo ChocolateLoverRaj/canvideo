@@ -22,6 +22,7 @@ export var editor;
 export const init = () => {
     editorContainer = document.getElementById("json__editor");
     editor = new JsonEditor(editorContainer, options, initialJson);
+    textChangeHandler(editor.getText());
 }
 
 export const setText = text => {
