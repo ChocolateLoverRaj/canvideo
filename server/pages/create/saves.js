@@ -5,8 +5,7 @@ export const saves = localStorage.getItem("saves") !== null ?
     {
         saves: {},
         selected: null,
-        autoSave: false,
-        autoSaveFrequency: 10
+        autoSave: false
     };
 
 export const saveSaves = () => {

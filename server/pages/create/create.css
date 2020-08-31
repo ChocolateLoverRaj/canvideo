@@ -1,5 +1,5 @@
 :root {
-    --infinite-border-radius: 9999999px;
+    --infinity: 9999999px;
 }
 
 .hidden {
@@ -115,6 +115,19 @@ body {
     flex-direction: row;
 }
 
+#modals__settings__frequency-fieldset {
+    max-height: 0;
+    overflow: hidden;
+    margin: 0;
+    transition: max-height 2s;
+}
+
+#modals__settings__frequency-checkbox:checked+#modals__settings__frequency-fieldset {
+    max-height: max-content;
+    margin: 0;
+    overflow: visible;
+}
+
 #alerts {
     flex: 0 1 auto;
 }
@@ -189,7 +202,7 @@ body {
     position: absolute;
     top: 10px;
     height: 10px;
-    border-radius: var(--infinite-border-radius);
+    border-radius: var(--infinity);
 }
 
 #preview__progress__background {

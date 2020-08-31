@@ -66,6 +66,10 @@
                     <i class="material-icons">keyboard</i>
                     <p>Keyboard Shortcuts</p>
                 </div>
+                <label for="modals__settings__checkbox" class="menu-item" id="menu__preferences__settings">
+                    <i class="material-icons">settings</i>
+                    <p>Settings</p>
+                </label>
             </div>
         </div>
         <div class="menu">
@@ -155,6 +159,33 @@
                 <label for="modals__upload-failed__checkbox" class="btn-close">X</label>
                 <h4 class="modal-title text-danger">Upload Failed</h4>
                 <h5 class="modal-subtitle">We couldn't read your file.</h5>
+            </div>
+        </div>
+
+        <!-- Overwrite -->
+        <input type="checkbox" id="modals__settings__checkbox" class="modal-state" checked>
+        <div class="modal">
+            <label for="modals__settings__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__settings__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title">Settings</h4>
+                <h5 class="modal-subtitle">If you want to add more customizations or settings, create an issue on
+                    GitHub.</h5>
+                <form id="modals__settings__form">
+                    <fieldset class="form-group">
+                        <label for="modals__settings__auto-save" class="paper-switch-2-label">Auto Save</label>
+                        <label class="paper-switch-2">
+                            <input id="modals__settings__auto-save" name="autoSave" type="checkbox" />
+                            <span class="paper-switch-slider round"></span>
+                        </label>
+                    </fieldset>
+                    <input id="modals__settings__frequency-checkbox" type="checkbox" class="hidden">
+                    <fieldset id="modals__settings__frequency-fieldset" class="form-group">
+                        <label for="modals__settings__frequency">Auto Save Frequency</label>
+                        <input id="modals__settings__frequency" name="frequency" type="number" min="1" multiple="1"
+                            max="3600" value="10">
+                    </fieldset>
+                </form>
             </div>
         </div>
     </div>

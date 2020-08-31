@@ -4,6 +4,7 @@ import downloadInit from "./download.js";
 import saveAsInit from "./save-as.js";
 import loadInit from "./load.js";
 import uploadInit from "./upload.js";
+import settingsInit from "./settings.js";
 
 window.addEventListener('load', async () => {
     previewInit();
@@ -12,4 +13,5 @@ window.addEventListener('load', async () => {
     saveAsInit();
     loadInit();
     uploadInit();
+    settingsInit();
 });
