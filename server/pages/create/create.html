@@ -62,10 +62,10 @@
         <div class="menu">
             <p>Preferences</p>
             <div class="menu-items">
-                <div class="menu-item" id="menu__preferences__keyboard-shortcuts">
+                <label for="modals__shortcuts__checkbox" class="menu-item" id="menu__preferences__keyboard-shortcuts">
                     <i class="material-icons">keyboard</i>
                     <p>Keyboard Shortcuts</p>
-                </div>
+                </label>
                 <label for="modals__settings__checkbox" class="menu-item" id="menu__preferences__settings">
                     <i class="material-icons">settings</i>
                     <p>Settings</p>
@@ -159,6 +159,28 @@
                 <label for="modals__upload-failed__checkbox" class="btn-close">X</label>
                 <h4 class="modal-title text-danger">Upload Failed</h4>
                 <h5 class="modal-subtitle">We couldn't read your file.</h5>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <input type="checkbox" id="modals__shortcuts__checkbox" class="modal-state" checked>
+        <div class="modal">
+            <label for="modals__shortcuts__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__shortcuts__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title">Keyboard Shortcuts</h4>
+                <h5 class="modal-subtitle">Here are keyboard shortcuts that you can use and customize.</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Ctrl</th>
+                            <th>Shift</th>
+                            <th>Alt</th>
+                            <th>Key</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
 
