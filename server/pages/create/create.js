@@ -5,6 +5,7 @@ import saveAsInit from "./save-as.js";
 import loadInit from "./load.js";
 import uploadInit from "./upload.js";
 import settingsInit from "./settings.js";
+import shortcutsInit from "./manage-shortcuts.js";
 
 window.addEventListener('load', async () => {
     previewInit();
@@ -14,4 +15,5 @@ window.addEventListener('load', async () => {
     loadInit();
     uploadInit();
     settingsInit();
+    shortcutsInit();
 });

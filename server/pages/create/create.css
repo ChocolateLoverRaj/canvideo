@@ -115,6 +115,39 @@ body {
     flex-direction: row;
 }
 
+#modals__shortcuts__body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#modals__shortcuts__tbody .key {
+    padding: 0;
+    cursor: pointer;
+}
+
+#modals__shortcuts__tbody .key>span {
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    padding: 8px;
+}
+
+@keyframes selecting {
+    from {
+        background-color: white;
+    }
+    to {
+        background-color: #0071de;
+    }
+}
+
+#modals__shortcuts__tbody .selecting {
+    animation-name: selecting;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
 #modals__settings__frequency-fieldset {
     max-height: 0;
     overflow: hidden;
