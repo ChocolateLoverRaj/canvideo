@@ -1,6 +1,7 @@
 import shortcuts from "./shortcuts-list.js";
 
 var tbody;
+var resetButton;
 
 const keyRegex = /^[a-z]$/i;
 
@@ -50,7 +51,6 @@ const refresh = () => {
         let selectClick = false;
         keyTd.addEventListener('click', () => {
             if (!selectClick) {
-                selecting = true;
                 keySpan.classList.add("selecting");
 
                 const stopSelecting = () => {
@@ -58,7 +58,6 @@ const refresh = () => {
                     removeEventListener('click', clickListener);
                     keySpan.removeEventListener('click', spanClickListener);
 
-                    selecting = false;
                     keySpan.classList.remove("selecting");
                 }
 
@@ -101,11 +100,33 @@ const refresh = () => {
                 selectClick = false;
             }
         });
+
+        const resetTd = document.createElement('td');
+        tr.appendChild(resetTd);
+
+        const resetI = document.createElement('i');
+        resetTd.appendChild(resetI);
+        resetI.classList.add('material-icons');
+        resetI.classList.add("reset");
+        resetI.innerText = "settings_backup_restore";
+        resetI.addEventListener('click', () => {
+            shortcut.reset();
+            refresh();
+        });
     }
+};
+
+const clickHandler = () => {
+    for (const shortcut of shortcuts) {
+        shortcut.reset();
+    }
+    refresh();
 };
 
 const init = () => {
     tbody = document.getElementById("modals__shortcuts__tbody");
+    resetButton = document.getElementById("modals__reset-all__confirm");
+    resetButton.addEventListener('click', clickHandler);
 
     refresh();
 };

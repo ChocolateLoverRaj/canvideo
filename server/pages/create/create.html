@@ -178,10 +178,26 @@
                             <th>Shift</th>
                             <th>Alt</th>
                             <th>Key</th>
+                            <th>Reset</th>
                         </tr>
                     </thead>
                     <tbody id="modals__shortcuts__tbody"></tbody>
                 </table>
+                <label class="paper-btn" for="modals__reset-all__checkbox">Reset All Keyboard Shortcuts</label>
+            </div>
+        </div>
+
+        <!-- Reset All Keyboard Shortcuts -->
+        <input type="checkbox" id="modals__reset-all__checkbox" class="modal-state">
+        <div class="modal">
+            <label for="modals__reset-all__checkbox" class="modal-bg"></label>
+            <div class="modal-body">
+                <label for="modals__reset-all__checkbox" class="btn-close">X</label>
+                <h4 class="modal-title">Are you sure?</h4>
+                <h5 class="modal-subtitle">Are you sure you want to reset all keyboard shortcuts?</h5>
+                <label class="paper-btn" for="modals__reset-all__checkbox">Don't Reset</label>
+                <label class="paper-btn" for="modals__reset-all__checkbox" id="modals__reset-all__confirm">Reset
+                    Shortcuts</label>
             </div>
         </div>
 

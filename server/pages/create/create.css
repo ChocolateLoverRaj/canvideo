@@ -148,6 +148,10 @@ body {
     animation-direction: alternate;
 }
 
+#modals__shortcuts__tbody .reset {
+    cursor: pointer;
+}
+
 #modals__settings__frequency-fieldset {
     max-height: 0;
     overflow: hidden;
