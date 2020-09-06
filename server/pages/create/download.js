@@ -8,9 +8,12 @@ const onclickListener = () => {
     downloadButton.setAttribute('href', URL.createObjectURL(blob));
 };
 
-const init = () => {
+export const download = () => {
+    onclickListener();
+    downloadButton.click();
+}
+
+export const init = () => {
     downloadButton = document.getElementById("menu__export__download");
     downloadButton.addEventListener('click', onclickListener);
 };
-
-export default init;

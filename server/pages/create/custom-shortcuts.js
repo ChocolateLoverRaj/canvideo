@@ -19,7 +19,7 @@ const refresh = () => {
 
         const actionTd = document.createElement('td');
         tr.appendChild(actionTd);
-        actionTd.innerText = shortcut.name;
+        actionTd.innerText = shortcut.description;
 
         const ctrlTd = document.createElement('td');
         tr.appendChild(ctrlTd);

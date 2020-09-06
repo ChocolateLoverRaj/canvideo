@@ -1,7 +1,7 @@
 import "./ls-validators/index.js";
 import { init as initJsonEditor } from "./json-editor.js";
 import { init as previewInit } from "./preview.js";
-import downloadInit from "./download.js";
+import { init as downloadInit } from "./download.js";
 import saveAsInit from "./save-as.js";
 import loadInit from "./load.js";
 import uploadInit from "./upload.js";

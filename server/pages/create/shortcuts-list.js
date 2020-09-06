@@ -1,7 +1,13 @@
 class Shortcut {
-    constructor(name, key) {
-        this.name = name;
-        this.default = key;
+    constructor(description, options) {
+        this.description = description;
+        this.default = {
+            ctrl: options.ctrl,
+            shift: options.shift,
+            alt: options.alt,
+            key: options.key
+        };
+        this.shortcutName = options.name;
         this._custom = null;
     }
 
@@ -49,42 +55,49 @@ class Shortcut {
 
 const shortcuts = [
     new Shortcut("Show Keyboard Shortcuts", {
+        name: "show-shortcuts",
         ctrl: true,
         shift: false,
         alt: false,
-        key: "q"
+        key: "q",
     }),
     new Shortcut("Save", {
+        name: "save",
         ctrl: true,
         shift: false,
         alt: false,
         key: "s"
     }),
     new Shortcut("Save As", {
+        name: "save-as",
         ctrl: true,
         shift: true,
         alt: false,
         key: "s"
     }),
     new Shortcut("Load Save", {
+        name: "load",
         ctrl: true,
         shift: false,
         alt: false,
         key: "o"
     }),
     new Shortcut("Open Settings", {
+        name: "open-settings",
         ctrl: true,
         shift: false,
         alt: false,
         key: "p"
     }),
     new Shortcut("Download", {
+        name: "download",
         ctrl: true,
         shift: false,
         alt: false,
         key: "d"
     }),
     new Shortcut("Upload", {
+        name: "upload",
         ctrl: true,
         shift: false,
         alt: false,
