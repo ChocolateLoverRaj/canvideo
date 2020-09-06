@@ -1,14 +1,19 @@
 import shortcuts from "./shortcuts-list.js";
+import keyRegex from "./key-regex.js";
+import { open } from "./ls.js";
+
+const settingsItem = open("settings");
 
 var tbody;
 var resetButton;
 
-const keyRegex = /^[a-z]$/i;
-
 const refresh = () => {
     tbody.innerHTML = '';
 
-    for (const shortcut of shortcuts) {
+    for (var i = 0; i < shortcuts.length; i++) {
+        const shortcutIndex = i;
+        const shortcut = shortcuts[i];
+
         const tr = document.createElement('tr');
         tbody.appendChild(tr);
 
@@ -72,6 +77,9 @@ const refresh = () => {
 
                         stopSelecting();
                         refresh();
+
+                        settingsItem.data.shortcuts[shortcutIndex] = shortcut._custom;
+                        settingsItem.save();
                     }
                 };
 
@@ -112,6 +120,9 @@ const refresh = () => {
         resetI.addEventListener('click', () => {
             shortcut.reset();
             refresh();
+
+            settingsItem.data.shortcuts[shortcutIndex] = null;
+            settingsItem.save();
         });
     }
 };
@@ -121,12 +132,19 @@ const clickHandler = () => {
         shortcut.reset();
     }
     refresh();
+
+    settingsItem.data.shortcuts.fill(null);
+    settingsItem.save();
 };
 
 const init = () => {
     tbody = document.getElementById("modals__shortcuts__tbody");
     resetButton = document.getElementById("modals__reset-all__confirm");
     resetButton.addEventListener('click', clickHandler);
+
+    for (var i = 0; i < settingsItem.data.shortcuts.length; i++) {
+        shortcuts[i]._custom = settingsItem.data.shortcuts[i];
+    }
 
     refresh();
 };
