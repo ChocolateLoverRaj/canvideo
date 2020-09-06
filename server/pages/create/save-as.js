@@ -1,5 +1,5 @@
-import { saves, saveSaves } from "./saves.js";
 import { getText } from "./json-editor.js";
+import { open } from "./ls.js";
 
 var saveCheckbox;
 var saveForm;
@@ -8,6 +8,8 @@ var overwriteCheckbox;
 var overwriteName;
 var overwriteConfirm;
 
+const savesItem = open("saves");
+
 const submitHandler = e => {
     e.preventDefault();
 
@@ -15,12 +17,12 @@ const submitHandler = e => {
 
     const save = () => {
         saveCheckbox.checked = false;
-        saves.selected = saveName;
-        saves.saves[saveName] = getText();
-        saveSaves();
+        savesItem.data.selected = saveName;
+        savesItem.data.saves[saveName] = getText();
+        savesItem.save();
     }
 
-    if (!saves.saves.hasOwnProperty(saveName)) {
+    if (!savesItem.data.saves[saveName]) {
         //The name is not taken
         save();
     }

@@ -1,5 +1,7 @@
 //Manage settings
-import { saves, saveSaves } from "./saves.js";
+import { open } from "./ls.js";
+
+const settingsItem = open("settings");
 
 var autoSave;
 var frequencyCheckbox;
@@ -7,14 +9,14 @@ var frequencyInput;
 
 const setAutoSave = () => {
     if (frequencyCheckbox.checked) {
-        saves.autoSave = {
+        settingsItem.data.autoSave = {
             frequency: parseInt(frequencyInput.value)
         };
     }
     else {
-        saves.autoSave = false;
+        settingsItem.data.autoSave = false;
     }
-    saveSaves();
+    settingsItem.save();
 };
 
 const autoSaveHandler = () => {
@@ -28,6 +30,11 @@ const init = () => {
     frequencyCheckbox = document.getElementById("modals__settings__frequency-checkbox");
     frequencyInput = document.getElementById("modals__settings__frequency");
     frequencyInput.addEventListener('change', setAutoSave);
+    if (settingsItem.data.autoSave) {
+        autoSave.checked = true;
+        frequencyCheckbox.checked = true;
+        frequencyInput.value = settingsItem.data.autoSave.frequency;
+    }
 };
 
 export default init;

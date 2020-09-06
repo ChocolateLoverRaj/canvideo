@@ -1,6 +1,8 @@
 //Load saves from local-storage
-import { saves, saveSaves } from "./saves.js";
 import { setText } from "./json-editor.js";
+import { open } from "./ls.js";
+
+const savesItem = open("saves");
 
 var loadCheckbox;
 
@@ -13,7 +15,7 @@ checkI.innerText = 'check';
 const refreshTable = () => {
     tbody.innerHTML = '';
 
-    for (const saveName in saves.saves) {
+    for (const saveName in savesItem.data.saves) {
         const tr = document.createElement('tr');
         tbody.appendChild(tr);
 
@@ -24,15 +26,15 @@ const refreshTable = () => {
         nameTd.appendChild(nameSpan);
         nameSpan.innerText = saveName;
 
-        if (saveName === saves.selected) {
+        if (saveName === savesItem.data.selected) {
             nameTd.appendChild(checkI);
         }
 
         nameTd.addEventListener('click', () => {
-            saves.selected = saveName;
+            savesItem.data.selected = saveName;
             refreshTable();
-            setText(saves.saves[saveName]);
-            saveSaves();
+            setText(savesItem.data.saves[saveName]);
+            savesItem.save();
         });
     }
 }
