@@ -4,7 +4,6 @@ import shortcuts from "./shortcuts-list.js";
 import { EventEmitter } from "/common/event-emitter/event-emitter.js";
 
 const shortcutsEmitter = new EventEmitter();
-console.log("hola")
 
 addEventListener('keydown', e => {
     if (keyRegex.test(e.key)) {
