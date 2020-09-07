@@ -37,49 +37,58 @@
 <body>
     <div id="menu" class="background-primary">
         <img id="menu__logo" src="/favicon-32x32.png" alt="logo" class="no-border">
-        <div class="menu">
-            <p>Project</p>
-            <div class="menu-items">
-                <div class="menu-item" id="menu__project__save">
-                    <i class="material-icons">save</i>
-                    <p>Save</p>
+        <div id="menu__dropdowns">
+            <div class="menu">
+                <p>Project</p>
+                <div class="menu-items">
+                    <div class="menu-item" id="menu__project__save">
+                        <i class="material-icons">save</i>
+                        <p>Save</p>
+                    </div>
+                    <label for="modals__save-as__checkbox" class="menu-item" id="menu__project__save-as">
+                        <i class="material-icons">save</i>
+                        <p>Save As</p>
+                    </label>
+                    <hr>
+                    <label for="modals__load__checkbox" class="menu-item" id="menu__project__local-storage">
+                        <i class="material-icons">storage</i>
+                        <p>Load From Local Storage</p>
+                    </label>
+                    <label for="modals__upload__checkbox" class="menu-item" id="menu__project__upload">
+                        <i class="material-icons">file_upload</i>
+                        <p>Upload</p>
+                    </label>
                 </div>
-                <label for="modals__save-as__checkbox" class="menu-item" id="menu__project__save-as">
-                    <i class="material-icons">save</i>
-                    <p>Save As</p>
-                </label>
-                <hr>
-                <label for="modals__load__checkbox" class="menu-item" id="menu__project__local-storage">
-                    <i class="material-icons">storage</i>
-                    <p>Load From Local Storage</p>
-                </label>
-                <label for="modals__upload__checkbox" class="menu-item" id="menu__project__upload">
-                    <i class="material-icons">file_upload</i>
-                    <p>Upload</p>
-                </label>
+            </div>
+            <div class="menu">
+                <p>Preferences</p>
+                <div class="menu-items">
+                    <label for="modals__shortcuts__checkbox" class="menu-item"
+                        id="menu__preferences__keyboard-shortcuts">
+                        <i class="material-icons">keyboard</i>
+                        <p>Keyboard Shortcuts</p>
+                    </label>
+                    <label for="modals__settings__checkbox" class="menu-item" id="menu__preferences__settings">
+                        <i class="material-icons">settings</i>
+                        <p>Settings</p>
+                    </label>
+                </div>
+            </div>
+            <div class="menu">
+                <p>Export</p>
+                <div class="menu-items">
+                    <a class="menu-item" id="menu__export__download" download="canvideo.json">
+                        <i class="material-icons">file_download</i>
+                        <p>Download</p>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="menu">
-            <p>Preferences</p>
-            <div class="menu-items">
-                <label for="modals__shortcuts__checkbox" class="menu-item" id="menu__preferences__keyboard-shortcuts">
-                    <i class="material-icons">keyboard</i>
-                    <p>Keyboard Shortcuts</p>
-                </label>
-                <label for="modals__settings__checkbox" class="menu-item" id="menu__preferences__settings">
-                    <i class="material-icons">settings</i>
-                    <p>Settings</p>
-                </label>
-            </div>
-        </div>
-        <div class="menu">
-            <p>Export</p>
-            <div class="menu-items">
-                <a class="menu-item" id="menu__export__download" download="canvideo.json">
-                    <i class="material-icons">file_download</i>
-                    <p>Download</p>
-                </a>
-            </div>
+        <div id="save-state">
+            <!-- If this checkbox is checked it means that all changes are saved -->
+            <input type="checkbox" id="save-state__checkbox" class="hidden" checked>
+            <p id="save-state__modified">●</p>
+            <p id="save-state__saved"><i class="material-icons">check</i></p>
         </div>
     </div>
 

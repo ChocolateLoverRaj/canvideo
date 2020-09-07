@@ -12,7 +12,9 @@ shortcutsEmitter.on("show-shortcuts", () => {
     shortcutsCheckbox.checked = true;
 });
 
-//TODO save
+shortcutsEmitter.on("save", () => {
+    //TODO save
+});
 
 shortcutsEmitter.on("save-as", () => {
     saveAsCheckbox.checked = true;

@@ -28,8 +28,16 @@ body {
 }
 
 #menu__logo {
+    flex: 0 0 auto;
     width: 32px;
     height: 32px;
+}
+
+#menu__dropdowns {
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
 }
 
 .menu {
@@ -95,6 +103,41 @@ body {
 .menu:hover>.menu-items {
     display: grid;
     grid-template-columns: max-content;
+}
+
+@keyframes saved {
+    from {
+        color: white;
+    }
+    to {
+        color: #0071de;
+    }
+}
+
+#save-state {
+    flex: 0 0 auto;
+    padding: 5px 5px;
+    width: 40px;
+    text-align: center;
+}
+
+#save-state * {
+    margin: 0;
+}
+
+#save-state__checkbox:checked~#save-state__saved {
+    animation-name: saved;
+    animation-direction: alternate;
+    animation-duration: 0.25s;
+    animation-iteration-count: 2;
+}
+
+#save-state__checkbox:not(:checked)~#save-state__saved {
+    display: none;
+}
+
+#save-state__checkbox:checked~#save-state__modified {
+    display: none;
 }
 
 #modals__save-as__form {
