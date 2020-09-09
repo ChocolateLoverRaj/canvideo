@@ -22,10 +22,15 @@ export const save = () => {
         savesItem.data.saves[savesItem.data.selected] = getText();
         savesItem.save();
         lastSaved = Date.now();
-        savedCheckbox.checked = false;
-        setTimeout(() => {
+        if (savedCheckbox.checked) {
+            savedCheckbox.checked = false;
+            setTimeout(() => {
+                savedCheckbox.checked = true;
+            }, 0);
+        }
+        else {
             savedCheckbox.checked = true;
-        }, 0);
+        }
     }
     else {
         saveAsCheckbox.checked = true;
@@ -51,4 +56,18 @@ export const init = () => {
     saveButton = document.getElementById("menu__project__save");
     saveButton.addEventListener('click', save);
     saveAsCheckbox = document.getElementById("modals__save-as__checkbox");
+
+    addEventListener('beforeunload', e => {
+        if (!savedCheckbox.checked) {
+            if (settingsItem.data.autoSave) {
+                save();
+                console.log(savesItem.data.saves)
+                console.log(localStorage.getItem("saves"))
+            }
+            else {
+                console.log("warned");
+                e.returnValue = "You have unsaved changes. Are you sure you want to leave this page?";
+            }
+        }
+    });
 };

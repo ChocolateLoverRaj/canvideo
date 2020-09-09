@@ -5,6 +5,9 @@ import {
 } from "./json-schema.js";
 import { updateVideo } from "./preview.js";
 import { autoSave } from "./save.js";
+import { open } from "./ls.js";
+
+const savesItem = open("saves");
 
 const textChangeHandler = text => {
     updateVideo(text);
@@ -20,11 +23,22 @@ const options = {
 }
 
 var editorContainer;
+var savedCheckbox;
+
 export var editor;
 export const init = () => {
     editorContainer = document.getElementById("json__editor");
-    editor = new JsonEditor(editorContainer, options, initialJson);
-    textChangeHandler(editor.getText());
+    savedCheckbox = document.getElementById("save-state__checkbox");
+
+    if (savesItem.data.selected) {
+        editor = new JsonEditor(editorContainer, options);
+        editor.setText(savesItem.data.saves[savesItem.data.selected]);
+        savedCheckbox.checked = true;
+    }
+    else {
+        editor = new JsonEditor(editorContainer, options, initialJson);
+    }
+    updateVideo(editor.getText());
 }
 
 export const setText = text => {
