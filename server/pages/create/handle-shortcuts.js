@@ -1,6 +1,7 @@
 //Keyboard shortcuts actually do things.
 import shortcutsEmitter from "./detect-shortcuts.js";
 import { download } from "./download.js";
+import { save } from "./save.js";
 
 var shortcutsCheckbox;
 var saveAsCheckbox;
@@ -13,7 +14,7 @@ shortcutsEmitter.on("show-shortcuts", () => {
 });
 
 shortcutsEmitter.on("save", () => {
-    //TODO save
+    save();
 });
 
 shortcutsEmitter.on("save-as", () => {

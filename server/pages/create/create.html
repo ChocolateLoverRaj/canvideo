@@ -87,8 +87,8 @@
         <div id="save-state">
             <!-- If this checkbox is checked it means that all changes are saved -->
             <input type="checkbox" id="save-state__checkbox" class="hidden">
-            <p id="save-state__modified">●</p>
-            <p id="save-state__saved"><i class="material-icons">check</i></p>
+            <p id="save-state__modified" title="Unsaved Changes">●</p>
+            <p id="save-state__saved" title="Changes Saved"><i class="material-icons">check</i></p>
         </div>
     </div>
 
@@ -238,15 +238,6 @@
         </div>
     </div>
 
-    <div id="alerts">
-        <input class="alert-state" id="local-storage__no-save-selected" type="checkbox" checked>
-        <div class="alert alert-warning dismissible">
-            <label id="local-storage__no-save-selected__pointer" for="local-storage__checkbox">Couldn't save because no
-                save is selected. Click on this text to open
-                save settings.</label>
-            <label class="btn-close" for="local-storage__no-save-selected">X</label>
-        </div>
-    </div>
     <div class="alerts">
         <input type="checkbox" id="local-storage__load-success" class="alert-state" checked="checked">
         <div class="alert alert-success dismissible">

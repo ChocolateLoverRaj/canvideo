@@ -140,6 +140,10 @@ body {
     display: none;
 }
 
+#save-state__modified {
+    cursor: pointer;
+}
+
 #modals__save-as__form {
     display: flex;
     flex-direction: row;

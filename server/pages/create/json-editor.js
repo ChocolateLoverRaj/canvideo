@@ -4,9 +4,11 @@ import {
     initialJson
 } from "./json-schema.js";
 import { updateVideo } from "./preview.js";
+import { autoSave } from "./save.js";
 
 const textChangeHandler = text => {
     updateVideo(text);
+    autoSave();
 };
 
 const options = {

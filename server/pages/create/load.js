@@ -4,8 +4,8 @@ import { open } from "./ls.js";
 
 const savesItem = open("saves");
 
+var savedCheckbox;
 var loadCheckbox;
-
 var tbody;
 
 const checkI = document.createElement('i');
@@ -47,10 +47,17 @@ const checkHandler = () => {
 }
 
 const init = () => {
+    savedCheckbox = document.getElementById("save-state__checkbox");
+
     loadCheckbox = document.getElementById("modals__load__checkbox");
     loadCheckbox.addEventListener("change", checkHandler);
 
     tbody = document.getElementById("modals__load__tbody");
+
+    if (savesItem.data.selected) {
+        setText(savesItem.data.saves[savesItem.data.selected]);
+        savedCheckbox.checked = true;
+    }
 };
 
 export default init;
