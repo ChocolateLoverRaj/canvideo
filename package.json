@@ -1,27 +1,8 @@
 {
   "name": "canvideo",
   "version": "6.4.2",
-  "description": "\u0016\u0016An open-source tool for Node.js that can make animations and generate videos.",
-  "engines": {
-    "node": "12"
-  },
-  "type": "module",
-  "main": "./commonjs/index.js",
-  "types": "./index.d.ts",
-  "exports": {
-    "import": "./index.js",
-    "require": "./commonjs/index.js"
-  },
-  "scripts": {
-    "start": "node --experimental-modules --experimental-import-meta-resolve examples/server.js",
-    "test": "mocha --experimental-modules",
-    "build": "rollup -c ./rollup.config.js",
-    "commonignore": "commonignore -c ./commonignore.config.cjs",
-    "postinstall": "npm run build",
-    "prepack": "npm run commonignore",
-    "truck": "node --experimental-modules --experimental-import-meta-resolve examples/truck.js",
-    "json": "node --experimental-modules --experimental-import-meta-resolve examples/from-json.js"
-  },
+  "description": "An open-source tool for Node.js that can make animations and generate videos.",
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ChocolateLoverRaj/canvideo.git"
@@ -37,20 +18,6 @@
     "url": "https://github.com/ChocolateLoverRaj/canvideo/issues"
   },
   "homepage": "https://github.com/ChocolateLoverRaj/canvideo#readme",
-  "dependencies": {
-    "canvas": "^2.6.1",
-    "eventemitter3": "^4.0.4",
-    "express": "^4.17.1",
-    "jsoneditor": "^9.0.3",
-    "leadingzero": "^1.1.2",
-    "papercss": "^1.7.0",
-    "rollup": "^2.24.0",
-    "tinycolor2": "^1.4.1"
-  },
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-asserttype": "^1.0.5",
-    "common-ignore": "^1.1.1",
-    "mocha": "^7.2.0"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

@@ -1,9 +1,0 @@
-# Common-Ignore
-commonignore/
-commonignore.config.cjs
-
-# Examples
-examples/
-
-# Generated
-generated/
