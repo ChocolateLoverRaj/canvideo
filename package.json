@@ -2,7 +2,9 @@
   "name": "canvideo",
   "version": "6.4.2",
   "description": "An open-source tool for Node.js that can make animations and generate videos.",
-  "scripts": {},
+  "scripts": {
+    "prepublishOnly": "tsc"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ChocolateLoverRaj/canvideo.git"
@@ -19,5 +21,8 @@
   },
   "homepage": "https://github.com/ChocolateLoverRaj/canvideo#readme",
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "ts-standard": "^10.0.0",
+    "typescript": "^4.1.3"
+  }
 }
