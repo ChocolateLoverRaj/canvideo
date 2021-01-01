@@ -3,7 +3,10 @@
   "version": "6.4.2",
   "description": "An open-source tool for Node.js that can make animations and generate videos.",
   "scripts": {
-    "prepublishOnly": "tsc"
+    "build:icon": "convert-svg-to-png --width 512 --height 512  icons/icon.svg --filename icons/icon.png",
+    "build:ts": "tsc",
+    "build": "npm run build:icon && npm run build:ts",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.6",
+    "convert-svg-to-png": "^0.5.0",
     "ts-standard": "^10.0.0",
     "typescript": "^4.1.3"
   }
