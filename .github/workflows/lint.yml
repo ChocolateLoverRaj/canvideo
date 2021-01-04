@@ -1,0 +1,21 @@
+name: Lint
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folder: ['package', 'server']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: 
+      - run: npm i
+        working-directory: ${{ matrix.folder }}
+      - run: npm run lint
+        working-directory: ${{ matrix.folder }}
