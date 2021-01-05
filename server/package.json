@@ -13,7 +13,8 @@
     "dependencies": {
         "canvideo": "file:canvideo-7.0.0-0.tgz",
         "express": "^4.17.1",
-        "jsonfile": "^6.1.0"
+        "jsonfile": "^6.1.0",
+        "jsonschema": "^1.4.0"
     },
     "ts-standard": {
         "ignore": [
