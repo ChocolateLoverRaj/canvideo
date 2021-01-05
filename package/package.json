@@ -1,11 +1,11 @@
 {
   "name": "canvideo",
-  "version": "6.4.2",
+  "version": "7.0.0-0",
   "description": "An open-source tool for Node.js that can make animations and generate videos.",
   "scripts": {
     "lint": "ts-standard",
     "build:icon": "convert-svg-to-png --width 512 --height 512  icons/icon.svg --filename icons/icon.png",
-    "build:schema": "typescript-json-schema lib/operations.ts Operations > lib/operations.schema.json",
+    "build:schema": "typescript-json-schema lib/operations.ts Operations > dist/operations.schema.json",
     "build:ts": "tsc",
     "build": "npm run build:icon && npm run build:schema && npm run build:ts",
     "prepublishOnly": "npm run build"
