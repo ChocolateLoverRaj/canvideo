@@ -63,7 +63,8 @@ api.post('/', json(), validate(postSchema), async (req, res) => {
         width: req.body.width,
         height: req.body.height,
         outputFile: join(outputDir, `${videoId}.mp4`),
-        tempDir: tempDir
+        tempDir: tempDir,
+        prefix: videoId
     }))
 })
 
