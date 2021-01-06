@@ -13,15 +13,10 @@ export interface Options {
     height: number
     outputFile: string
     tempDir?: string
-    prefix?: string
+    prefix?: string | number
 }
 
 export default async (frames: Array<Array<Operations>>, options: Options) => {
-    const getFrameFileName = (tempDir: string, frameNumber: number) => join(
-        tempDir,
-        `canvideo-${options.prefix ? `${options.prefix}-` : ''}frame-${frameNumber}.png`
-    )
-
     let tempDir: string
     if (options.tempDir) {
         await emptyDir(options.tempDir)
@@ -29,6 +24,13 @@ export default async (frames: Array<Array<Operations>>, options: Options) => {
     } else {
         tempDir = await fs.mkdtemp('canvideo')
     }
+
+    const getPrefix = () => join(
+        tempDir,
+        `canvideo-${options.prefix !== undefined ? `${options.prefix}-` : ''}frame-`
+    )
+    const getFrameFileName = (frameNumber: number) => `${getPrefix()}${frameNumber}.png`
+
     await Promise.all(frames.map(async (frame, index) => {
         const canvas = createCanvas(options.width, options.height)
         const ctx = canvas.getContext('2d')
@@ -39,14 +41,14 @@ export default async (frames: Array<Array<Operations>>, options: Options) => {
                 ctx.fillStyle = operation[1][0]
             }
         }
-        const outputPath = getFrameFileName(tempDir, index)
+        const outputPath = getFrameFileName(index)
         await once(
             canvas.createPNGStream()
                 .pipe(createWriteStream(outputPath)),
             'close'
         )
     }))
-    const frameInputs = join(tempDir, 'frame-%01d.png')
+    const frameInputs = `${getPrefix()}%01d.png`
     const command = `${global.ffmpegPath} -r ${options.fps} -i ${frameInputs} -an -vcodec libx264 -pix_fmt yuv420p -progress pipe:1 -y "${options.outputFile}"`
     await new Promise<void>((resolve, reject) => {
         const ffmpeg = exec(command)
@@ -62,7 +64,7 @@ export default async (frames: Array<Array<Operations>>, options: Options) => {
         })
     })
     await Promise.all(new Array<null>(frames.length).fill(null).map(async (empty, index) => (
-        fs.rm(getFrameFileName(tempDir, index))
+        fs.rm(getFrameFileName(index))
     )))
     if (!options.tempDir) {
         await fs.rmdir(tempDir)

@@ -17,7 +17,8 @@ const options: Options = {
     width: 200,
     height: 200,
     outputFile: join(__dirname, '../examples/square.mp4'),
-    tempDir: join(__dirname, '../temp')
+    tempDir: join(__dirname, '../temp'),
+    prefix: 'amazing'
 }
 generateMp4(frames, options).then(() => {
     console.log('done')
