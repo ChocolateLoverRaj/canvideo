@@ -13,11 +13,15 @@ export interface Options {
     height: number
     outputFile: string
     tempDir?: string
+    prefix?: string
 }
 
-const getFrameFileName = (tempDir: string, frameNumber: number) => join(tempDir, `frame-${frameNumber}.png`)
-
 export default async (frames: Array<Array<Operations>>, options: Options) => {
+    const getFrameFileName = (tempDir: string, frameNumber: number) => join(
+        tempDir,
+        `canvideo-${options.prefix ? `${options.prefix}-` : ''}frame-${frameNumber}.png`
+    )
+
     let tempDir: string
     if (options.tempDir) {
         await emptyDir(options.tempDir)
