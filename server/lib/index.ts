@@ -51,6 +51,17 @@ const ensureDirs = ensureDir(generatedDir).then(async () => await Promise.all([
   emptyDir(tempDir)
 ]))
 
+// Set Access-Control headers for all requests
+server.use(async (req, res, next) => {
+  // This will allow requests from cross-origin
+  if (req.headers.referer) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.referer.slice(0, -1))
+  }
+  // This will allow json requests
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  next()
+})
+
 // Get the state of a promise
 enum PromiseStates {
   PENDING = 'pending',
