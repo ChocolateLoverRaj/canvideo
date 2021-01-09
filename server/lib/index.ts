@@ -101,9 +101,6 @@ server.post('/', json(), validate(postSchema), async (req, res) => {
     outputFile: join(outputDir, `${videoId}.mp4`),
     tempDir: tempDir,
     prefix: videoId
-  }).catch(e => {
-    console.log(e, process.versions)
-    throw e
   })))
 })
 
