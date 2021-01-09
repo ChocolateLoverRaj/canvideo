@@ -2,4 +2,4 @@
 // It increases after that
 let id = 0
 
-export default () => id++
+export default (): number => id++
