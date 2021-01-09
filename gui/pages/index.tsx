@@ -1,12 +1,10 @@
+import ApiProps from '../lib/api-props'
+import api from '../lib/api'
 import { GetStaticProps } from 'next'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-interface Props {
-  api: string
-}
-
-const App = (props: Props): JSX.Element => {
+const App = (props: ApiProps): JSX.Element => {
   const [res, setRes] = useState<Promise<Response>>()
   const [id, setId] = useState<number>()
   // Handle response
@@ -68,14 +66,8 @@ const App = (props: Props): JSX.Element => {
 
 export default App
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  return {
-    props: {
-      api: process.env.NODE_ENV === 'production'
-        ? process.env.VERCEL_ENV === 'production'
-          ? 'https://canvideo.herokuapp.com'
-          : `https://canvideo-br-${process.env.VERCEL_GIT_COMMIT_REF}.herokuapp.com`
-        : 'http://localhost:2990'
-    }
+export const getStaticProps: GetStaticProps<ApiProps> = async () => ({
+  props: {
+    api: api
   }
-}
+})
