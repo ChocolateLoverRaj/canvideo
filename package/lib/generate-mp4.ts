@@ -64,7 +64,7 @@ export default async (frames: Operations[][], options: Options): Promise<void> =
     })
   })
   await Promise.all(new Array<null>(frames.length).fill(null).map(async (empty, index) => (
-    await fs.rm(getFrameFileName(index))
+    await fs.unlink(getFrameFileName(index))
   )))
   if (options.tempDir === undefined) {
     await fs.rmdir(tempDir)
