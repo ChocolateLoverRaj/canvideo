@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: ['package', 'server']
+        folder: ['package', 'server', 'gui']
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
