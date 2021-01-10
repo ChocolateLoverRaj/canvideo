@@ -1,10 +1,12 @@
 import validate from './validate'
 import newId from './id'
+import accept from './accept'
 import express, { json } from 'express'
 import { readFile } from 'jsonfile'
 import generate from 'canvideo/dist/generate-mp4'
 import { join } from 'path'
 import { ensureDir, emptyDir } from 'fs-extra'
+import { promises as fs } from 'fs'
 
 const server = express()
 
@@ -70,7 +72,8 @@ enum PromiseStates {
 }
 interface StateObj<T> {
   promise: Promise<T>
-  state: PromiseStates
+  state: PromiseStates,
+  value?: T
 }
 const getState = <T>(promise: Promise<T>): StateObj<T> => {
   const stateObj: StateObj<T> = {
@@ -78,8 +81,9 @@ const getState = <T>(promise: Promise<T>): StateObj<T> => {
     state: PromiseStates.PENDING
   }
   promise
-    .then(() => {
+    .then(v => {
       stateObj.state = PromiseStates.RESOLVED
+      stateObj.value = v
     })
     .catch(() => {
       stateObj.state = PromiseStates.REJECTED
@@ -88,31 +92,51 @@ const getState = <T>(promise: Promise<T>): StateObj<T> => {
 }
 
 // Map of videos
-const videos = new Map<number, StateObj<void>>()
+const videos = new Map<number, StateObj<number>>()
 
 server.post('/', json(), validate(postSchema), async (req, res) => {
   const videoId = newId()
   res.status(202).json({ id: videoId })
   await ensureDirs
-  videos.set(videoId, getState</* eslint-disable @typescript-eslint/no-invalid-void-type */void/* eslint-enable @typescript-eslint/no-invalid-void-type */>(generate(req.body.frames, {
+  const outputFile = join(outputDir, `${videoId}.mp4`)
+  videos.set(videoId, getState</* eslint-disable @typescript-eslint/no-invalid-void-type */number/* eslint-enable @typescript-eslint/no-invalid-void-type */>(generate(
+    req.body.frames, {
     fps: req.body.fps,
     width: req.body.width,
     height: req.body.height,
-    outputFile: join(outputDir, `${videoId}.mp4`),
+    outputFile: outputFile,
     tempDir: tempDir,
     prefix: videoId
-  })))
+  })
+    .then(() => fs.stat(outputFile))
+    .then(({ size }) => size)
+  ))
 })
 
-server.get('/:id', (req, res) => {
+server.get('/:id', (req, res, next) => {
   const video = videos.get(parseInt(req.params.id))
   if (video === undefined) {
     res.sendStatus(404)
     return
   }
-  res.json({
-    state: video.state
-  })
+  accept()
+    .mp4((req, res) => {
+      if (video.state === PromiseStates.PENDING) {
+        res.sendStatus(425)
+        return
+      }
+      if (video.state === PromiseStates.REJECTED) {
+        res.sendStatus(424)
+        return
+      }
+      res.end(video.value?.toString())
+    })
+    .json((req, res) => {
+      res.json({
+        state: video.state
+      })
+    })
+    (req, res, next)
 })
 
 const port = process.env.PORT ?? 2990
