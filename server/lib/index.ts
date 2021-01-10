@@ -1,12 +1,11 @@
 import validate from './validate'
 import newId from './id'
-import accept from './accept'
-import express, { json } from 'express'
+import express, { json, Router } from 'express'
 import { readFile } from 'jsonfile'
 import generate from 'canvideo/dist/generate-mp4'
 import { join } from 'path'
 import { ensureDir, emptyDir } from 'fs-extra'
-import { promises as fs } from 'fs'
+import { promises as fs, createReadStream } from 'fs'
 
 const server = express()
 
@@ -94,11 +93,14 @@ const getState = <T>(promise: Promise<T>): StateObj<T> => {
 // Map of videos
 const videos = new Map<number, StateObj<number>>()
 
+// Get a video path from id
+const getVideoPath = (id: string | number) => join(outputDir, `${id}.mp4`)
+
 server.post('/', json(), validate(postSchema), async (req, res) => {
   const videoId = newId()
   res.status(202).json({ id: videoId })
   await ensureDirs
-  const outputFile = join(outputDir, `${videoId}.mp4`)
+  const outputFile = getVideoPath(videoId)
   videos.set(videoId, getState</* eslint-disable @typescript-eslint/no-invalid-void-type */number/* eslint-enable @typescript-eslint/no-invalid-void-type */>(generate(
     req.body.frames, {
     fps: req.body.fps,
@@ -113,14 +115,23 @@ server.post('/', json(), validate(postSchema), async (req, res) => {
   ))
 })
 
-server.get('/:id', (req, res, next) => {
-  const video = videos.get(parseInt(req.params.id))
+// Maximum / default chunk size
+const chunkSize =
+  // Byte
+  256 *
+  // Kilobyte
+  1024 *
+  // About half a megabyte
+  512
+server.use('/:id', (req, res, next) => {
+  const id = req.params.id
+  const video = videos.get(parseInt(id))
   if (video === undefined) {
     res.sendStatus(404)
     return
   }
-  accept()
-    .mp4((req, res) => {
+  Router()
+    .get('/output', (req, res) => {
       if (video.state === PromiseStates.PENDING) {
         res.sendStatus(425)
         return
@@ -129,9 +140,38 @@ server.get('/:id', (req, res, next) => {
         res.sendStatus(424)
         return
       }
-      res.end(video.value?.toString())
+      // The last 'end' byte
+      const lastByte = video.value as number - 1
+      let [start, end] = req.headers.range?.split('=')[1]?.split('-').map(str => parseInt(str)) ?? []
+      if (Number.isInteger(start)) {
+        if (Number.isInteger(end)) {
+          // Make sure end is after start and end doesn't go past last video byte
+          if (end <= start || start + end > lastByte) {
+            res.sendStatus(416)
+            return
+          }
+          // Limit chunk size
+          end = start + Math.min(end - start, chunkSize)
+        } else {
+          // Give chunk size
+          end = Math.min(start + chunkSize, lastByte)
+        }
+      } else {
+        // Start at zero, with chunk size
+        start = 0
+        end = Math.min(chunkSize, lastByte)
+      }
+      // Set necessary headers
+      res.setHeader('Content-Type', 'video/mp4')
+      // TODO: calculate content duration
+      // res.setHeader('Content-Duration', )
+      res.setHeader('Content-Length', (end - start) + 1)
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${video.value}`)
+      res.setHeader('Accept-Ranges', 'bytes')
+      createReadStream(getVideoPath(id), { start, end })
+        .pipe(res)
     })
-    .json((req, res) => {
+    .get('/progress', (req, res) => {
       res.json({
         state: video.state
       })

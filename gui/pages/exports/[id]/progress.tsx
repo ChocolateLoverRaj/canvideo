@@ -2,6 +2,7 @@ import ApiProps from '../../../lib/api-props'
 import api from '../../../lib/api'
 import { GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 interface Props extends ApiProps {
   id: string
@@ -20,7 +21,9 @@ const App = (props: Props): JSX.Element => {
   // Fetch
   useEffect(() => {
     if (req === undefined) {
-      setReq(fetch(`${props.api}/${props.id}`))
+      setReq(fetch(`${props.api}/${props.id}/progress`, {
+        headers: [['Accept', 'application/json']]
+      }))
     } else {
       req.then(async res => {
         const { state } = await res.json()
@@ -32,6 +35,9 @@ const App = (props: Props): JSX.Element => {
     <>
       <h1>Generating Video</h1>
       <p>State: {state}</p>
+      {state === States.RESOLVED && (
+        <Link href={`/exports/${props.id}/output`}>View video</Link>
+      )}
     </>
   )
 }
