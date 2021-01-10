@@ -24,27 +24,13 @@ const App = (props: ApiProps): JSX.Element => {
           setRes(fetch(props.api, {
             method: 'POST',
             body: JSON.stringify({
-              fps: 1,
+              fps: 24,
               width: 200,
               height: 200,
-              frames: [
-                [
-                  ['setFillStyle', ['pink']],
-                  ['fillRect', [0, 0, 100, 100]]
-                ],
-                [
-                  ['setFillStyle', ['pink']],
-                  ['fillRect', [25, 25, 100, 100]]
-                ],
-                [
-                  ['setFillStyle', ['pink']],
-                  ['fillRect', [50, 50, 100, 100]]
-                ],
-                [
-                  ['setFillStyle', ['pink']],
-                  ['fillRect', [75, 75, 100, 100]]
-                ]
-              ]
+              frames: new Array(100).fill(null).map((v, index) => [
+                ['setFillStyle', ['pink']],
+                ['fillRect', [index, index, 100, 100]]
+              ])
             }),
             headers: [
               ['Content-Type', 'application/json']
