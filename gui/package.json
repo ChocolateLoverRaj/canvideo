@@ -2,10 +2,15 @@
   "scripts": {
     "lint": "ts-standard",
     "dev": "next dev",
-    "build": "next build",
+    "build:icons": "mkdirp public && real-favicon generate faviconDescription.json temp.json public && rm temp.json",
+    "build:next": "next build",
+    "build": "npm run build:icons && npm run build:next",
     "start": "next start"
   },
   "dependencies": {
+    "canvideo": "file:canvideo-7.0.0-6.tgz",
+    "cli-real-favicon": "0.0.8",
+    "mkdirp": "^1.0.4",
     "next": "^10.0.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

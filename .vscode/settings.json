@@ -4,6 +4,8 @@
         "Promisifies",
         "VERCEL",
         "canvideo",
+        "msapplication",
+        "precomposed",
         "specificer"
     ],
     "editor.tabSize": 2
