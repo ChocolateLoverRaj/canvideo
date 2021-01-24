@@ -4,58 +4,64 @@
     "shape": {
       "oneOf": [
         {
-          "type": "object",
-          "properties": {
-            "type": {
-              "enum": [
-                "rectangle"
-              ]
-            },
-            "x": {
-              "type": "number"
-            },
-            "y": {
-              "type": "number"
-            },
-            "width": {
-              "type": "number"
-            },
-            "height": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "type",
-            "x",
-            "y",
-            "width",
-            "height"
-          ],
-          "additionalProperties": false
+          "$ref": "#/definitions/rectangle"
         },
         {
-          "type": "object",
-          "properties": {
-            "type": {
-              "enum": [
-                "coloredShape"
-              ]
-            },
-            "color": {
-              "type": "string"
-            },
-            "shape": {
-              "$ref": "#/definitions/shape"
-            }
-          },
-          "required": [
-            "type",
-            "color",
-            "shape"
-          ],
-          "additionalProperties": false
+          "$ref": "#/definitions/coloredShape"
         }
       ]
+    },
+    "rectangle": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "rectangle"
+          ]
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "additionalProperties": false
+    },
+    "coloredShape": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "coloredShape"
+          ]
+        },
+        "color": {
+          "type": "string"
+        },
+        "shape": {
+          "$ref": "#/definitions/shape"
+        }
+      },
+      "required": [
+        "type",
+        "color",
+        "shape"
+      ],
+      "additionalProperties": false
     }
   },
   "type": "object",

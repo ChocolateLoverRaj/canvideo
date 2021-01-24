@@ -1,19 +1,20 @@
 import { Operations } from './operations'
+import type { ProjectSchema, Shape, Rectangle, ColoredShape } from '../dist/project.schema'
 
-interface Shapes {
-  [shape: string]: (shape: any) => Operations[]
+type Shapes = {
+  [S in Shape[keyof Shape]]: (shape: any) => Operations[]
 }
 
 const shapeToOperations: Shapes = {
-  rectangle: ({ x, y, width, height }) => [['fillRect', [x, y, width, height]]],
-  coloredShape: ({ color, shape }) => [['setFillStyle', [color]], ...shapeToOperations[shape.type](shape)]
+  rectangle: ({ x, y, width, height }: Rectangle) => [['fillRect', [x, y, width, height]]],
+  coloredShape: ({ color, shape }: ColoredShape) => [['setFillStyle', [color]], ...shapeToOperations[shape.type](shape)]
 }
 
-const projectToOperations = (project: any, fps: number): Operations[][] => {
+const projectToOperations = (project: ProjectSchema, fps: number): Operations[][] => {
   const timeline = project.timeline
   // Calculate duration
   const duration = Math.max(...timeline.map(
-    ({ start, duration }: { start: number, duration: number }) => start + duration
+    ({ start, duration }) => start + duration
   ))
   const operations: Operations[][] = []
   const spf = 1 / fps
@@ -21,9 +22,9 @@ const projectToOperations = (project: any, fps: number): Operations[][] => {
     const time = frame * spf
     // Get shapes to render
     const shapes = timeline.filter(
-      ({ start, duration }: { start: number, duration: number }) => start <= time && start + duration > time
+      ({ start, duration }) => start <= time && start + duration > time
     )
-    operations.push(shapes.map(({ shape }: any) => shapeToOperations[shape.type](shape)).flat(1))
+    operations.push(shapes.map(({ shape }) => shapeToOperations[shape.type](shape)).flat(1))
   }
   return operations
 }
