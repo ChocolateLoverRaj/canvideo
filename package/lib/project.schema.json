@@ -30,7 +30,8 @@
             "y",
             "width",
             "height"
-          ]
+          ],
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -46,7 +47,13 @@
             "shape": {
               "$ref": "#/definitions/shape"
             }
-          }
+          },
+          "required": [
+            "type",
+            "color",
+            "shape"
+          ],
+          "additionalProperties": false
         }
       ]
     }
@@ -69,11 +76,19 @@
           "shape": {
             "$ref": "#/definitions/shape"
           }
-        }
-      }
+        },
+        "required": [
+          "start",
+          "duration",
+          "shape"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
     }
   },
   "required": [
     "timeline"
-  ]
+  ],
+  "additionalProperties": false
 }
