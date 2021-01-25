@@ -1,5 +1,6 @@
 import { Operations } from './operations'
 import global from './global'
+import renderFrame from './render-frame'
 import { createCanvas } from 'canvas'
 import { emptyDir } from 'fs-extra'
 import { createWriteStream, promises as fs } from 'fs'
@@ -31,13 +32,7 @@ export default async (frames: Operations[][], options: Options): Promise<void> =
   await Promise.all(frames.map(async (frame, index) => {
     const canvas = createCanvas(options.width, options.height)
     const ctx = canvas.getContext('2d')
-    for (const operation of frame) {
-      if (operation[0] === 'fillRect') {
-        ctx.fillRect(...operation[1])
-      } else {
-        ctx.fillStyle = operation[1][0]
-      }
-    }
+    renderFrame(ctx, frame)
     const outputPath = getFrameFileName(index)
     await once(
       canvas.createPNGStream()
