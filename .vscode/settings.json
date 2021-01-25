@@ -8,5 +8,6 @@
         "precomposed",
         "specificer"
     ],
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "typescript.tsdk": "c:\\Users\\Jui\\Documents\\GitHub\\canvideo\\package\\node_modules\\typescript\\lib"
 }
