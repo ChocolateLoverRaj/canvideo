@@ -14,7 +14,7 @@
     "build:icon": "convert-svg-to-png --width 512 --height 512  icons/icon.svg --filename icons/icon.png",
     "build:schema:json": "typescript-json-schema lib/operations.ts Operations > dist/operations.schema.json",
     "build:schema:ts": "json2ts lib/project.schema.json > dist/project.schema.d.ts",
-    "build:schema": "npm run build:schema:json",
+    "build:schema": "npm run build:schema:json && npm run build:schema:ts",
     "build:ts": "tsc",
     "build": "npm run build:icon && npm run build:schema && npm run build:ts",
     "prepublishOnly": "node build/empty-dir && npm run build"
