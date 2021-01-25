@@ -17,7 +17,7 @@
     "build:schema": "npm run build:schema:json",
     "build:ts": "tsc",
     "build": "npm run build:icon && npm run build:schema && npm run build:ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "node build/rmdir && npm run build"
   },
   "repository": {
     "type": "git",
