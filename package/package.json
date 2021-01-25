@@ -1,6 +1,6 @@
 {
   "name": "canvideo",
-  "version": "7.0.0-8",
+  "version": "7.0.0-9",
   "description": "An open-source tool for Node.js that can make animations and generate videos.",
   "main": "dist/index.js",
   "exports": {
