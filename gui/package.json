@@ -8,7 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "canvideo": "file:canvideo-7.0.0-6.tgz",
+    "canvideo": "^7.0.0-7",
     "cli-real-favicon": "0.0.8",
     "jsonfile": "^6.1.0",
     "mkdirp": "^1.0.4",
