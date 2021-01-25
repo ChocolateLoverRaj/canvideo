@@ -1,3 +1,9 @@
 const fs = require('fs')
 const path = require('path')
-fs.rmSync(path.join(__dirname, '../dist'), { recursive: true })
+try {
+  fs.rmSync(path.join(__dirname, '../dist'), { recursive: true })
+} catch (e) {
+  if (e.code !== 'ENOENT') {
+    throw e
+  }
+}
