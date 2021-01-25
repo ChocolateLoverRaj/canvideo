@@ -7,7 +7,8 @@
     ".": "./dist/index.js",
     "./generate-mp4": "./dist/generate-mp4.js",
     "./global": "./dist/global.js",
-    "./project-to-operations": "./dist/project-to-operations.js"
+    "./project-to-operations": "./dist/project-to-operations.js",
+    "./": "./"
   },
   "scripts": {
     "lint": "eslint .",
