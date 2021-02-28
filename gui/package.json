@@ -4,7 +4,8 @@
     "dev": "next dev",
     "build:icons": "mkdirp public && real-favicon generate faviconDescription.json temp.json public && rm temp.json && node build/icon",
     "build:next": "next build",
-    "build": "npm run build:icons && npm run build:next",
+    "build:vercel": "npm run build:icons && npm run build:next",
+    "build:electron": "npm run build:vercel && next export -o electron/pages",
     "start": "next start"
   },
   "dependencies": {

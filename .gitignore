@@ -4,3 +4,4 @@ Thumbs.db
 server/generated/
 gui/.next
 gui/public
+/gui/electron/pages
