@@ -1,6 +1,4 @@
 import ApiProps from '../lib/api-props'
-import api from '../lib/api'
-import { GetStaticProps } from 'next'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
@@ -9,12 +7,14 @@ const App = (props: ApiProps): JSX.Element => {
   const [id, setId] = useState<number>()
   // Handle response
   useEffect(() => {
-    if (res) {
-      res.then(async res => {
+    res
+      ?.then(async res => {
         const { id } = await res.json()
         setId(id)
       })
-    }
+      .catch(() => {
+        alert('Error creating video')
+      })
   }, [res])
   return (
     <>
@@ -43,7 +43,7 @@ const App = (props: ApiProps): JSX.Element => {
       {id !== undefined && (
         <>
           <br />
-          <Link href={`/exports/${id}/progress`}>View Progress</Link>
+          <Link href={`/export?id=${id}`}>View Progress</Link>
         </>
       )}
     </>
@@ -52,8 +52,4 @@ const App = (props: ApiProps): JSX.Element => {
 
 export default App
 
-export const getStaticProps: GetStaticProps<ApiProps> = async () => ({
-  props: {
-    api: api
-  }
-})
+export { getStaticProps } from '../lib/apiGetStaticProps'
