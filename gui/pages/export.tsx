@@ -20,7 +20,7 @@ const App: FC<ApiProps> = props => {
   // Fetch
   useEffect(() => {
     if (req === undefined && id !== undefined) {
-      setReq(fetch(`${api}/${id}/progress`, {
+      setReq(fetch(`${api}/progress?id=${id}`, {
         headers: [['Accept', 'application/json']]
       }))
     }
@@ -42,7 +42,7 @@ const App: FC<ApiProps> = props => {
             <p>State: {state}</p>
             {state === States.RESOLVED && (
               <video controls>
-                <source src={`${api}/${id}/output`} type='video/mp4' />
+                <source src={`${api}/output?id=${id}`} type='video/mp4' />
                 Your browser does not support the video tag
               </video>
             )}
