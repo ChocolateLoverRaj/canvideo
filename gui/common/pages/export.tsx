@@ -2,6 +2,7 @@ import { FC, useState, useEffect } from 'react'
 import ApiProps from '../lib/api-props'
 import router from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
 
 enum States {
   FETCHING = 'fetching',
@@ -35,6 +36,9 @@ const App: FC<ApiProps> = props => {
   }, [req, id])
   return (
     <>
+    <Head>
+      <title>Export {'\u2022'} Canvideo</title>
+    </Head>
       {id !== undefined
         ? (
           <>

@@ -1,1 +1,1 @@
-export { default, getStaticProps } from 'gui/pages/index'
+export { default } from 'gui/pages/index'

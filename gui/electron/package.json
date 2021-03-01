@@ -27,7 +27,7 @@
     "electron": "^11.3.0",
     "electron-builder": "^22.9.1",
     "eslint": "^7.21.0",
-    "gui": "file:gui-2.0.0.tgz",
+    "gui": "file:gui-2.1.0.tgz",
     "next": "^10.0.7",
     "next-transpile-modules": "^6.3.0",
     "nextron": "^6.0.4",
