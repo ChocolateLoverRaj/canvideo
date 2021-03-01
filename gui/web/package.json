@@ -2,7 +2,9 @@
   "scripts": {
     "lint": "ts-standard",
     "dev": "next dev",
-    "build": "cpy ./node_modules/gui/public ./public"
+    "build:public": "cpy ./node_modules/gui/public ./public",
+    "build:next": "next build",
+    "build": "npm run build:public && npm run build:next"
   },
   "dependencies": {
     "canvideo": "^7.0.0-7",
