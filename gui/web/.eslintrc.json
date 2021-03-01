@@ -2,10 +2,9 @@
   "extends": "standard-with-typescript",
   "root": true,
   "ignorePatterns": [
-    "next-env.d.ts",
-    "electron"
+    "next-env.d.ts"
   ],
   "parserOptions": {
-    "project": "./gui/tsconfig.json"
+    "project": "./gui/web/tsconfig.json"
   }
 }

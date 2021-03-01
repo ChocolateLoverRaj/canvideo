@@ -1,0 +1,17 @@
+{
+  "name": "gui",
+  "version": "1.0.1",
+  "main": "pages/index.tsx",
+  "scripts": {
+    "build": "mkdirp public && real-favicon generate faviconDescription.json temp.json public && rm temp.json && node build/icon"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.2",
+    "cli-real-favicon": "0.0.8",
+    "next": "^10.0.7",
+    "ts-standard": "^10.0.0"
+  },
+  "dependencies": {
+    "canvideo": "^7.0.0-10"
+  }
+}

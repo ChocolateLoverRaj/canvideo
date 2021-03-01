@@ -2,18 +2,17 @@
   "scripts": {
     "lint": "ts-standard",
     "dev": "next dev",
-    "build:icons": "mkdirp public && real-favicon generate faviconDescription.json temp.json public && rm temp.json && node build/icon",
-    "build:next": "next build",
-    "build:vercel": "npm run build:icons && npm run build:next",
-    "build:electron": "npm run build:vercel && next export -o electron/pages",
-    "start": "next start"
+    "build": "cpy ./node_modules/gui/public ./public"
   },
   "dependencies": {
     "canvideo": "^7.0.0-7",
     "cli-real-favicon": "0.0.8",
+    "cpy-cli": "^3.1.1",
+    "gui": "file:gui-1.0.1.tgz",
     "jsonfile": "^6.1.0",
     "mkdirp": "^1.0.4",
     "next": "^10.0.5",
+    "next-transpile-modules": "^6.3.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "typescript": "^4.1.3"
