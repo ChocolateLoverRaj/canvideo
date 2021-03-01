@@ -1,9 +1,9 @@
 node_modules
 dist
+.next
 Thumbs.db
 server/generated/
 /gui/web/.next
 /gui/common/public
 /gui/web/public
-/gui/electron/.next
-/gui/electron/out
+/gui/electron/app

@@ -1,0 +1,12 @@
+{
+  "extends": "standard-with-typescript",
+  "root": true,
+  "ignorePatterns": [
+    "dist",
+    "app",
+    "main"
+  ],
+  "parserOptions": {
+    "project": "./gui/electron/renderer/tsconfig.json"
+  }
+}
