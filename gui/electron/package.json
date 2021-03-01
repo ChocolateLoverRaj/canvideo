@@ -1,5 +1,8 @@
 {
   "private": true,
+  "name": "canvideo",
+  "description": "Gui for Canvideo, made using Electron.",
+  "version": "1.0.0",
   "author": {
     "name": "Rajas Paranjpe",
     "url": "https://github.com/ChocolateLoverRaj"
@@ -7,10 +10,13 @@
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
-    "build": "nextron build",
+    "build:nextron": "nextron build",
+    "build:public": "cpy ./node_modules/gui/public ./renderer/public",
+    "build:icon": "png-to-ico ./node_modules/gui/public/android-chrome-512x512.png > ./resources/icon.ico",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "cpy-cli": "^3.1.1",
     "electron-serve": "^1.1.0",
     "electron-store": "^7.0.2"
   },
@@ -25,6 +31,7 @@
     "next": "^10.0.7",
     "next-transpile-modules": "^6.3.0",
     "nextron": "^6.0.4",
+    "png-to-ico": "^2.1.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "ts-standard": "^10.0.0",

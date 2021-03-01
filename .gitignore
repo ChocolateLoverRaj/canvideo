@@ -7,3 +7,4 @@ server/generated/
 /gui/common/public
 /gui/web/public
 /gui/electron/app
+/gui/electron/renderer/public
