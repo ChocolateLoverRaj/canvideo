@@ -3,7 +3,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build:electron": "tsc --project lib",
-    "build:next": "next build && next export",
+    "build:next": "next build && next export && node build/build",
     "build": "npm run build:electron && npm run build:next",
     "start": "electron dist/index"
   },
@@ -12,9 +12,11 @@
   },
   "devDependencies": {
     "@types/react": "^17.0.2",
+    "glob": "^7.1.6",
     "gui": "file:gui-1.0.1.tgz",
     "next": "^10.0.7",
     "next-transpile-modules": "^6.3.0",
+    "posthtml": "^0.15.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "ts-standard": "^10.0.0",

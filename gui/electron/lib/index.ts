@@ -10,7 +10,7 @@ function createWindow (): void {
     }
   })
 
-  win.loadFile(join(__dirname, '../pages/index.html')).catch(undefined)
+  win.loadFile(join(__dirname, '../out/index.html')).catch(undefined)
 }
 
 app.whenReady()
