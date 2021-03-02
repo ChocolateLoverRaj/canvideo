@@ -3,6 +3,7 @@ import ApiProps from '../lib/api-props'
 import router from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
+import { MainPageProps } from '../lib/MainPageProps'
 
 enum States {
   FETCHING = 'fetching',
@@ -11,11 +12,13 @@ enum States {
   REJECTED = 'rejected'
 }
 
-const App: FC<ApiProps> = props => {
+const App: FC<MainPageProps> = props => {
+  const {mainPage} = props
+
   const [req, setReq] = useState<Promise<Response>>()
   const [state, setState] = useState<States>(States.FETCHING)
 
-  const { api } = props
+  const api = ''
   const id = router.router?.query.id?.toString()
 
   // Fetch
@@ -36,9 +39,9 @@ const App: FC<ApiProps> = props => {
   }, [req, id])
   return (
     <>
-    <Head>
-      <title>Export {'\u2022'} Canvideo</title>
-    </Head>
+      <Head>
+        <title>Export {'\u2022'} Canvideo</title>
+      </Head>
       {id !== undefined
         ? (
           <>
@@ -55,7 +58,7 @@ const App: FC<ApiProps> = props => {
         : (
           <>
             <p>No id given.</p>
-            <Link href='/'>Return to main page</Link>
+            <Link href={mainPage}>Return to main page</Link>
           </>
         )}
     </>

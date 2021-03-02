@@ -2,6 +2,6 @@
   "extends": "standard-with-typescript",
   "root": true,
   "parserOptions": {
-    "project": "./gui/common/tsconfig.json"
+    "project": "./tsconfig.json"
   }
 }
