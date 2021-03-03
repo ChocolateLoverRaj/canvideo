@@ -8,3 +8,4 @@ server/generated/
 /gui/web/public
 /gui/electron/app
 /gui/electron/renderer/public
+/logo/build/build.js

@@ -1,0 +1,49 @@
+{
+  "name": "@canvideo/logo",
+  "version": "1.0.0",
+  "author": {
+    "name": "Rajas Paranjpe",
+    "url": "https://github.com/ChocolateLoverRaj"
+  },
+  "license": "CC0 1.0 Universal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChocolateLoverRaj/canvideo.git",
+    "directory": "logo"
+  },
+  "bugs": {
+    "url": "https://github.com/ChocolateLoverRaj/canvideo/issues"
+  },
+  "homepage": "https://github.com/ChocolateLoverRaj/canvideo/tree/better/logo#readme",
+  "main": "dist/index.js",
+  "scripts": {
+    "build:babel": "babel lib --extensions .tsx --out-dir dist",
+    "build:declaration": "tsc --project lib",
+    "build:svg": "webpack -c build/webpack.config.js && node build/build",
+    "build": "npm run build:babel && npm run build:declaration && npm run build:svg",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.8",
+    "@babel/plugin-transform-modules-umd": "^7.13.0",
+    "@babel/preset-react": "^7.12.13",
+    "@babel/preset-typescript": "^7.13.0",
+    "@types/node": "^14.14.31",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1",
+    "eslint": "^7.21.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "ts-loader": "^8.0.17",
+    "ts-standard": "^10.0.0",
+    "typescript": "^4.2.2",
+    "webpack": "^5.24.2",
+    "webpack-cli": "^4.5.0"
+  },
+  "peerDependencies": {
+    "react": "*"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.13.0"
+  }
+}
