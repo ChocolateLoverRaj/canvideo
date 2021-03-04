@@ -4,7 +4,7 @@
 The official canvideo logo.
 
 ## What
-This package exports a React component with a svg logo, as well as a `logo.svg` file.
+This package exports a React component with a svg logo, as well as a `logo.png` file.
 
 ## Installing
 ```bash
