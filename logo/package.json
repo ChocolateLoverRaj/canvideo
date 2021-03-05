@@ -22,7 +22,7 @@
     "build:declaration": "tsc --project lib",
     "build:svg": "babel build/build.tsx --out-file build/build.js && node build/build",
     "build:png": "convert-svg-to-png --width 512 --height 512  dist/logo.svg",
-    "build": "npm run build:babel && npm run build:declaration && npm run build:svg",
+    "build": "npm run build:babel && npm run build:declaration && npm run build:svg && npm run build:png",
     "prepack": "npm run build"
   },
   "devDependencies": {
