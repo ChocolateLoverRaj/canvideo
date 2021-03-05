@@ -1,0 +1,5 @@
+{
+  "root": true,
+  "extends": "standard-with-typescript",
+  "ignorePatterns": "/dist"
+}

@@ -1,6 +1,6 @@
 {
   "name": "@canvideo/logo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": {
     "name": "Rajas Paranjpe",
     "url": "https://github.com/ChocolateLoverRaj"
@@ -17,15 +17,18 @@
   "homepage": "https://github.com/ChocolateLoverRaj/canvideo/tree/better/logo#readme",
   "main": "dist/index.js",
   "scripts": {
+    "lint": "eslint .",
     "build:babel": "babel lib --extensions .tsx --out-dir dist",
     "build:declaration": "tsc --project lib",
-    "build:svg": "webpack -c build/webpack.config.js && node build/build",
+    "build:svg": "babel build/build.tsx --out-file build/build.js && node build/build",
     "build:png": "convert-svg-to-png --width 512 --height 512  dist/logo.svg",
     "build": "npm run build:babel && npm run build:declaration && npm run build:svg",
     "prepack": "npm run build"
   },
   "devDependencies": {
+    "@babel/cli": "^7.13.0",
     "@babel/core": "^7.13.8",
+    "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/plugin-transform-modules-umd": "^7.13.0",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
@@ -36,16 +39,10 @@
     "eslint": "^7.21.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "ts-loader": "^8.0.17",
     "ts-standard": "^10.0.0",
-    "typescript": "^4.2.2",
-    "webpack": "^5.24.2",
-    "webpack-cli": "^4.5.0"
+    "typescript": "^4.2.2"
   },
   "peerDependencies": {
     "react": "*"
-  },
-  "dependencies": {
-    "@babel/cli": "^7.13.0"
   }
 }

@@ -5,6 +5,7 @@
     "outDir": "../dist",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "esModuleInterop": true
   }
 }
