@@ -1,5 +1,5 @@
 {
-  "masterPicture": "node_modules/canvideo/icons/icon.png",
+  "masterPicture": "node_modules/@canvideo/logo/dist/logo.png",
   "iconsPath": "/",
   "design": {
     "ios": {
