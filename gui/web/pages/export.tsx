@@ -11,3 +11,5 @@ const App: FC<ApiProps> = props => (
 )
 
 export default App
+
+export { getStaticProps } from 'gui/pages/export'

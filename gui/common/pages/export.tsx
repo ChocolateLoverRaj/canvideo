@@ -1,9 +1,9 @@
 import { FC, useState, useEffect } from 'react'
-import ApiProps from '../lib/api-props'
 import router from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
 import { MainPageProps } from '../lib/MainPageProps'
+import ApiProps from '../lib/api-props'
 
 enum States {
   FETCHING = 'fetching',
@@ -12,13 +12,14 @@ enum States {
   REJECTED = 'rejected'
 }
 
-const App: FC<MainPageProps> = props => {
-  const {mainPage} = props
+export type Props = MainPageProps & ApiProps
+
+const App: FC<Props> = props => {
+  const {mainPage, api} = props
 
   const [req, setReq] = useState<Promise<Response>>()
   const [state, setState] = useState<States>(States.FETCHING)
-
-  const api = ''
+  
   const id = router.router?.query.id?.toString()
 
   // Fetch
