@@ -1,12 +1,13 @@
-import ApiProps from 'gui/lib/api-props'
+import ExportStates from 'gui/lib/ExportStates'
 import BasePage from 'gui/pages/export'
 import { FC } from 'react'
 import mainPage from '../lib/mainPage'
 
-const Page: FC<ApiProps> = props => (
+const Page: FC = () => (
+  // TODO: Actually get progress
   <BasePage
-    {...props}
     mainPage={mainPage}
+    exportState={ExportStates.REJECTED}
   />
 )
 

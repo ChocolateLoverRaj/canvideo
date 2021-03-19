@@ -3,6 +3,7 @@
   "version": "2.2.0",
   "main": "pages/index.tsx",
   "scripts": {
+    "lint": "eslint .",
     "build": "mkdirp public && real-favicon generate faviconDescription.json temp.json public && rm temp.json && node build/icon"
   },
   "devDependencies": {
@@ -16,7 +17,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.5.0",
-    "antd": "^4.13.0"
+    "antd": "^4.13.0",
+    "never": "^1.0.3"
   },
   "peerDependencies": {
     "react": "*",

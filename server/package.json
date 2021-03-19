@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "lint": "ts-standard",
+        "lint": "eslint .",
         "build": "tsc",
         "start": "node dist/index.js"
     },

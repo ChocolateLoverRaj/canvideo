@@ -9,6 +9,7 @@
   },
   "main": "app/background.js",
   "scripts": {
+    "lint": "eslint .",
     "dev": "nextron",
     "build:nextron": "nextron build",
     "build:public": "cpy ./node_modules/gui/public ./renderer/public",

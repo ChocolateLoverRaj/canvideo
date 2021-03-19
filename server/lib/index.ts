@@ -1,11 +1,12 @@
 import validate from './validate'
 import newId from './id'
-import express, { json, Request, RequestHandler, Router } from 'express'
+import express, { json, Request, RequestHandler } from 'express'
 import { readFile } from 'jsonfile'
 import generate from 'canvideo/dist/generate-mp4'
 import { join } from 'path'
 import { ensureDir, emptyDir } from 'fs-extra'
 import { promises as fs, createReadStream } from 'fs'
+import never from 'never'
 
 const server = express()
 
@@ -55,7 +56,7 @@ const ensureDirs = ensureDir(generatedDir).then(async () => await Promise.all([
 // Set Access-Control headers for all requests
 server.use(async (req, res, next) => {
   // This will allow requests from cross-origin
-  if (req.headers.referer) {
+  if (req.headers.referer !== undefined) {
     res.setHeader('Access-Control-Allow-Origin', req.headers.referer.slice(0, -1))
   }
   // This will allow json requests
@@ -71,7 +72,7 @@ enum PromiseStates {
 }
 interface StateObj<T> {
   promise: Promise<T>
-  state: PromiseStates,
+  state: PromiseStates
   value?: T
 }
 const getState = <T>(promise: Promise<T>): StateObj<T> => {
@@ -94,7 +95,7 @@ const getState = <T>(promise: Promise<T>): StateObj<T> => {
 const videos = new Map<number, StateObj<number>>()
 
 // Get a video path from id
-const getVideoPath = (id: string | number) => join(outputDir, `${id}.mp4`)
+const getVideoPath = (id: string | number): string => join(outputDir, `${id}.mp4`)
 
 server.post('/', json(), validate(postSchema), async (req, res) => {
   const videoId = newId()
@@ -103,14 +104,14 @@ server.post('/', json(), validate(postSchema), async (req, res) => {
   const outputFile = getVideoPath(videoId)
   videos.set(videoId, getState<number>(generate(
     req.body.frames, {
-    fps: req.body.fps,
-    width: req.body.width,
-    height: req.body.height,
-    outputFile: outputFile,
-    tempDir: tempDir,
-    prefix: videoId
-  })
-    .then(() => fs.stat(outputFile))
+      fps: req.body.fps,
+      width: req.body.width,
+      height: req.body.height,
+      outputFile: outputFile,
+      tempDir: tempDir,
+      prefix: videoId
+    })
+    .then(async () => await fs.stat(outputFile))
     .then(({ size }) => size)
   ))
 })
@@ -184,7 +185,7 @@ server.get('/output', (req, res) => {
   // TODO: calculate content duration
   // res.setHeader('Content-Duration', )
   res.setHeader('Content-Length', (end - start) + 1)
-  res.setHeader('Content-Range', `bytes ${start}-${end}/${video.value}`)
+  res.setHeader('Content-Range', `bytes ${start}-${end}/${video.value ?? never('No video byte length')}`)
   res.setHeader('Accept-Ranges', 'bytes')
   createReadStream(getVideoPath(req.query.id as string), { start, end })
     .pipe(res)

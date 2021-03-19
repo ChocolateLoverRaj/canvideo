@@ -1,9 +1,8 @@
-import ApiProps from '../lib/api-props'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 
-export interface Props extends ApiProps {
+export interface Props {
   create: () => Promise<number>
 }
 
@@ -45,5 +44,3 @@ const App = (props: Props): JSX.Element => {
 }
 
 export default App
-
-export { getStaticProps } from '../lib/apiGetStaticProps'

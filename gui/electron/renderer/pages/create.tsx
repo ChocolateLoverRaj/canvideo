@@ -1,11 +1,9 @@
-import ApiProps from 'gui/lib/api-props'
 import BasePage from 'gui/pages/create'
 import { FC } from 'react'
 import { promises as fs } from 'fs'
 
-const Page: FC<ApiProps> = props => (
+const Page: FC = () => (
   <BasePage
-    {...props}
     create={async () => {
       console.log('Creating')
       console.log(await fs.stat('c:/'))
@@ -15,5 +13,3 @@ const Page: FC<ApiProps> = props => (
 )
 
 export default Page
-
-export { getStaticProps } from 'gui/pages/create'

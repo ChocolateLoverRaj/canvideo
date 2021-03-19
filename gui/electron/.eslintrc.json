@@ -4,9 +4,10 @@
   "ignorePatterns": [
     "dist",
     "app",
-    "main"
+    "main",
+    "next-env.d.ts"
   ],
   "parserOptions": {
-    "project": "./gui/electron/renderer/tsconfig.json"
+    "project": "./tsconfig.json"
   }
 }

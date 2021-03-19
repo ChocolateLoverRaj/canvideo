@@ -11,11 +11,12 @@ export interface HeaderProps {
 }
 
 const Header: FC<HeaderProps> = props => {
-  const {api: {mainPage}} = props
+  const { api: { mainPage } } = props
 
   const router = useRouter()
 
   const handleClick = useCallback<MenuClickEventHandler>(e => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     router.replace(e.key as string)
   }, [router])
 

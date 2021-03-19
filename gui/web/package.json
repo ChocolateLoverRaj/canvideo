@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "lint": "ts-standard",
+    "lint": "eslint .",
     "dev": "next dev",
     "build:public": "cpy ./node_modules/gui/public ./public",
     "build:next": "next build",
@@ -24,6 +24,8 @@
     "@types/node": "^14.14.20",
     "@types/react": "^17.0.0",
     "babel-plugin-import": "^1.13.3",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "never": "^1.0.3",
     "ts-standard": "^10.0.0"
   }
 }
