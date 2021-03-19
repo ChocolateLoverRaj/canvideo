@@ -11,8 +11,6 @@
     "cli-real-favicon": "0.0.8",
     "jsonfile": "^6.1.0",
     "next": "^10.0.7",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
     "ts-standard": "^10.0.0",
     "typescript": "^4.2.2"
   },
