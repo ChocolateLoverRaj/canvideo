@@ -1,6 +1,6 @@
 {
   "name": "gui",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "main": "pages/index.tsx",
   "scripts": {
     "build": "mkdirp public && real-favicon generate faviconDescription.json temp.json public && rm temp.json && node build/icon"
@@ -11,11 +11,17 @@
     "cli-real-favicon": "0.0.8",
     "jsonfile": "^6.1.0",
     "next": "^10.0.7",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
     "ts-standard": "^10.0.0",
     "typescript": "^4.2.2"
   },
   "dependencies": {
     "@ant-design/icons": "^4.5.0",
     "antd": "^4.13.0"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-dom": "*"
   }
 }
