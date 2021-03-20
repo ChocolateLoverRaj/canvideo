@@ -1,12 +1,11 @@
 import validate from './validate'
-import newId from './id'
 import express, { json, Request, RequestHandler } from 'express'
 import { readFile } from 'jsonfile'
-import generate from 'canvideo/dist/generate-mp4'
 import { join } from 'path'
-import { ensureDir, emptyDir } from 'fs-extra'
-import { promises as fs, createReadStream } from 'fs'
+import { createReadStream } from 'fs'
 import never from 'never'
+import Generator from 'gui'
+import { PromiseStates, StateObj } from 'gui/dist/getState'
 
 const server = express()
 
@@ -44,14 +43,8 @@ const postSchema = (async () => ({
   required: ['fps', 'width', 'height', 'frames']
 }))()
 
-// Make sure dirs are setup
-const generatedDir = join(__dirname, '../generated')
-const outputDir = join(generatedDir, 'output')
-const tempDir = join(generatedDir, 'temp')
-const ensureDirs = ensureDir(generatedDir).then(async () => await Promise.all([
-  emptyDir(outputDir),
-  emptyDir(tempDir)
-]))
+// Generator
+const generator = new Generator(join(__dirname, '../generated'))
 
 // Set Access-Control headers for all requests
 server.use(async (req, res, next) => {
@@ -64,56 +57,13 @@ server.use(async (req, res, next) => {
   next()
 })
 
-// Get the state of a promise
-enum PromiseStates {
-  PENDING = 'pending',
-  RESOLVED = 'resolved',
-  REJECTED = 'rejected'
-}
-interface StateObj<T> {
-  promise: Promise<T>
-  state: PromiseStates
-  value?: T
-}
-const getState = <T>(promise: Promise<T>): StateObj<T> => {
-  const stateObj: StateObj<T> = {
-    promise: promise,
-    state: PromiseStates.PENDING
-  }
-  promise
-    .then(v => {
-      stateObj.state = PromiseStates.RESOLVED
-      stateObj.value = v
-    })
-    .catch(() => {
-      stateObj.state = PromiseStates.REJECTED
-    })
-  return stateObj
-}
-
-// Map of videos
-const videos = new Map<number, StateObj<number>>()
-
-// Get a video path from id
-const getVideoPath = (id: string | number): string => join(outputDir, `${id}.mp4`)
-
 server.post('/', json(), validate(postSchema), async (req, res) => {
-  const videoId = newId()
+  const videoId = generator.generate(req.body.frames, {
+    fps: req.body.fps,
+    width: req.body.width,
+    height: req.body.height
+  })
   res.status(202).json({ id: videoId })
-  await ensureDirs
-  const outputFile = getVideoPath(videoId)
-  videos.set(videoId, getState<number>(generate(
-    req.body.frames, {
-      fps: req.body.fps,
-      width: req.body.width,
-      height: req.body.height,
-      outputFile: outputFile,
-      tempDir: tempDir,
-      prefix: videoId
-    })
-    .then(async () => await fs.stat(outputFile))
-    .then(({ size }) => size)
-  ))
 })
 
 // Maximum / default chunk size
@@ -128,7 +78,7 @@ const chunkSize =
 const getVideo = (req: Request): StateObj<number> | undefined => {
   const id = req.query.id
   if (typeof id !== 'string') return
-  const video = videos.get(parseInt(id))
+  const video = generator.videos.get(parseInt(id))
   return video
 }
 
@@ -187,7 +137,7 @@ server.get('/output', (req, res) => {
   res.setHeader('Content-Length', (end - start) + 1)
   res.setHeader('Content-Range', `bytes ${start}-${end}/${video.value ?? never('No video byte length')}`)
   res.setHeader('Accept-Ranges', 'bytes')
-  createReadStream(getVideoPath(req.query.id as string), { start, end })
+  createReadStream(generator.getVideoPath(req.query.id as string), { start, end })
     .pipe(res)
 })
 

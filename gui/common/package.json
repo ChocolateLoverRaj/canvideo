@@ -1,9 +1,15 @@
 {
   "name": "gui",
   "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build"
+  },
   "devDependencies": {
     "eslint": "^7.22.0",
-    "ts-standard": "^10.0.0"
+    "ts-standard": "^10.0.0",
+    "typescript": "^4.2.3"
   },
   "dependencies": {
     "canvideo": "^7.0.0-10",

@@ -29,11 +29,11 @@ class Generator {
     ]))
   }
 
-  private getVideoPath (id: string | number): string {
+  getVideoPath (id: string | number): string {
     return join(this.outputDir, `${id}.mp4`)
   }
 
-  generate(operations: Operations[][], options: Options): void {
+  generate(operations: Operations[][], options: Options): number {
     const id = this.latestId++
     const outputFile = this.getVideoPath(id)
     this.videos.set(id, getState(this.ready.then(() => generate(operations, {
@@ -44,6 +44,7 @@ class Generator {
     }))
       .then(async () => await fs.stat(outputFile))
       .then(({ size }) => size)))
+    return id
   }
 }
 

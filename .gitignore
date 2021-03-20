@@ -4,6 +4,7 @@ Thumbs.db
 /gui/server/generated/
 /gui/server/dist
 /gui/web/.next
+/gui/common/dist
 /gui/common-browser/public
 /gui/web/public
 /gui/electron/app
