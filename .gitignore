@@ -1,9 +1,10 @@
 node_modules
 .next
 Thumbs.db
-server/generated/
+/gui/server/generated/
+/gui/server/dist
 /gui/web/.next
-/gui/common/public
+/gui/common-browser/public
 /gui/web/public
 /gui/electron/app
 /gui/electron/dist
@@ -13,4 +14,3 @@ server/generated/
 /logo/dist/*.d.ts
 /logo/dist/logo.svg
 /package/dist
-/server/dist

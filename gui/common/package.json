@@ -1,27 +1,12 @@
 {
   "name": "gui",
-  "version": "2.2.0",
-  "main": "pages/index.tsx",
-  "scripts": {
-    "lint": "eslint .",
-    "build": "mkdirp public && real-favicon generate faviconDescription.json temp.json public && rm temp.json && node build/icon"
-  },
+  "version": "1.0.0",
   "devDependencies": {
-    "@canvideo/logo": "^2.0.2",
-    "@types/react": "^17.0.2",
-    "cli-real-favicon": "0.0.8",
-    "jsonfile": "^6.1.0",
-    "next": "^10.0.7",
-    "ts-standard": "^10.0.0",
-    "typescript": "^4.2.2"
+    "eslint": "^7.22.0",
+    "ts-standard": "^10.0.0"
   },
   "dependencies": {
-    "@ant-design/icons": "^4.5.0",
-    "antd": "^4.13.0",
-    "never": "^1.0.3"
-  },
-  "peerDependencies": {
-    "react": "*",
-    "react-dom": "*"
+    "canvideo": "^7.0.0-10",
+    "fs-extra": "^9.1.0"
   }
 }

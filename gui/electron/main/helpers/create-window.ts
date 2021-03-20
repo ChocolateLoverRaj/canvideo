@@ -2,6 +2,7 @@ import {
   screen,
   BrowserWindow,
   BrowserWindowConstructorOptions,
+  ipcMain,
 } from 'electron';
 import Store from 'electron-store';
 
@@ -14,7 +15,7 @@ export default (windowName: string, options: BrowserWindowConstructorOptions): B
     height: options.height,
   };
   let state = {};
-  let win;
+  let win: BrowserWindow
 
   const restore = () => store.get(key, defaultSize);
 
@@ -78,6 +79,11 @@ export default (windowName: string, options: BrowserWindowConstructorOptions): B
   win = new BrowserWindow(browserOptions);
 
   win.on('close', saveState);
+
+  let counter = 0
+  ipcMain.on('myEvent', e => {
+    e.returnValue = counter++
+  })
 
   return win;
 };
