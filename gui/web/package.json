@@ -11,7 +11,7 @@
     "canvideo": "^7.0.0-7",
     "cli-real-favicon": "0.0.8",
     "cpy-cli": "^3.1.1",
-    "gui": "file:../common",
+    "gui": "file:../common-browser",
     "jsonfile": "^6.1.0",
     "mkdirp": "^1.0.4",
     "next": "^10.0.7",

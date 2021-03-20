@@ -29,7 +29,7 @@
     "electron": "^11.3.0",
     "electron-builder": "^22.9.1",
     "eslint": "^7.21.0",
-    "gui": "file:../common",
+    "gui": "file:../common-browser",
     "next": "^10.0.7",
     "next-transpile-modules": "^6.3.0",
     "nextron": "^6.0.4",
