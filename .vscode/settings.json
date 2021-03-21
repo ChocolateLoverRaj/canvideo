@@ -6,13 +6,15 @@
         "VERCEL",
         "antd",
         "canvideo",
+        "dataavailable",
         "herokuapp",
         "msapplication",
         "nextron",
         "posthtml",
         "prebuild",
         "precomposed",
-        "specificer"
+        "specificer",
+        "webm"
     ],
     "editor.tabSize": 2,
     "typescript.tsdk": "c:\\Users\\Jui\\Documents\\GitHub\\canvideo\\package\\node_modules\\typescript\\lib",

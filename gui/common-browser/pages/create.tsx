@@ -15,7 +15,8 @@ const App = (props: Props): JSX.Element => {
   useEffect(() => {
     creating
       ?.then(setId)
-      .catch(() => {
+      .catch((e) => {
+        console.log(e)
         alert('Error creating video')
       })
   }, [creating])
