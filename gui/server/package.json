@@ -1,6 +1,7 @@
 {
     "scripts": {
         "lint": "eslint .",
+        "heroku-prebuild": "tsc --project common",
         "build": "tsc --project lib",
         "start": "node dist/index.js"
     },
