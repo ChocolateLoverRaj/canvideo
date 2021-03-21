@@ -1,10 +1,9 @@
 import ApiProps from '../lib/api-props'
-import BasePage from 'gui/pages/create'
-import { FC, useEffect, useRef, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import renderFrame from 'canvideo/dist/render-frame'
 import { Operations } from 'canvideo/lib/operations'
 import never from 'never'
-import { time } from '../lib/waitPlease'
+import { frame, time } from '../lib/waitPlease'
 
 declare const MediaRecorder: any
 
@@ -19,12 +18,12 @@ const App: FC<ApiProps> = props => {
     if (canvas !== null) {
       (async () => {
         const frames: Operations[][] = []
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 50; i++) {
           frames.push([
             ['setFillStyle', ['white']],
-            ['fillRect', [0, 0, 100, 100]],
+            ['fillRect', [0, 0, 50, 50]],
             ['setFillStyle', ['green']],
-            ['fillRect', [0, 0, 100, i]]
+            ['fillRect', [0, 0, 50, i]]
           ])
         }
 
@@ -44,12 +43,15 @@ const App: FC<ApiProps> = props => {
           setVideoUrl(URL.createObjectURL(data))
         })
 
-        for (const frame of frames) {
+        for (const frameOperations of frames) {
+          await frame()
+          recorder.resume()
           ctx.clearRect(0, 0, 100, 100)
           const timer = time(100)
-          renderFrame(ctx, frame);
+          renderFrame(ctx, frameOperations);
           (track as any).requestFrame()
           await timer
+          recorder.pause()
         }
         track.stop()
         console.log('stopped')
