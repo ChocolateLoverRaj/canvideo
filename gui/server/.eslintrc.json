@@ -3,6 +3,6 @@
   "root": true,
   "ignorePatterns": "dist",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./lib/tsconfig.json"
   }
 }

@@ -1,7 +1,7 @@
 {
     "scripts": {
         "lint": "eslint .",
-        "build": "tsc",
+        "build": "tsc --project lib",
         "start": "node dist/index.js"
     },
     "devDependencies": {
@@ -17,7 +17,7 @@
         "canvideo": "^7.0.0-8",
         "express": "^4.17.1",
         "fs-extra": "^9.0.1",
-        "gui": "file:../common",
+        "gui": "file:common",
         "jsonfile": "^6.1.0",
         "jsonschema": "^1.4.0",
         "never": "^1.0.2"
