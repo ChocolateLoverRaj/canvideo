@@ -4,15 +4,7 @@ import { FC, useEffect, useRef, useState } from 'react'
 import renderFrame from 'canvideo/dist/render-frame'
 import { Operations } from 'canvideo/lib/operations'
 import never from 'never'
-
-/* eslint-disable */
-/**
- * From https://github.com/dy/wait-please/blob/38b787a/index.js
- */
-async function time (n) {
-  return await new Promise(ok => setTimeout(ok, n))
-}
-/* eslint-enable */
+import { time } from '../lib/waitPlease'
 
 declare const MediaRecorder: any
 

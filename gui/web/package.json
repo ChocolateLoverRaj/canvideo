@@ -27,5 +27,8 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "never": "^1.0.3",
     "ts-standard": "^10.0.0"
-  }
+  },
+  "bundledDependencies": [
+    "wait-please"
+  ]
 }
