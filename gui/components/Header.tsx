@@ -4,15 +4,8 @@ import { Menu } from 'antd'
 import { MenuClickEventHandler } from 'rc-menu/lib/interface'
 import { PlusOutlined, DownloadOutlined } from '@ant-design/icons'
 import CanvideoIcon from './CanvideoIcon'
-import { MainPageProps } from './MainPageProps'
 
-export interface HeaderProps {
-  api: MainPageProps
-}
-
-const Header: FC<HeaderProps> = props => {
-  const { api: { mainPage } } = props
-
+const Header: FC = () => {
   const router = useRouter()
 
   const handleClick = useCallback<MenuClickEventHandler>(e => {
@@ -22,7 +15,7 @@ const Header: FC<HeaderProps> = props => {
 
   return (
     <Menu selectedKeys={[router.route]} mode='horizontal' onClick={handleClick}>
-      <Menu.Item key={mainPage} icon={<CanvideoIcon />}>Canvideo</Menu.Item>
+      <Menu.Item key='/' icon={<CanvideoIcon />}>Canvideo</Menu.Item>
       <Menu.Item key='/create' icon={<PlusOutlined />}>Create</Menu.Item>
       <Menu.Item key='/export' icon={<DownloadOutlined />}>Export</Menu.Item>
     </Menu>

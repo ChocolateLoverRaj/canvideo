@@ -1,4 +1,3 @@
-import ApiProps from '../lib/api-props'
 import { FC, useEffect, useState } from 'react'
 import renderFrame from 'canvideo/dist/render-frame'
 import { Operations } from 'canvideo/lib/operations'
@@ -7,7 +6,7 @@ import { frame, time } from '../lib/waitPlease'
 
 declare const MediaRecorder: any
 
-const App: FC<ApiProps> = props => {
+const App: FC = () => {
   const [videoUrl, setVideoUrl] = useState<string>()
 
   useEffect(() => {
@@ -73,5 +72,3 @@ const App: FC<ApiProps> = props => {
 }
 
 export default App
-
-export { getStaticProps } from '../lib/apiGetStaticProps'

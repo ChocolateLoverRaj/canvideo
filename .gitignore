@@ -1,15 +1,7 @@
 node_modules
 .next
 Thumbs.db
-/gui/server/generated/
-/gui/server/dist
-/gui/web/.next
-/gui/server/common/dist
-/gui/common-browser/public
-/gui/web/public
-/gui/electron/app
-/gui/electron/dist
-/gui/electron/renderer/public
+/gui/public
 /logo/build/build.js
 /logo/dist/*.js
 /logo/dist/*.d.ts
