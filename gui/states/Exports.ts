@@ -1,6 +1,6 @@
 import { Operations } from 'canvideo/lib/operations'
 
-enum ExportStates {
+export enum ExportStates {
   WAITING_FOR_ANIMATION_FRAME,
   RECORDING_FRAME,
   COMPLETE
@@ -11,17 +11,15 @@ interface BaseExport {
   recorder: any
   state: ExportStates
   fps: number
+  frames: Operations[][]
+  currentFrame: number
 }
 
-interface IncompleteExport extends BaseExport {
-  upcomingFrames: Operations[][]
-}
-
-interface WaitingExport extends IncompleteExport {
+interface WaitingExport extends BaseExport {
   state: ExportStates.WAITING_FOR_ANIMATION_FRAME
 }
 
-interface RecordingExport extends IncompleteExport {
+interface RecordingExport extends BaseExport {
   state: ExportStates.RECORDING_FRAME
   startTime: number
 }
@@ -30,6 +28,6 @@ interface CompleteExport extends BaseExport{
   state: ExportStates.COMPLETE
 }
 
-type Export = WaitingExport | RecordingExport | CompleteExport
+export type Export = WaitingExport | RecordingExport | CompleteExport
 
 export type Exports = Set<Export>
