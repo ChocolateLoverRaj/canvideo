@@ -23,5 +23,6 @@
             "mode": "auto"
         }
     ],
-    "eslint.format.enable": true
+    "eslint.format.enable": true,
+    "typescript.format.semicolons": "remove"
 }

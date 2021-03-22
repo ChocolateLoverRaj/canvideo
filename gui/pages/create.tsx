@@ -3,8 +3,7 @@ import renderFrame from 'canvideo/dist/render-frame'
 import { Operations } from 'canvideo/lib/operations'
 import never from 'never'
 import { frame, time } from '../lib/waitPlease'
-
-declare const MediaRecorder: any
+// import MediaRecorder from '../lib/MediaRecorder'
 
 const App: FC = () => {
   const [videoUrl, setVideoUrl] = useState<string>()

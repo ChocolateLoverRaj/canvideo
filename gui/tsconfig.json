@@ -17,12 +17,18 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "paths": {
+      "*": [
+        "*/*.d.ts"
+      ]
+    }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "lib/MediaRecorder.d.ts"
   ],
   "exclude": [
     "node_modules"
