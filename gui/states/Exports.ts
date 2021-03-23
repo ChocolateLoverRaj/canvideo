@@ -13,13 +13,16 @@ interface BaseExport {
   fps: number
   frames: Operations[][]
   currentFrame: number
+  width: number
+  height: number
+  track: any
 }
 
 interface WaitingExport extends BaseExport {
   state: ExportStates.WAITING_FOR_ANIMATION_FRAME
 }
 
-interface RecordingExport extends BaseExport {
+export interface RecordingExport extends BaseExport {
   state: ExportStates.RECORDING_FRAME
   startTime: number
 }

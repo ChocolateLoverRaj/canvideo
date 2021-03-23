@@ -8,13 +8,19 @@ const createExport = (frames: Operations[][], fps: number, width: number, height
   const recorder = new MediaRecorder(stream, {
     mimeType: 'video/webm'
   })
+  recorder.start()
+  recorder.pause()
+  const [track] = stream.getVideoTracks()
   return {
     canvas,
     fps,
     recorder,
     state: ExportStates.WAITING_FOR_ANIMATION_FRAME,
     frames,
-    currentFrame: 0
+    currentFrame: 0,
+    width,
+    height,
+    track
   }
 }
 
