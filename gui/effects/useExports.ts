@@ -52,12 +52,14 @@ const useExports = (): ExportsState => {
           .map(currentExport => {
             if (!isRecording(currentExport)) return currentExport
             const isComplete = currentFrame === frames.length - 1
-            if (isComplete) track.stop()
+            if (isComplete) {
+              track.stop()
+            }
             return {
               ...currentExport,
               currentFrame: currentFrame + 1,
               state: isComplete
-                ? ExportStates.COMPLETE
+                ? ExportStates.WAITING_FOR_DATA
                 : ExportStates.WAITING_FOR_ANIMATION_FRAME
             }
           }))
@@ -69,6 +71,35 @@ const useExports = (): ExportsState => {
       })
     }
   }, [exportsArr, setExports])
+
+  // On data available
+  useEffect(() => {
+    const isWaiting = ({ state }: Export): boolean => state === ExportStates.WAITING_FOR_DATA
+    const cancelEffects = exportsArr
+      .filter(isWaiting)
+      .map(({ recorder }) => {
+        const eventListener = ({ data }: any): void => {
+          const url = URL.createObjectURL(data)
+          setExports(new Set(exportsArr.map(currentExport => {
+            if (!isWaiting(currentExport)) return currentExport
+            return {
+              ...currentExport,
+              state: ExportStates.COMPLETE,
+              url
+            }
+          })))
+        }
+        recorder.addEventListener('dataavailable', eventListener)
+        return () => {
+          recorder.removeEventListener('dataavailable', eventListener)
+        }
+      })
+    return () => {
+      cancelEffects.forEach(cancelEffect => {
+        cancelEffect()
+      })
+    }
+  })
 
   return exportsState
 }

@@ -1,6 +1,6 @@
-import { Empty } from 'antd'
+import { Divider, Empty } from 'antd'
 import Link from 'next/link'
-import { FC, useContext } from 'react'
+import { FC, Fragment, useContext } from 'react'
 import ExportComponent from '../components/Export'
 import ExportsContext from '../contexts/Exports'
 
@@ -10,7 +10,13 @@ const App: FC = () => {
   return (
     <>
       {exports.size !== 0
-        ? [...exports].map((currentExport, index) => <ExportComponent key={index} export={currentExport} />)
+        ? [...exports]
+          .map((currentExport, index) => (
+            <Fragment key={index}>
+              <ExportComponent export={currentExport} />
+              {index !== exports.size - 1 && <Divider />}
+            </Fragment>
+          ))
         : <Empty description={<>No exports. Click <Link href='/create'>here</Link> to export a video.</>} />}
     </>
   )
