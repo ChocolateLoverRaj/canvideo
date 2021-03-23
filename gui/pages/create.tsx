@@ -9,15 +9,15 @@ const App: FC = () => {
 
   const handleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
     const frames: Operations[][] = []
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 300; i++) {
       frames.push([
         ['setFillStyle', ['white']],
-        ['fillRect', [0, 0, 500, 500]],
+        ['fillRect', [0, 0, 300, 300]],
         ['setFillStyle', ['green']],
         ['fillRect', [0, 0, i, i]]
       ])
     }
-    setExports(new Set([...exports, createExport(frames, 30, 500, 500)]))
+    setExports(new Set([...exports, createExport(frames, 30, 300, 300)]))
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     message.info('Started creating video')
   }, [exports, setExports])
