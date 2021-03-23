@@ -20,7 +20,7 @@
     "strictNullChecks": true,
     "paths": {
       "*": [
-        "*/*.d.ts"
+        "types/*.d.ts"
       ]
     },
     "downlevelIteration": true
