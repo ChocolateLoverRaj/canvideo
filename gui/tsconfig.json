@@ -23,6 +23,7 @@
         "./types/*.d.ts"
       ]
     },
+    "baseUrl": "./",
     "downlevelIteration": true
   },
   "include": [
