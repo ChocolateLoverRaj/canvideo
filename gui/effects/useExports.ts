@@ -64,7 +64,7 @@ const useExports = (): ExportsState => {
             }
           }))
         )
-      }, Date.now() - (startTime + spf(fps))))
+      }, (startTime + spf(fps) * 1000) - Date.now()))
     return () => {
       handles.forEach(handle => {
         clearTimeout(handle)
