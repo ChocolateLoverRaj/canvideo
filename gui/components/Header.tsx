@@ -2,7 +2,7 @@ import { FC, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { Menu } from 'antd'
 import { MenuClickEventHandler } from 'rc-menu/lib/interface'
-import { PlusOutlined, DownloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, DownloadOutlined, SettingOutlined } from '@ant-design/icons'
 import CanvideoIcon from './CanvideoIcon'
 
 const Header: FC = () => {
@@ -18,6 +18,7 @@ const Header: FC = () => {
       <Menu.Item key='/' icon={<CanvideoIcon />}>Canvideo</Menu.Item>
       <Menu.Item key='/create' icon={<PlusOutlined />}>Create</Menu.Item>
       <Menu.Item key='/export' icon={<DownloadOutlined />}>Export</Menu.Item>
+      <Menu.Item key='/settings' icon={<SettingOutlined />}>Settings</Menu.Item>
     </Menu>
   )
 }

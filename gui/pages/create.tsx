@@ -1,11 +1,11 @@
 import { Button, message } from 'antd'
 import { Operations } from 'canvideo/lib/operations'
 import { FC, MouseEventHandler, useCallback, useContext } from 'react'
-import ExportsContext from '../contexts/Exports'
+import GlobalContext from '../contexts/Global'
 import createExport from '../lib/createExport'
 
 const App: FC = () => {
-  const [exports, setExports] = useContext(ExportsContext)
+  const { exports: [exports, setExports] } = useContext(GlobalContext)
 
   const handleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
     const frames: Operations[][] = []

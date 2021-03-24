@@ -2,10 +2,10 @@ import { Divider, Empty } from 'antd'
 import Link from 'next/link'
 import { FC, Fragment, useContext } from 'react'
 import ExportComponent from '../components/Export'
-import ExportsContext from '../contexts/Exports'
+import GlobalContext from '../contexts/Global'
 
 const App: FC = () => {
-  const [exports] = useContext(ExportsContext)
+  const { exports: [exports] } = useContext(GlobalContext)
 
   return (
     <>

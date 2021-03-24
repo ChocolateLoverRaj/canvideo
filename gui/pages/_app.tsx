@@ -3,16 +3,16 @@ import 'antd/dist/antd.css'
 import { FC } from 'react'
 import Header from '../components/Header'
 import Head from 'next/head'
-import useExports from '../effects/useExports'
-import ExportsContext from '../contexts/Exports'
+import GlobalContext from '../contexts/Global'
+import useGlobal from '../effects/useGlobal'
 
 const App: FC<AppProps> = props => {
   const { Component, pageProps } = props
 
-  const exportsState = useExports()
+  const globalContextValue = useGlobal()
 
   return (
-    <ExportsContext.Provider value={exportsState}>
+    <GlobalContext.Provider value={globalContextValue}>
       <Head>
         <link rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png' />
         <link rel='icon' type='image/png' sizes='32x32' href='/favicon-32x32.png' />
@@ -24,7 +24,7 @@ const App: FC<AppProps> = props => {
       </Head>
       <Header />
       <Component {...pageProps} />
-    </ExportsContext.Provider>
+    </GlobalContext.Provider>
   )
 }
 
