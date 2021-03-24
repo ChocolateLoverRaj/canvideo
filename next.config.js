@@ -1,7 +1,7 @@
 module.exports = {
   headers: async () => [
     {
-      source: '*',
+      source: '/ffmpeg',
       headers: [
         {
           key: 'Cross-Origin-Embedder-Policy',
@@ -10,6 +10,10 @@ module.exports = {
         {
           key: 'Cross-Origin-Opener-Policy',
           value: 'same-origin'
+        },
+        {
+          key: 'X-My-Header',
+          value: '3'
         }
       ]
     }
