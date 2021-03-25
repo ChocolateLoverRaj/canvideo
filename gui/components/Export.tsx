@@ -1,16 +1,16 @@
 import { Collapse, Progress } from 'antd'
 import { FC } from 'react'
 import exportStateToText from '../lib/exportStateToText'
-import { Export, ExportStates } from '../states/Exports'
+import { RecorderExportData, RecorderExportStates } from '../states/Exports'
 
 interface Props {
-  export: Export
+  export: RecorderExportData
 }
 
 const ExportComponent: FC<Props> = props => {
   const { export: { state, frames, currentFrame, width, height, url } } = props
 
-  const completedFrames = state === ExportStates.RECORDING_FRAME
+  const completedFrames = state === RecorderExportStates.RECORDING_FRAME
     ? currentFrame - 1
     : currentFrame
   const totalFrames = frames.length
@@ -26,7 +26,7 @@ const ExportComponent: FC<Props> = props => {
       <Collapse ghost>
         <Collapse.Panel
           key='video'
-          collapsible={state === ExportStates.COMPLETE ? 'header' : 'disabled'}
+          collapsible={state === RecorderExportStates.COMPLETE ? 'header' : 'disabled'}
           header='View video'
         >
           <video controls width={width} height={height}>

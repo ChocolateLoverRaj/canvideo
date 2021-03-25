@@ -1,8 +1,8 @@
 import { Operations } from 'canvideo/lib/operations'
-import { Export, ExportStates } from '../states/Exports'
+import { ExportTypes, RecorderExport, RecorderExportStates } from '../states/Exports'
 import createCanvas from './createCanvas'
 
-const createExport = (frames: Operations[][], fps: number, width: number, height: number): Export => {
+const createExport = (frames: Operations[][], fps: number, width: number, height: number): RecorderExport => {
   const canvas = createCanvas(width, height)
   const stream = (canvas as any).captureStream(0)
   const recorder = new MediaRecorder(stream, {
@@ -12,15 +12,18 @@ const createExport = (frames: Operations[][], fps: number, width: number, height
   recorder.pause()
   const [track] = stream.getVideoTracks()
   return {
-    canvas,
-    fps,
-    recorder,
-    state: ExportStates.WAITING_FOR_ANIMATION_FRAME,
-    frames,
-    currentFrame: 0,
-    width,
-    height,
-    track
+    type: ExportTypes.MEDIA_RECORDER,
+    data: {
+      canvas,
+      fps,
+      recorder,
+      state: RecorderExportStates.WAITING_FOR_ANIMATION_FRAME,
+      frames,
+      currentFrame: 0,
+      width,
+      height,
+      track
+    }
   }
 }
 

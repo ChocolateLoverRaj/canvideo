@@ -1,14 +1,14 @@
-import { ExportStates } from '../states/Exports'
+import { RecorderExportStates } from '../states/Exports'
 
-const exportStateToText = (exportState: ExportStates): string => {
+const exportStateToText = (exportState: RecorderExportStates): string => {
   switch (exportState) {
-    case ExportStates.COMPLETE:
+    case RecorderExportStates.COMPLETE:
       return 'Complete'
-    case ExportStates.RECORDING_FRAME:
+    case RecorderExportStates.RECORDING_FRAME:
       return 'Recording frame'
-    case ExportStates.WAITING_FOR_DATA:
+    case RecorderExportStates.WAITING_FOR_DATA:
       return 'Waiting for video data'
-    case ExportStates.WAITING_FOR_ANIMATION_FRAME:
+    case RecorderExportStates.WAITING_FOR_ANIMATION_FRAME:
       return 'Waiting for animation frame'
   }
 }

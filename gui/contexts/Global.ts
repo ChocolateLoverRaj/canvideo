@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { ExportsState } from '../effects/useExports'
+import { ExportsState } from '../types/ExportsState'
 
 export interface GlobalContextValue {
   exports: ExportsState

@@ -1,4 +1,5 @@
 import { Divider, Empty } from 'antd'
+import recorderDataMapFn from '../lib/recorderDataMapFn'
 import Link from 'next/link'
 import { FC, Fragment, useContext } from 'react'
 import ExportComponent from '../components/Export'
@@ -11,6 +12,7 @@ const App: FC = () => {
     <>
       {exports.size !== 0
         ? [...exports]
+          .map(recorderDataMapFn)
           .map((currentExport, index) => (
             <Fragment key={index}>
               <ExportComponent export={currentExport} />

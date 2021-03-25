@@ -1,10 +1,6 @@
 import { FC, useCallback, useState } from 'react'
 import { Radio, RadioChangeEvent } from 'antd'
-
-enum ExportTypes {
-  MEDIA_RECORDER,
-  FFMPEG
-}
+import { ExportTypes } from '../states/Exports'
 
 const App: FC = () => {
   // TODO: useLocalStorage
