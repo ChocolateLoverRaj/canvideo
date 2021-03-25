@@ -3,6 +3,8 @@ import { Radio, RadioChangeEvent } from 'antd'
 import { ExportTypes } from '../states/Exports'
 import HeadTitle from '../components/HeadTitle'
 import mainTitle from '../lib/mainTitle'
+import exportTypes from '../lib/exportTypes'
+import exportTypeToText from '../lib/exportTypeToText'
 
 const App: FC = () => {
   // TODO: useLocalStorage
@@ -18,8 +20,9 @@ const App: FC = () => {
       What method do you want to use to generate your videos by default? Coming soon.
       <br />
       <Radio.Group value={exportType} onChange={handleChange} disabled>
-        <Radio value={ExportTypes.FFMPEG}>Use in browser FFmpeg</Radio>
-        <Radio value={ExportTypes.MEDIA_RECORDER}>Use MediaRecorder</Radio>
+        {exportTypes.map(exportType => (
+          <Radio key={exportType} value={exportType}>Use {exportTypeToText(exportType)}</Radio>
+        ))}
       </Radio.Group>
     </>
   )

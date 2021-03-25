@@ -1,7 +1,8 @@
-import { Progress, Steps } from 'antd'
+import { Descriptions, Progress, Steps } from 'antd'
 import { FC, useState } from 'react'
 import exportStateToText from '../lib/exportStateToText'
-import { RecorderExportData, RecorderExportStates } from '../states/Exports'
+import exportTypeToText from '../lib/exportTypeToText'
+import { ExportTypes, RecorderExportData, RecorderExportStates } from '../states/Exports'
 import MainColor from './MainColor'
 
 interface Props {
@@ -29,6 +30,9 @@ const ExportComponent: FC<Props> = props => {
 
   return (
     <>
+      <Descriptions>
+        <Descriptions.Item label='Type'>{exportTypeToText(ExportTypes.MEDIA_RECORDER)}</Descriptions.Item>
+      </Descriptions>
       <Steps
         type='default'
         direction='vertical'
