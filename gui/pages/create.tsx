@@ -1,13 +1,13 @@
-import { Button, message } from 'antd'
+import { Dropdown, Menu, message } from 'antd'
 import { Operations } from 'canvideo/lib/operations'
-import { FC, MouseEventHandler, useCallback, useContext } from 'react'
+import { FC, useCallback, useContext } from 'react'
 import GlobalContext from '../contexts/Global'
 import createExport from '../lib/createExport'
 
 const App: FC = () => {
   const { exports: [exports, setExports] } = useContext(GlobalContext)
 
-  const handleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
+  const handleClick = useCallback(() => {
     const frames: Operations[][] = []
     for (let i = 0; i < 300; i++) {
       frames.push([
@@ -27,7 +27,17 @@ const App: FC = () => {
       Create page will be have an editor eventually.
       For now, you can create a sample video.
       <br />
-      <Button onClick={handleClick}>Create Sample Video</Button>
+      <Dropdown.Button
+        onClick={handleClick}
+        overlay={
+          <Menu>
+            <Menu.Item onClick={handleClick}>Create with MediaRecorder</Menu.Item>
+            <Menu.Item disabled>Create with in browser FFmpeg</Menu.Item>
+          </Menu>
+        }
+      >
+        Create Sample Video
+      </Dropdown.Button>
     </>
   )
 }
