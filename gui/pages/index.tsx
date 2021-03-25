@@ -1,11 +1,10 @@
-import Head from 'next/head'
 import Link from 'next/link'
+import HeadTitle from '../components/HeadTitle'
+import mainTitle from '../lib/mainTitle'
 
 const App = (): JSX.Element => (
   <>
-    <Head>
-      <title>Canvideo</title>
-    </Head>
+    <HeadTitle paths={[mainTitle]} />
     <h1>Canvideo GUI</h1>
     <Link href='/create'>Create a video</Link>
   </>

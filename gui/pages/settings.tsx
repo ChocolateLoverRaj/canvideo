@@ -1,6 +1,8 @@
 import { FC, useCallback, useState } from 'react'
 import { Radio, RadioChangeEvent } from 'antd'
 import { ExportTypes } from '../states/Exports'
+import HeadTitle from '../components/HeadTitle'
+import mainTitle from '../lib/mainTitle'
 
 const App: FC = () => {
   // TODO: useLocalStorage
@@ -12,6 +14,7 @@ const App: FC = () => {
 
   return (
     <>
+      <HeadTitle paths={[mainTitle, 'Settings']} />
       What method do you want to use to generate your videos by default? Coming soon.
       <br />
       <Radio.Group value={exportType} onChange={handleChange} disabled>

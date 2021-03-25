@@ -1,8 +1,10 @@
 import { Dropdown, Menu, message } from 'antd'
 import { Operations } from 'canvideo/lib/operations'
 import { FC, useCallback, useContext } from 'react'
+import HeadTitle from '../components/HeadTitle'
 import GlobalContext from '../contexts/Global'
 import createExport from '../lib/createExport'
+import mainTitle from '../lib/mainTitle'
 
 const App: FC = () => {
   const { exports: [exports, setExports] } = useContext(GlobalContext)
@@ -24,6 +26,7 @@ const App: FC = () => {
 
   return (
     <>
+      <HeadTitle paths={[mainTitle, 'Create']} />
       Create page will be have an editor eventually.
       For now, you can create a sample video.
       <br />
