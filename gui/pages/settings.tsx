@@ -16,7 +16,7 @@ const App: FC = () => {
 
   return (
     <>
-      How do you want to generate your videos?
+      What method do you want to use to generate your videos by default?
       <br />
       <Radio.Group value={exportType} onChange={handleChange}>
         <Radio value={ExportTypes.FFMPEG}>Use in browser FFmpeg</Radio>
