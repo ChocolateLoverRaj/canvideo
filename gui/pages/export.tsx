@@ -10,13 +10,15 @@ const App: FC = () => {
 
   return (
     <>
+      <h1>Exports</h1>
+      <p>Below is the list of videos that are exported.</p>
       {exports.size !== 0
         ? [...exports]
           .map(recorderDataMapFn)
           .map((currentExport, index) => (
             <Fragment key={index}>
+              <Divider />
               <ExportComponent export={currentExport} />
-              {index !== exports.size - 1 && <Divider />}
             </Fragment>
           ))
         : <Empty description={<>No exports. Click <Link href='/create'>here</Link> to export a video.</>} />}
