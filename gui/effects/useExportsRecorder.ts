@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { ExportTypes, RecorderExportData, RecorderExportStates, RecorderExport, RecorderRecordingExport } from '../states/Exports'
 import { ExportsState } from '../types/ExportsState'
 import spf from '../lib/spf'
-import recorderDataMapFn from 'lib/recorderDataMapFn'
+import recorderDataMapFn from '../lib/recorderDataMapFn'
 
 const exportMapFn = (data: RecorderExportData): RecorderExport => ({ type: ExportTypes.MEDIA_RECORDER, data })
 

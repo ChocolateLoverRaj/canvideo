@@ -18,19 +18,13 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "strictNullChecks": true,
-    "paths": {
-      "*": [
-        "./types/*.d.ts"
-      ]
-    },
-    "baseUrl": "./",
     "downlevelIteration": true
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "lib/MediaRecorder.d.ts"
+    "less.d.ts"
   ],
   "exclude": [
     "node_modules"
