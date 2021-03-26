@@ -1,15 +1,15 @@
 import { Descriptions, Progress, Steps } from 'antd'
 import { FC, useState } from 'react'
-import exportStateToText from '../lib/exportStateToText'
-import exportTypeToText from '../lib/exportTypeToText'
-import { ExportTypes, RecorderExportData, RecorderExportStates } from '../states/Exports'
-import MainColor from './MainColor'
+import exportStateToText from '../../lib/exportStateToText'
+import exportTypeToText from '../../lib/exportTypeToText'
+import { ExportTypes, RecorderExportData, RecorderExportStates } from '../../states/Exports'
+import MainColor from '../MainColor'
 
 interface Props {
   export: RecorderExportData
 }
 
-const ExportComponent: FC<Props> = props => {
+const RecorderExportComponent: FC<Props> = props => {
   const { export: { state, frames, currentFrame, width, height, url } } = props
 
   const [shownStep, setShownStep] = useState(0)
@@ -71,4 +71,4 @@ const ExportComponent: FC<Props> = props => {
   )
 }
 
-export default ExportComponent
+export default RecorderExportComponent

@@ -74,7 +74,7 @@ interface FfmpegGeneratingExport extends FfmpegBaseExport {
   promise: Promise<Uint8Array>
 }
 
-type FfmpegExportData = FfmpegLoadingExport | FfmpegCreatingExport | FfmpegGeneratingExport
+export type FfmpegExportData = FfmpegLoadingExport | FfmpegCreatingExport | FfmpegGeneratingExport
 
 export enum ExportTypes {
   MEDIA_RECORDER,

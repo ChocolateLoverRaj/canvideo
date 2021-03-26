@@ -1,8 +1,7 @@
 import { Divider, Empty } from 'antd'
-import recorderDataMapFn from '../lib/recorderDataMapFn'
 import Link from 'next/link'
 import { FC, Fragment, useContext } from 'react'
-import ExportComponent from '../components/Export'
+import ExportComponent from '../components/export'
 import GlobalContext from '../contexts/Global'
 import HeadTitle from '../components/HeadTitle'
 import mainTitle from '../lib/mainTitle'
@@ -17,7 +16,6 @@ const App: FC = () => {
       <p>Below is the list of videos that are exported.</p>
       {exports.size !== 0
         ? [...exports]
-          .map(recorderDataMapFn)
           .map((currentExport, index) => (
             <Fragment key={index}>
               <Divider />

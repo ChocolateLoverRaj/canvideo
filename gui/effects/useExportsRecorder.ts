@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { ExportTypes, RecorderExportData, RecorderExportStates, RecorderExport, RecorderRecordingExport } from '../states/Exports'
 import { ExportsState } from '../types/ExportsState'
 import spf from '../lib/spf'
-import recorderDataMapFn from '../lib/recorderDataMapFn'
+import dataMapFn from '../lib/dataMapFn'
 
 const exportMapFn = (data: RecorderExportData): RecorderExport => ({ type: ExportTypes.MEDIA_RECORDER, data })
 
@@ -15,7 +15,7 @@ const useExportsRecorder = (exportsState: ExportsState): void => {
   const exportsArr = useMemo(
     () => [...exports]
       .filter(({ type }) => type === ExportTypes.MEDIA_RECORDER)
-      .map(recorderDataMapFn),
+      .map(dataMapFn),
     [exports]
   )
 
