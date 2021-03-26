@@ -1,5 +1,6 @@
 import { Operations } from 'canvideo/lib/operations'
 import { ExportTypes, Export } from '../../states/Exports'
+import createExportFfmpeg from './Ffmpeg'
 import createExportMediaRecorder from './MediaRecorder'
 
 const createExport = (
@@ -13,7 +14,7 @@ const createExport = (
     case ExportTypes.MEDIA_RECORDER:
       return createExportMediaRecorder(frames, fps, width, height)
     case ExportTypes.FFMPEG:
-      throw new Error('FFmpeg not supported yet')
+      return createExportFfmpeg(frames, fps, width, height)
   }
 }
 

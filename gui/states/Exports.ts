@@ -1,3 +1,4 @@
+import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { Operations } from 'canvideo/lib/operations'
 
 export enum RecorderExportStates {
@@ -40,6 +41,41 @@ interface RecorderCompleteExport extends RecorderBaseExport{
 
 export type RecorderExportData = RecorderWaitingExport | RecorderRecordingExport | RecorderWaitingDataExport | RecorderCompleteExport
 
+export enum FfmpegExportStates {
+  LOADING_FFMPEG,
+  CREATING_PNG,
+  GENERATING_VIDEO
+}
+
+interface FfmpegBaseExport {
+  state: FfmpegExportStates
+  id: number
+  frames: Operations[][]
+  fps: number
+  width: number
+  height: number
+  completedFrames: number
+  ffmpeg: FFmpeg
+}
+
+interface FfmpegLoadingExport extends FfmpegBaseExport {
+  state: FfmpegExportStates.LOADING_FFMPEG
+  promise: Promise<unknown>
+}
+
+interface FfmpegCreatingExport extends FfmpegBaseExport {
+  state: FfmpegExportStates.CREATING_PNG
+  canvas: HTMLCanvasElement
+  promise: Promise<Uint8Array>
+}
+
+interface FfmpegGeneratingExport extends FfmpegBaseExport {
+  state: FfmpegExportStates.GENERATING_VIDEO
+  promise: Promise<Uint8Array>
+}
+
+type FfmpegExportData = FfmpegLoadingExport | FfmpegCreatingExport | FfmpegGeneratingExport
+
 export enum ExportTypes {
   MEDIA_RECORDER,
   FFMPEG
@@ -55,6 +91,11 @@ export interface RecorderExport extends BaseExport {
   data: RecorderExportData
 }
 
-export type Export = RecorderExport
+export interface FfmpegExport extends BaseExport {
+  type: ExportTypes.FFMPEG
+  data: FfmpegExportData
+}
+
+export type Export = RecorderExport | FfmpegExport
 
 export type Exports = Set<Export>
