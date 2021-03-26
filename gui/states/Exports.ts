@@ -55,6 +55,6 @@ export interface RecorderExport extends BaseExport {
   data: RecorderExportData
 }
 
-type Export = RecorderExport
+export type Export = RecorderExport
 
 export type Exports = Set<Export>
