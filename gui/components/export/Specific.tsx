@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import { ExportTypes } from '../../states/Exports'
 import { ExportCommonProps } from './Common'
+import ExportFfmpeg from './Ffmpeg'
 import RecorderExportComponent from './Recorder'
 
 const ExportSpecific: FC<ExportCommonProps> = props => {
@@ -9,7 +10,7 @@ const ExportSpecific: FC<ExportCommonProps> = props => {
     case ExportTypes.MEDIA_RECORDER:
       return <RecorderExportComponent export={exportObj.data} />
     case ExportTypes.FFMPEG:
-      throw new Error('Ffmpeg not supported')
+      return <ExportFfmpeg data={exportObj.data} />
   }
 }
 
