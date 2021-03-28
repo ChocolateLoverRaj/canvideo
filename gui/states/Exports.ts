@@ -47,7 +47,8 @@ export enum FfmpegExportStates {
   GENERATING_VIDEO
 }
 
-interface FfmpegBaseExport {
+export interface FfmpegExportData {
+  // Always need these properties
   state: FfmpegExportStates
   id: number
   frames: Operations[][]
@@ -56,25 +57,17 @@ interface FfmpegBaseExport {
   height: number
   completedFrames: number
   ffmpeg: FFmpeg
-}
 
-interface FfmpegLoadingExport extends FfmpegBaseExport {
-  state: FfmpegExportStates.LOADING_FFMPEG
-  promise: Promise<unknown>
-}
+  // For LOADING_FFMPEG
+  loadPromise?: Promise<unknown>
 
-interface FfmpegCreatingExport extends FfmpegBaseExport {
-  state: FfmpegExportStates.CREATING_PNG
-  canvas: HTMLCanvasElement
-  promise: Promise<Uint8Array>
-}
+  // For CREATING_PNG
+  canvas?: HTMLCanvasElement
+  renderPromise?: Promise<Uint8Array>
 
-interface FfmpegGeneratingExport extends FfmpegBaseExport {
-  state: FfmpegExportStates.GENERATING_VIDEO
-  promise: Promise<Uint8Array>
+  // For GENERATING_VIDEO
+  generatePromise?: Promise<Uint8Array>
 }
-
-export type FfmpegExportData = FfmpegLoadingExport | FfmpegCreatingExport | FfmpegGeneratingExport
 
 export enum ExportTypes {
   MEDIA_RECORDER,

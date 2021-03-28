@@ -29,7 +29,7 @@ const App: FC = () => {
 
   const createDefault = useCallback(() => {
     // TODO: Use localStorage for default setting
-    createSample(ExportTypes.MEDIA_RECORDER)
+    createSample(ExportTypes.FFMPEG)
   }, [createSample])
 
   return (

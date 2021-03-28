@@ -1,4 +1,4 @@
-import { Result, Spin, Steps } from 'antd'
+import { Progress, Result, Spin, Steps } from 'antd'
 import { FC, useState } from 'react'
 import { FfmpegExportData, FfmpegExportStates } from '../../states/Exports'
 import MainColor from '../MainColor'
@@ -8,7 +8,7 @@ interface Props {
 }
 
 const ExportFfmpeg: FC<Props> = props => {
-  const { data: { state } } = props
+  const { data: { state, frames, completedFrames } } = props
 
   const [shownStep, setShownStep] = useState(0)
 
@@ -17,6 +17,11 @@ const ExportFfmpeg: FC<Props> = props => {
     : state === FfmpegExportStates.CREATING_PNG
       ? 1
       : 2
+
+  const success = completedFrames / frames.length * 100
+  const percent = state === FfmpegExportStates.CREATING_PNG
+    ? (completedFrames + 1) / frames.length * 100
+    : success
 
   return (
     <>
@@ -44,7 +49,13 @@ const ExportFfmpeg: FC<Props> = props => {
       </Steps>
       {shownStep === 0 && (currentStep === 0
         ? <Spin size='large' tip='Loading FFmpeg' />
-        : <Result />
+        : <Result status='success' title='Loaded FFmpeg' />
+      )}
+      {shownStep === 1 && (
+        <>
+          <Progress percent={percent} success={{ percent: success }} />
+          Frames rendered: {completedFrames} / {frames.length}
+        </>
       )}
     </>
   )
