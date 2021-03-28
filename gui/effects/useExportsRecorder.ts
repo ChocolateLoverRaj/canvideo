@@ -15,7 +15,7 @@ const useExportsRecorder = (exportsState: ExportsState): void => {
   const exportsArr = useMemo(
     () => [...exports]
       .filter(({ type }) => type === ExportTypes.MEDIA_RECORDER)
-      .map(dataMapFn),
+      .map<RecorderExportData>(dataMapFn),
     [exports]
   )
 
