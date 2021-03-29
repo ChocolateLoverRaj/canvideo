@@ -66,7 +66,8 @@ export interface FfmpegExportData {
   renderPromise?: Promise<Uint8Array>
 
   // For GENERATING_VIDEO
-  generatePromise?: Promise<Uint8Array>
+  progress?: number
+  progressPromise?: Promise<number>
 }
 
 export enum ExportTypes {

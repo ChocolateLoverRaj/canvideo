@@ -4,6 +4,7 @@ import { ExportsState } from '../types/ExportsState'
 import dataMapFn from '../lib/dataMapFn'
 import indexMapFn, { PreservedIndex } from '../lib/indexMapFn'
 import renderFfmpegFrame from '../lib/renderFfmpegFrame'
+import getGenerateProgress from '../lib/getGenerateProgress'
 
 const useExportsFfmpeg = (exportsState: ExportsState): void => {
   const [exports, setExports] = exportsState
@@ -31,10 +32,13 @@ const useExportsFfmpeg = (exportsState: ExportsState): void => {
         const {
           loadPromise,
           renderPromise,
-          ffmpeg: { FS },
+          ffmpeg,
           completedFrames,
-          frames
+          frames,
+          progressPromise,
+          fps
         } = data
+        const { FS, run } = ffmpeg
 
         loadPromise
           ?.then(() => {
@@ -60,28 +64,57 @@ const useExportsFfmpeg = (exportsState: ExportsState): void => {
         renderPromise
           ?.then(buffer => {
             if (canceled) return
-            FS('writeFile', `${i}-${completedFrames + 1}`, buffer)
+            FS('writeFile', `${i}-${completedFrames + 1}.png`, buffer)
+            const doneRendering = completedFrames + 1 === frames.length
             setExports(new Set([
               ...exportsArr.slice(0, i),
               {
                 type: ExportTypes.FFMPEG,
                 data: {
                   ...data,
-                  ...completedFrames + 1 < frames.length
-                    ? renderFfmpegFrame(data)
-                    : {
+                  ...doneRendering
+                    ? {
                       state: FfmpegExportStates.GENERATING_VIDEO,
                       canvas: undefined,
-                      renderPromise: undefined
-                    },
+                      renderPromise: undefined,
+                      progress: 0,
+                      progressPromise: getGenerateProgress(ffmpeg)
+                    }
+                    : renderFfmpegFrame(data),
                   completedFrames: completedFrames + 1
+                }
+              },
+              ...exportsArr.slice(i + 1)
+            ]))
+            if (doneRendering) {
+              run('-r', fps.toString(), '-i', `${i}-%01d.png`, '-an', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', `${i}.mp4`).catch(() => {
+                alert('Error generating video')
+              })
+            }
+          })
+          .catch((e) => {
+            console.log(e)
+            alert('Error creating PNG blob')
+          })
+
+        progressPromise
+          ?.then(progress => {
+            if (canceled) return
+            setExports(new Set([
+              ...exportsArr.slice(0, i),
+              {
+                type: ExportTypes.FFMPEG,
+                data: {
+                  ...data,
+                  progress,
+                  progressPromise: getGenerateProgress(ffmpeg)
                 }
               },
               ...exportsArr.slice(i + 1)
             ]))
           })
           .catch(() => {
-            alert('Error creating PNG blob')
+            alert('Error getting progress')
           })
       })
 
