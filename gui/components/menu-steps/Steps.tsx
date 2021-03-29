@@ -37,6 +37,7 @@ const MenuSteps: FC<Props> = props => {
               key={i}
               status={current < i ? 'wait' : current === i ? 'process' : 'finish'}
               title={title !== undefined ? <MainColor isMainColor={shownStep === i}>{title}</MainColor> : undefined}
+              disabled={i > current}
             />
           )
         })}
