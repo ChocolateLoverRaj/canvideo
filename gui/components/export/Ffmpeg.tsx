@@ -1,7 +1,7 @@
-import { Progress, Result, Spin, Steps } from 'antd'
-import { FC, useState } from 'react'
+import { Progress, Result, Spin } from 'antd'
+import { FC } from 'react'
 import { FfmpegExportData, FfmpegExportStates } from '../../states/Exports'
-import MainColor from '../MainColor'
+import { MenuStep, MenuSteps } from '../menu-steps'
 
 interface Props {
   data: FfmpegExportData
@@ -19,8 +19,6 @@ const ExportFfmpeg: FC<Props> = props => {
       url
     }
   } = props
-
-  const [shownStep, setShownStep] = useState(0)
 
   let currentStep: number
   switch (state) {
@@ -52,50 +50,28 @@ const ExportFfmpeg: FC<Props> = props => {
   }
 
   return (
-    <>
-      <Steps
-        current={shownStep}
-        onChange={setShownStep}
-        type='navigation'
-        percent={currentPercent}
-      >
-        <Steps.Step
-          title={<MainColor isMainColor={shownStep === 0}>Load FFmpeg</MainColor>}
-          status={currentStep === 0 ? 'process' : 'finish'}
-        />
-        <Steps.Step
-          title={<MainColor isMainColor={shownStep === 1}>Create Images</MainColor>}
-          status={currentStep < 1 ? 'wait' : currentStep === 1 ? 'process' : 'finish'}
-          disabled={currentStep < 1}
-        />
-        <Steps.Step
-          title={<MainColor isMainColor={shownStep === 2}>Generate Video</MainColor>}
-          status={currentStep < 2 ? 'wait' : currentStep === 2 ? 'process' : 'finish'}
-          disabled={currentStep < 2}
-        />
-        <Steps.Step
-          title={<MainColor isMainColor={shownStep === 3}>Download Video</MainColor>}
-          status={currentStep < 3 ? 'wait' : 'process'}
-          disabled={currentStep < 3}
-        />
-      </Steps>
-      {shownStep === 0 && (currentStep === 0
-        ? <Spin size='large' tip='Loading FFmpeg' />
-        : <Result status='success' title='Loaded FFmpeg' />
-      )}
-      {shownStep === 1 && (
-        <>
-          <Progress percent={percent} success={{ percent: success }} />
+    <MenuSteps
+      current={currentStep}
+      percent={currentPercent}
+    >
+      <MenuStep title='Load FFmpeg'>
+        {currentStep === 0
+          ? <Spin size='large' tip='Loading FFmpeg' />
+          : <Result status='success' title='Loaded FFmpeg' />}
+      </MenuStep>
+      <MenuStep title='Create Images'>
+        <Progress percent={percent} success={{ percent: success }} />
           Frames rendered: {completedFrames} / {frames.length}
-        </>
-      )}
-      {shownStep === 2 && <Progress percent={generateProgress * 100} />}
-      {shownStep === 3 && (
+      </MenuStep>
+      <MenuStep title='Generate Video'>
+        <Progress percent={generateProgress * 100} />
+      </MenuStep>
+      <MenuStep title='Download Video'>
         <video width={width} height={height} controls>
           <source type='video/mp4' src={url} />
         </video>
-      )}
-    </>
+      </MenuStep>
+    </MenuSteps>
   )
 }
 
