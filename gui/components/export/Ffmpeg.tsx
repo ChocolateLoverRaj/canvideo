@@ -1,5 +1,4 @@
 import { Progress, Result, Spin, Steps } from 'antd'
-import never from 'never'
 import { FC, useState } from 'react'
 import { FfmpegExportData, FfmpegExportStates } from '../../states/Exports'
 import MainColor from '../MainColor'
@@ -9,15 +8,34 @@ interface Props {
 }
 
 const ExportFfmpeg: FC<Props> = props => {
-  const { data: { state, frames, completedFrames, progress } } = props
+  const {
+    data: {
+      state,
+      frames,
+      completedFrames,
+      generateProgress,
+      width,
+      height,
+      url
+    }
+  } = props
 
   const [shownStep, setShownStep] = useState(0)
 
-  const currentStep = state === FfmpegExportStates.LOADING_FFMPEG
-    ? 0
-    : state === FfmpegExportStates.CREATING_PNG
-      ? 1
-      : 2
+  let currentStep: number
+  switch (state) {
+    case FfmpegExportStates.LOADING_FFMPEG:
+      currentStep = 0
+      break
+    case FfmpegExportStates.CREATING_PNG:
+      currentStep = 1
+      break
+    case FfmpegExportStates.GENERATING_VIDEO:
+      currentStep = 2
+      break
+    default:
+      currentStep = 3
+  }
 
   const success = completedFrames / frames.length * 100
   const percent = state === FfmpegExportStates.CREATING_PNG
@@ -30,7 +48,7 @@ const ExportFfmpeg: FC<Props> = props => {
       currentPercent = percent
       break
     case FfmpegExportStates.GENERATING_VIDEO:
-      currentPercent = (progress ?? never('No progress')) * 100
+      currentPercent = generateProgress * 100
   }
 
   return (
@@ -71,7 +89,12 @@ const ExportFfmpeg: FC<Props> = props => {
           Frames rendered: {completedFrames} / {frames.length}
         </>
       )}
-      {shownStep === 2 && <Progress percent={(progress ?? never('No progress')) * 100} />}
+      {shownStep === 2 && <Progress percent={generateProgress * 100} />}
+      {shownStep === 3 && (
+        <video width={width} height={height} controls>
+          <source type='video/mp4' src={url} />
+        </video>
+      )}
     </>
   )
 }

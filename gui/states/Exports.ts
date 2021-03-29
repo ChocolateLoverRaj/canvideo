@@ -44,7 +44,8 @@ export type RecorderExportData = RecorderWaitingExport | RecorderRecordingExport
 export enum FfmpegExportStates {
   LOADING_FFMPEG,
   CREATING_PNG,
-  GENERATING_VIDEO
+  GENERATING_VIDEO,
+  COMPLETE
 }
 
 export interface FfmpegExportData {
@@ -57,6 +58,7 @@ export interface FfmpegExportData {
   height: number
   completedFrames: number
   ffmpeg: FFmpeg
+  generateProgress: number
 
   // For LOADING_FFMPEG
   loadPromise?: Promise<unknown>
@@ -66,8 +68,10 @@ export interface FfmpegExportData {
   renderPromise?: Promise<Uint8Array>
 
   // For GENERATING_VIDEO
-  progress?: number
   progressPromise?: Promise<number>
+
+  // For COMPLETE
+  url?: string
 }
 
 export enum ExportTypes {

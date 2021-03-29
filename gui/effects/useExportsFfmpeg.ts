@@ -77,7 +77,6 @@ const useExportsFfmpeg = (exportsState: ExportsState): void => {
                       state: FfmpegExportStates.GENERATING_VIDEO,
                       canvas: undefined,
                       renderPromise: undefined,
-                      progress: 0,
                       progressPromise: getGenerateProgress(ffmpeg)
                     }
                     : renderFfmpegFrame(data),
@@ -98,7 +97,7 @@ const useExportsFfmpeg = (exportsState: ExportsState): void => {
           })
 
         progressPromise
-          ?.then(progress => {
+          ?.then(generateProgress => {
             if (canceled) return
             setExports(new Set([
               ...exportsArr.slice(0, i),
@@ -106,8 +105,16 @@ const useExportsFfmpeg = (exportsState: ExportsState): void => {
                 type: ExportTypes.FFMPEG,
                 data: {
                   ...data,
-                  progress,
-                  progressPromise: getGenerateProgress(ffmpeg)
+                  generateProgress,
+                  ...generateProgress === 1
+                    ? {
+                      state: FfmpegExportStates.COMPLETE,
+                      url: URL.createObjectURL(new Blob([FS('readFile', `${i}.mp4`)], { type: 'video/mp4' })),
+                      progressPromise: undefined
+                    }
+                    : {
+                      progressPromise: getGenerateProgress(ffmpeg)
+                    }
                 }
               },
               ...exportsArr.slice(i + 1)

@@ -16,7 +16,8 @@ const createExportFfmpeg = (frames: Operations[][], fps: number, width: number, 
       width,
       height,
       id: Math.random(),
-      loadPromise: ffmpeg.load()
+      loadPromise: ffmpeg.load(),
+      generateProgress: 0
     }
   }
 }

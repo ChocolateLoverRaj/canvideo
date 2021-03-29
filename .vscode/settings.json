@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "Defaultify",
+        "Fmpeg",
         "Paranjpe",
         "Promisifies",
         "VERCEL",
@@ -8,12 +9,14 @@
         "canvideo",
         "dataavailable",
         "herokuapp",
+        "libx",
         "msapplication",
         "nextron",
         "posthtml",
         "prebuild",
         "precomposed",
         "specificer",
+        "vcodec",
         "webm"
     ],
     "editor.tabSize": 2,
