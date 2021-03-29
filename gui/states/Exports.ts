@@ -74,9 +74,32 @@ export interface FfmpegExportData {
   url?: string
 }
 
+export enum WebmExportStates {
+  RENDERING_FRAMES,
+  GENERATING_BLOB,
+  COMPLETE
+}
+
+export interface WebmExportData {
+  state: WebmExportStates
+  canvas: HTMLCanvasElement
+  width: number
+  height: number
+  videoWriter: any
+  frames: Operations[][]
+  completedFrames: number
+
+  // For GENERATING_BLOB
+  generatePromise?: Promise<Blob>
+
+  // For COMPLETE
+  url?: string
+}
+
 export enum ExportTypes {
   MEDIA_RECORDER,
-  FFMPEG
+  FFMPEG,
+  WEBM_WRITER
 }
 
 interface BaseExport {
@@ -94,6 +117,11 @@ export interface FfmpegExport extends BaseExport {
   data: FfmpegExportData
 }
 
-export type Export = RecorderExport | FfmpegExport
+export interface WebmExport extends BaseExport {
+  type: ExportTypes.WEBM_WRITER
+  data: WebmExportData
+}
+
+export type Export = RecorderExport | FfmpegExport | WebmExport
 
 export type Exports = Set<Export>

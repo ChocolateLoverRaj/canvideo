@@ -2,6 +2,18 @@ import { Operations } from 'canvideo/lib/operations'
 import { ExportTypes, Export } from '../../states/Exports'
 import createExportFfmpeg from './Ffmpeg'
 import createExportMediaRecorder from './MediaRecorder'
+import { CreateFn } from './types'
+import createExportWebm from './Webm'
+
+type CreateMap = {
+  [T in ExportTypes]: CreateFn
+}
+
+const createMap: CreateMap = {
+  [ExportTypes.FFMPEG]: createExportFfmpeg,
+  [ExportTypes.MEDIA_RECORDER]: createExportMediaRecorder,
+  [ExportTypes.WEBM_WRITER]: createExportWebm
+}
 
 const createExport = (
   frames: Operations[][],
@@ -9,13 +21,6 @@ const createExport = (
   width: number,
   height: number,
   type: ExportTypes
-): Export => {
-  switch (type) {
-    case ExportTypes.MEDIA_RECORDER:
-      return createExportMediaRecorder(frames, fps, width, height)
-    case ExportTypes.FFMPEG:
-      return createExportFfmpeg(frames, fps, width, height)
-  }
-}
+): Export => createMap[type](frames, fps, width, height)
 
 export default createExport

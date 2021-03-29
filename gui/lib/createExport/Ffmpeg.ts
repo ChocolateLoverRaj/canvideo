@@ -1,8 +1,8 @@
 import { createFFmpeg } from '@ffmpeg/ffmpeg'
-import { Operations } from 'canvideo/lib/operations'
-import { ExportTypes, FfmpegExport, FfmpegExportStates } from '../../states/Exports'
+import { ExportTypes, FfmpegExportStates } from '../../states/Exports'
+import { CreateFn } from './types'
 
-const createExportFfmpeg = (frames: Operations[][], fps: number, width: number, height: number): FfmpegExport => {
+const createExportFfmpeg: CreateFn = (frames, fps, width, height) => {
   const ffmpeg = createFFmpeg()
 
   return {

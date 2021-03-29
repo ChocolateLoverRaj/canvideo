@@ -1,8 +1,8 @@
-import { Operations } from 'canvideo/lib/operations'
-import { ExportTypes, RecorderExport, RecorderExportStates } from '../../states/Exports'
+import { ExportTypes, RecorderExportStates } from '../../states/Exports'
 import createCanvas from '../createCanvas'
+import { CreateFn } from './types'
 
-const createExportMediaRecorder = (frames: Operations[][], fps: number, width: number, height: number): RecorderExport => {
+const createExportMediaRecorder: CreateFn = (frames, fps, width, height) => {
   const canvas = createCanvas(width, height)
   const stream = (canvas as any).captureStream(0)
   const recorder = new MediaRecorder(stream, {

@@ -6,6 +6,8 @@ const exportTypeToText = (exportType: ExportTypes): string => {
       return 'MediaRecorder'
     case ExportTypes.FFMPEG:
       return 'in browser FFmpeg'
+    default:
+      return 'webm writer'
   }
 }
 
