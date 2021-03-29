@@ -1,8 +1,8 @@
-import { Progress, Steps } from 'antd'
-import { FC, useState } from 'react'
+import { Progress, Result, Spin } from 'antd'
+import { FC } from 'react'
 import exportStateToText from '../../lib/exportStateToText'
 import { RecorderExportData, RecorderExportStates } from '../../states/Exports'
-import MainColor from '../MainColor'
+import { MenuStep, MenuSteps } from '../menu-steps'
 
 interface Props {
   export: RecorderExportData
@@ -10,8 +10,6 @@ interface Props {
 
 const RecorderExportComponent: FC<Props> = props => {
   const { export: { state, frames, currentFrame, width, height, url } } = props
-
-  const [shownStep, setShownStep] = useState(0)
 
   const completedFrames = state === RecorderExportStates.RECORDING_FRAME
     ? currentFrame - 1
@@ -28,42 +26,26 @@ const RecorderExportComponent: FC<Props> = props => {
       : 2
 
   return (
-    <>
-      <Steps
-        type='default'
-        direction='vertical'
-        current={shownStep}
-        onChange={setShownStep}
-        percent={currentStep === 0 ? success : undefined}
-      >
-        <Steps.Step
-          title={<MainColor isMainColor={shownStep === 0}>Record frames</MainColor>}
-          status={currentStep === 0 ? 'process' : 'finish'}
-        />
-        <Steps.Step
-          title={<MainColor isMainColor={shownStep === 1}>Finish recording</MainColor>}
-          status={currentStep < 1 ? 'wait' : currentStep === 1 ? 'process' : 'finish'}
-          disabled={currentStep < 1}
-        />
-        <Steps.Step
-          title={<MainColor isMainColor={shownStep === 2}>Download</MainColor>}
-          status={currentStep < 2 ? 'wait' : 'process'}
-          disabled={currentStep < 2}
-        />
-      </Steps>
-      {shownStep === 0 && (
-        <>
+    <MenuSteps
+      current={currentStep}
+      percent={currentStep === 0 ? success : undefined}
+    >
+      <MenuStep title='Record frames'>
           State: {exportStateToText(state)}
-          <Progress percent={percent} success={{ percent: success }} />
+        <Progress percent={percent} success={{ percent: success }} />
           Frames recorded: {completedFrames} / {totalFrames}
-        </>
-      )}
-      {shownStep === 2 && (
+      </MenuStep>
+      <MenuStep title='Finish recording'>
+        {currentStep === 1
+          ? <Spin size='large' tip='Finishing recording' />
+          : <Result status='success' title='Finished recording' />}
+      </MenuStep>
+      <MenuStep title='Download'>
         <video controls width={width} height={height}>
           <source type='video/webm' src={url} />
         </video>
-      )}
-    </>
+      </MenuStep>
+    </MenuSteps>
   )
 }
 
