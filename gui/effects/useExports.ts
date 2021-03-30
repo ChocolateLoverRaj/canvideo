@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import handleExportData from '../lib/handleExportData'
+import { SetData, Cancel } from '../lib/handleExportData/types'
 import { Exports } from '../states/Exports'
 import { ExportsState } from '../types/ExportsState'
 import useExportsFfmpeg from './useExportsFfmpeg'
@@ -9,6 +11,30 @@ const useExports = (): ExportsState => {
 
   useExportsRecorder(exportsState)
   useExportsFfmpeg(exportsState)
+
+  const [exports, setExports] = exportsState
+  useEffect(() => {
+    const exportsArr = [...exports]
+    const cancelArr = exportsArr.map<undefined | Cancel>((currentExport, i) => {
+      const { type, data } = currentExport
+      const setData: SetData<any> = data => {
+        setExports(new Set([
+          ...exportsArr.slice(0, i),
+          {
+            ...currentExport,
+            data
+          },
+          ...exportsArr.slice(i + 1)
+        ]))
+      }
+      return handleExportData(data, setData, type) as undefined | Cancel
+    })
+    return () => {
+      cancelArr.forEach(cancel => {
+        cancel?.()
+      })
+    }
+  })
 
   return exportsState
 }
