@@ -9,7 +9,7 @@
   "dependencies": {
     "@canvideo/logo": "^2.0.2",
     "@ffmpeg/ffmpeg": "^0.9.7",
-    "@rehooks/local-storage": "^2.4.0",
+    "@rehooks/local-storage": "github:ChocolateLoverRaj/local-storage",
     "antd": "^4.13.0",
     "canvideo": "^7.0.0-11",
     "cli-real-favicon": "0.0.8",
@@ -29,6 +29,7 @@
     "babel-plugin-import": "^1.13.3",
     "eslint-plugin-react-hooks": "^4.2.0",
     "never": "^1.0.3",
+    "next-transpile-modules": "^6.3.0",
     "ts-standard": "^10.0.0"
   },
   "bundledDependencies": [
