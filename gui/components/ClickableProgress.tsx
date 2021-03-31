@@ -1,6 +1,7 @@
 import { FC, MouseEventHandler, useCallback, useRef } from 'react'
 import ProgressBar from '@ramonak/react-progress-bar'
 import styles from '../styles/ClickableProgress.module.css'
+import { blue } from '@ant-design/colors'
 
 interface Props {
   progress: number
@@ -22,6 +23,8 @@ const ClickableProgress: FC<Props> = props => {
       <ProgressBar
         completed={progress * 100}
         isLabelVisible={false}
+        // TODO: Contribute to @ramonak/react-progress-bar and make `bgcolor` `bgColor`.
+        bgcolor={blue.primary}
       />
     </div>
   )

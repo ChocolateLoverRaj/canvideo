@@ -7,6 +7,7 @@
     "build": "npm run build:public && npm run build:next"
   },
   "dependencies": {
+    "@ant-design/colors": "^6.0.0",
     "@canvideo/logo": "^2.0.2",
     "@chocolateloverraj/react-json-input": "^0.2.0",
     "@ffmpeg/ffmpeg": "^0.9.7",
