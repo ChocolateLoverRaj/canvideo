@@ -1,11 +1,4 @@
 .editor {
-  display: flex;
-}
-
-.video {
-  flex: 0 0 auto;
-}
- 
-.json {
-  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
