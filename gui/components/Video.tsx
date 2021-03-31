@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import {
   StepBackwardOutlined,
   PauseOutlined,
@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons'
 import LoopIcon from './LoopIcon'
 import styles from '../styles/video.module.css'
+import ClickableProgress from './ClickableProgress'
 
 interface Props {
   className?: string
@@ -18,16 +19,18 @@ interface Props {
 const Video: FC<Props> = props => {
   const { className, width, height } = props
 
+  const [progress, setProgress] = useState(0.5)
+
   return (
     <div className={className}>
       <canvas width={width} height={height} />
+      <ClickableProgress progress={progress} onChange={setProgress} />
       <div className={styles.controls}>
         <StepBackwardOutlined />
         <PauseOutlined />
         <StepForwardOutlined />
         <LoopIcon />
       </div>
-
     </div>
   )
 }
