@@ -1,60 +1,31 @@
-import { Dropdown, Menu, message } from 'antd'
-import { Operations } from 'canvideo/lib/operations'
-import { FC, useCallback, useContext } from 'react'
+import { FC, useState } from 'react'
 import HeadTitle from '../components/HeadTitle'
-import GlobalContext from '../contexts/Global'
-import createExport from '../lib/createExport'
-import exportTypes from '../lib/exportTypes'
-import exportTypeToText from '../lib/exportTypeToText'
+import Video from '../components/Video'
 import mainTitle from '../lib/mainTitle'
-import { ExportTypes } from '../states/Exports'
+import operationsSchema from 'canvideo/dist/operations.schema.json'
+import CreateSample from '../components/CreateSample'
+import JsonInput from '@chocolateloverraj/react-json-input'
+import { JSONSchema7 } from 'json-schema'
+import styles from '../styles/create.module.css'
+
+const schema: JSONSChema7 = {
+  type: 'array',
+  items: operationsSchema
+}
 
 const App: FC = () => {
-  const { exports: [exports, setExports] } = useContext(GlobalContext)
-
-  const createSample = useCallback((type: ExportTypes) => {
-    const frames: Operations[][] = []
-    for (let i = 0; i < 300; i++) {
-      frames.push([
-        ['setFillStyle', ['white']],
-        ['fillRect', [0, 0, 300, 300]],
-        ['setFillStyle', ['green']],
-        ['fillRect', [0, 0, i, i]]
-      ])
-    }
-    setExports(new Set([...exports, createExport(frames, 30, 300, 300, type)]))
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    message.info('Started creating video')
-  }, [exports, setExports])
-
-  const createDefault = useCallback(() => {
-    // TODO: Use localStorage for default setting
-    createSample(ExportTypes.WEBM_WRITER)
-  }, [createSample])
+  const [video, setVideo] = useState<any>([])
 
   return (
     <>
       <HeadTitle paths={[mainTitle, 'Create']} />
-      Create page will be have an editor eventually.
-      For now, you can create a sample video.
-      <br />
-      <Dropdown.Button
-        onClick={createDefault}
-        overlay={
-          <Menu>
-            {exportTypes.map(exportType => {
-              const handleClick = (): void => {
-                createSample(exportType)
-              }
-              return (
-                <Menu.Item key={exportType} onClick={handleClick}>Create with {exportTypeToText(exportType)}</Menu.Item>
-              )
-            })}
-          </Menu>
-        }
-      >
-        Create Sample Video
-      </Dropdown.Button>
+      <CreateSample />
+      <div className={styles.editor}>
+        <Video className={styles.video} />
+        <div className={styles.json}>
+          <JsonInput schema={schema} value={video} onChange={setVideo} />
+        </div>
+      </div>
     </>
   )
 }

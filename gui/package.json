@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@canvideo/logo": "^2.0.2",
+    "@chocolateloverraj/react-json-input": "^0.2.0",
     "@ffmpeg/ffmpeg": "^0.9.7",
     "@rehooks/local-storage": "github:ChocolateLoverRaj/local-storage",
     "antd": "^4.13.0",
@@ -16,6 +17,7 @@
     "jsonfile": "^6.1.0",
     "mkdirp": "^1.0.4",
     "next": "^10.0.7",
+    "next-transpile-modules": "^6.3.0",
     "rc-util": "^5.9.8",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -24,11 +26,13 @@
   },
   "devDependencies": {
     "@types/dom-mediacapture-record": "^1.0.7",
+    "@types/json-schema": "^7.0.7",
     "@types/node": "^14.14.20",
     "@types/react": "^17.0.0",
     "babel-plugin-import": "^1.13.3",
     "eslint-plugin-react-hooks": "^4.2.0",
     "never": "^1.0.3",
+    "sass": "^1.32.8",
     "ts-standard": "^10.0.0"
   },
   "bundledDependencies": [

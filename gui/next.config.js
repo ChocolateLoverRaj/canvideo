@@ -1,4 +1,6 @@
-module.exports = {
+const withTranspile = require('next-transpile-modules')
+
+module.exports = withTranspile(['@chocolateloverraj/react-json-input'])({
   headers: async () => [
     {
       source: '/(.*)',
@@ -14,4 +16,4 @@ module.exports = {
       ]
     }
   ]
-}
+})
