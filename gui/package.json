@@ -11,7 +11,6 @@
     "@canvideo/logo": "^2.0.2",
     "@chocolateloverraj/react-json-input": "^0.2.0",
     "@ffmpeg/ffmpeg": "^0.9.7",
-    "@ramonak/react-progress-bar": "^2.1.6",
     "@rehooks/local-storage": "github:ChocolateLoverRaj/local-storage",
     "antd": "^4.13.0",
     "canvideo": "^7.0.0-11",
