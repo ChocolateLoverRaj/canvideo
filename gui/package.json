@@ -9,7 +9,7 @@
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
     "@canvideo/logo": "^2.0.2",
-    "@chocolateloverraj/react-json-input": "^0.2.0",
+    "@chocolateloverraj/react-json-input": "^2.0.2",
     "@ffmpeg/ffmpeg": "^0.9.7",
     "@rehooks/local-storage": "github:ChocolateLoverRaj/local-storage",
     "antd": "^4.13.0",
