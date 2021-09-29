@@ -41,7 +41,7 @@
     "canvas": "^2.6.1",
     "eventemitter3": "^4.0.4",
     "express": "^4.17.1",
-    "jsoneditor": "^9.0.3",
+    "jsoneditor": "^9.5.6",
     "leadingzero": "^1.1.2",
     "papercss": "^1.7.0",
     "rollup": "^2.24.0",
