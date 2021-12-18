@@ -1,5 +1,5 @@
 import { Progress, Result, Spin } from 'antd'
-import { FC } from 'react'
+import { observer } from 'mobx-react-lite'
 import WebmWriterExport from '../../lib/createExport/WebmWriterExport'
 import { MenuStep, MenuSteps } from '../menu-steps'
 
@@ -7,29 +7,29 @@ interface Props {
   e: WebmWriterExport
 }
 
-const ExportWebm: FC<Props> = props => {
+const ExportWebm = observer<Props>(props => {
   const { e } = props
 
-  console.log(e)
+  const percent = e.renderedFrames / e.totalFrames * 100
 
   return (
-    <MenuSteps current={e.generateBlob.wasSuccessful ? 2 : 1}>
+    <MenuSteps current={e.promise.wasSuccessful ? 2 : e.renderedFrames === e.totalFrames ? 1 : 0}>
       <MenuStep title='Render Frames'>
-        <Progress percent={100} success={{ percent: 100 }} />
-        Frames rendered: {frames.length} / {frames.length}
+        <Progress {...{ percent }} success={{ percent }} />
+        Frames rendered: {e.renderedFrames} / {e.totalFrames}
       </MenuStep>
       <MenuStep title='Generate Blob'>
-        {e.generateBlob.isExecuting
+        {e.promise.isExecuting
           ? <Spin size='large' tip='Generating blob' />
           : <Result status='success' title='Generated Blob' />}
       </MenuStep>
       <MenuStep title='Download'>
         <video width={e.width} height={e.height} controls>
-          <source type='video/webm' src={e.generateBlob.result} />
+          <source type='video/webm' src={e.promise.result} />
         </video>
       </MenuStep>
     </MenuSteps>
   )
-}
+})
 
 export default ExportWebm
