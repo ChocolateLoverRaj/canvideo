@@ -1,6 +1,6 @@
 import { FC, useCallback, useState } from 'react'
 import { Radio, RadioChangeEvent } from 'antd'
-import { ExportTypes } from '../types/ExportTypes'
+import ExportTypes from '../types/ExportTypes'
 import HeadTitle from '../components/HeadTitle'
 import mainTitle from '../lib/mainTitle'
 import exportTypes from '../lib/exportTypes'
@@ -8,7 +8,7 @@ import exportTypeToText from '../lib/exportTypeToText'
 
 const App: FC = () => {
   // TODO: useLocalStorage
-  const [exportType, setExportType] = useState(ExportTypes.MEDIA_RECORDER)
+  const [exportType, setExportType] = useState(ExportTypes.WEBM_WRITER)
 
   const handleChange = useCallback(({ target: { value } }: RadioChangeEvent) => {
     setExportType(value)

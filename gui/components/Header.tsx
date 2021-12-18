@@ -1,16 +1,15 @@
 import { FC, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import { Menu } from 'antd'
-import { MenuClickEventHandler } from 'rc-menu/lib/interface'
+import { Menu, MenuProps } from 'antd'
 import { PlusOutlined, DownloadOutlined, SettingOutlined } from '@ant-design/icons'
 import CanvideoIcon from './CanvideoIcon'
 
 const Header: FC = () => {
   const router = useRouter()
 
-  const handleClick = useCallback<MenuClickEventHandler>(e => {
+  const handleClick = useCallback<Exclude<MenuProps['onClick'], undefined>>(e => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    router.replace(e.key as string)
+    router.replace(e.key)
   }, [router])
 
   return (
