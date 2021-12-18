@@ -12,7 +12,7 @@ class FfmpegExport {
   loaded = false
   renderedFrames = 0
   readonly totalFrames: number
-  ffmpegProgress: number
+  ffmpegProgress = 0
 
   constructor (
     frames: Operations[][],
