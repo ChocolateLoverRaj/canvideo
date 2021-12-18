@@ -1,7 +1,7 @@
 import { Progress, Result, Spin } from 'antd'
 import { FC } from 'react'
 import exportStateToText from '../../lib/exportStateToText'
-import { RecorderExportData, RecorderExportStates } from '../../states/Exports'
+import { RecorderExportData, RecorderExportStates } from '../../types/ExportTypes'
 import { MenuStep, MenuSteps } from '../menu-steps'
 
 interface Props {
@@ -31,9 +31,9 @@ const RecorderExportComponent: FC<Props> = props => {
       percent={currentStep === 0 ? success : undefined}
     >
       <MenuStep title='Record frames'>
-          State: {exportStateToText(state)}
+        State: {exportStateToText(state)}
         <Progress percent={percent} success={{ percent: success }} />
-          Frames recorded: {completedFrames} / {totalFrames}
+        Frames recorded: {completedFrames} / {totalFrames}
       </MenuStep>
       <MenuStep title='Finish recording'>
         {currentStep === 1

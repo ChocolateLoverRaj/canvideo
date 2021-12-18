@@ -1,4 +1,4 @@
-import { ExportTypes } from '../../states/Exports'
+import { ExportTypes } from '../../types/ExportTypes'
 import { Cancel, HandleData } from './types'
 import handleWebm from './webm'
 

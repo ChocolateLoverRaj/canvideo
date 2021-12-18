@@ -1,7 +1,6 @@
-import { ExportTypes } from '../states/Exports'
+import ExportTypes from '../types/ExportTypes'
 
 const exportTypes: ExportTypes[] = [
-  ExportTypes.MEDIA_RECORDER,
   ExportTypes.FFMPEG,
   ExportTypes.WEBM_WRITER
 ]

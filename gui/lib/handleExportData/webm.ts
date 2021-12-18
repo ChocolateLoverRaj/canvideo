@@ -1,6 +1,6 @@
 import renderFrame from 'canvideo/dist/render-frame'
 import never from 'never'
-import { WebmExportData, WebmExportStates } from '../../states/Exports'
+import { WebmExportData, WebmExportStates } from '../../types/ExportTypes'
 import { HandleData } from './types'
 
 const handleWebm: HandleData<WebmExportData> = (data, setData) => {

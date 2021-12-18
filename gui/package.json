@@ -7,6 +7,7 @@
     "build": "npm run build:public && npm run build:next"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@canvideo/logo": "^2.0.2",
     "@ffmpeg/ffmpeg": "^0.9.7",
     "@rehooks/local-storage": "github:ChocolateLoverRaj/local-storage",
@@ -15,7 +16,11 @@
     "cli-real-favicon": "0.0.8",
     "jsonfile": "^6.1.0",
     "mkdirp": "^1.0.4",
+    "mobx": "^6.3.9",
+    "mobx-observable-promise": "0.5.14",
+    "mobx-react-lite": "^3.2.2",
     "next": "^10.0.7",
+    "rc-menu": "^9.0.14",
     "rc-util": "^5.9.8",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -27,6 +32,7 @@
     "@types/node": "^14.14.20",
     "@types/react": "^17.0.0",
     "babel-plugin-import": "^1.13.3",
+    "eslint-config-standard-jsx": "^10.0.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "never": "^1.0.3",
     "ts-standard": "^10.0.0"

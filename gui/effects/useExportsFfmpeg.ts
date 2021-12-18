@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { ExportTypes, FfmpegExportData, FfmpegExportStates } from '../states/Exports'
+import { ExportTypes, FfmpegExportData, FfmpegExportStates } from '../types/ExportTypes'
 import { ExportsState } from '../types/ExportsState'
 import dataMapFn from '../lib/dataMapFn'
 import indexMapFn, { PreservedIndex } from '../lib/indexMapFn'

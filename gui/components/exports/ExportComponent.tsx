@@ -1,8 +1,9 @@
 import { FC } from 'react'
-import ExportCommon, { ExportCommonProps } from './Common'
+import ExportObj from '../../mobx/ExportObj'
+import ExportCommon from './Common'
 import ExportSpecific from './Specific'
 
-const ExportComponent: FC<ExportCommonProps> = props => (
+const ExportComponent: FC<ExportObj> = props => (
   <>
     <ExportCommon {...props} />
     <ExportSpecific {...props} />

@@ -1,4 +1,4 @@
-import { RecorderExportStates } from '../states/Exports'
+import { RecorderExportStates } from '../types/ExportTypes'
 
 const exportStateToText = (exportState: RecorderExportStates): string => {
   switch (exportState) {

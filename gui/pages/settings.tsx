@@ -1,6 +1,6 @@
 import { FC, useCallback, useState } from 'react'
 import { Radio, RadioChangeEvent } from 'antd'
-import { ExportTypes } from '../states/Exports'
+import { ExportTypes } from '../types/ExportTypes'
 import HeadTitle from '../components/HeadTitle'
 import mainTitle from '../lib/mainTitle'
 import exportTypes from '../lib/exportTypes'

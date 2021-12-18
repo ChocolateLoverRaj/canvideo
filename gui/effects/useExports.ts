@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import handleExportData from '../lib/handleExportData'
 import { SetData, Cancel } from '../lib/handleExportData/types'
-import { Exports } from '../states/Exports'
+import { Exports } from '../types/ExportTypes'
 import { ExportsState } from '../types/ExportsState'
 import useExportsFfmpeg from './useExportsFfmpeg'
 import useExportsRecorder from './useExportsRecorder'

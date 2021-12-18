@@ -1,4 +1,4 @@
-import { ExportTypes } from '../../states/Exports'
+import { ExportTypes } from '../../types/ExportTypes'
 
 export type SetData<T> = (newData: T) => void
 

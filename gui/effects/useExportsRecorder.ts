@@ -1,7 +1,7 @@
 import renderFrame from 'canvideo/dist/render-frame'
 import never from 'never'
 import { useEffect, useMemo } from 'react'
-import { ExportTypes, RecorderExportData, RecorderExportStates, RecorderExport, RecorderRecordingExport } from '../states/Exports'
+import { ExportTypes, RecorderExportData, RecorderExportStates, RecorderExport, RecorderRecordingExport } from '../types/ExportTypes'
 import { ExportsState } from '../types/ExportsState'
 import spf from '../lib/spf'
 import dataMapFn from '../lib/dataMapFn'

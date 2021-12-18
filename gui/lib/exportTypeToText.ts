@@ -1,14 +1,8 @@
-import { ExportTypes } from '../states/Exports'
+import ExportTypes from '../types/ExportTypes'
 
-const exportTypeToText = (exportType: ExportTypes): string => {
-  switch (exportType) {
-    case ExportTypes.MEDIA_RECORDER:
-      return 'MediaRecorder'
-    case ExportTypes.FFMPEG:
-      return 'in browser FFmpeg'
-    default:
-      return 'webm writer'
-  }
-}
+const exportTypeToText = (exportType: ExportTypes): string =>
+  exportType === ExportTypes.WEBM_WRITER
+    ? 'webm writer'
+    : 'in browser FFmpeg'
 
 export default exportTypeToText

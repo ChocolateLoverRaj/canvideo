@@ -1,14 +1,10 @@
 import { FC } from 'react'
-import { Export } from '../../states/Exports'
 import exportTypeToText from '../../lib/exportTypeToText'
 import { Descriptions } from 'antd'
+import ExportObj from '../../mobx/ExportObj'
 
-export interface ExportCommonProps {
-  export: Export
-}
-
-const ExportCommon: FC<ExportCommonProps> = props => {
-  const { export: { type } } = props
+const ExportCommon: FC<ExportObj> = props => {
+  const { type } = props
 
   return (
     <Descriptions>

@@ -1,18 +1,17 @@
 import { Dropdown, Menu, message } from 'antd'
 import { Operations } from 'canvideo/lib/operations'
-import { FC, useCallback, useContext } from 'react'
+import { FC, useCallback } from 'react'
 import HeadTitle from '../components/HeadTitle'
-import GlobalContext from '../contexts/Global'
 import createExport from '../lib/createExport'
 import exportTypes from '../lib/exportTypes'
 import exportTypeToText from '../lib/exportTypeToText'
 import mainTitle from '../lib/mainTitle'
-import { ExportTypes } from '../states/Exports'
+import ExportTypes from '../types/ExportTypes'
+import { action } from 'mobx'
+import exports from '../mobx/exportsStore'
 
 const App: FC = () => {
-  const { exports: [exports, setExports] } = useContext(GlobalContext)
-
-  const createSample = useCallback((type: ExportTypes) => {
+  const createSample = action((type: ExportTypes) => {
     const frames: Operations[][] = []
     for (let i = 0; i < 300; i++) {
       frames.push([
@@ -22,10 +21,10 @@ const App: FC = () => {
         ['fillRect', [0, 0, i, i]]
       ])
     }
-    setExports(new Set([...exports, createExport(frames, 30, 300, 300, type)]))
+    exports.exports.push(createExport(frames, 30, 300, 300, type))
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     message.info('Started creating video')
-  }, [exports, setExports])
+  })
 
   const createDefault = useCallback(() => {
     // TODO: Use localStorage for default setting

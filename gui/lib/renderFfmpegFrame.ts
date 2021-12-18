@@ -1,6 +1,6 @@
 import renderFrame from 'canvideo/dist/render-frame'
 import never from 'never'
-import { FfmpegExportData } from '../states/Exports'
+import { FfmpegExportData } from '../types/ExportTypes'
 import canvasToPng from './canvasToPng'
 import createCanvas from './createCanvas'
 
