@@ -18,6 +18,7 @@ specifiers:
   jsonfile: ^6.1.0
   mkdirp: ^1.0.4
   mobx: ^6.3.9
+  mobx-localstorage: ^1.2.0
   mobx-observable-promise: 0.5.14
   mobx-react-lite: ^3.2.2
   never: ^1.0.3
@@ -40,6 +41,7 @@ dependencies:
   jsonfile: 6.1.0
   mkdirp: 1.0.4
   mobx: 6.3.9
+  mobx-localstorage: 1.2.0_mobx@6.3.9
   mobx-observable-promise: 0.5.14
   mobx-react-lite: 3.2.2_c8dbfbd16e4760b60a2fbc68638b8165
   next: 12.0.7_react-dom@17.0.2+react@17.0.2
@@ -2607,6 +2609,15 @@ packages:
     hasBin: true
     dev: false
 
+  /mobx-localstorage/1.2.0_mobx@6.3.9:
+    resolution: {integrity: sha512-fb03qyQfjnDIOW28qdV+h9AZ8qtJCZnzNgsej0YxCYwAR2ViykKxgHThikgOi+zJzJj5ljxWyvjGrr6CoptcFw==}
+    peerDependencies:
+      mobx: '>=3'
+    dependencies:
+      mobx: 6.3.9
+      reactive-localstorage: 0.0.2
+    dev: false
+
   /mobx-observable-promise/0.5.14:
     resolution: {integrity: sha512-AdynMHkGmcVwvz44YeRXN74u2CAU1z5WyskGizMmB8/sy0ng0+l2jrOjT8vNzIxtXkT+9m7eOrQhsiB1QJEz6w==}
     dependencies:
@@ -3691,6 +3702,10 @@ packages:
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
+    dev: false
+
+  /reactive-localstorage/0.0.2:
+    resolution: {integrity: sha512-+3oKBiiNxBbLH9mWw6eiBOAbwQSg3xpRIg7ys+E5Zc98DKQ1zyoUcQygWDDwZAn6mka2kWTaZD+ZUSgmV2VzLA==}
     dev: false
 
   /readable-stream/1.0.34:

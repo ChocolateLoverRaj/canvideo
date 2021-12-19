@@ -1,6 +1,6 @@
 import { Dropdown, Menu, message } from 'antd'
 import { Operations } from 'canvideo/lib/operations'
-import { FC, useCallback } from 'react'
+import { useCallback } from 'react'
 import HeadTitle from '../components/HeadTitle'
 import createExport from '../lib/createExport'
 import exportTypes from '../lib/exportTypes'
@@ -9,8 +9,10 @@ import mainTitle from '../lib/mainTitle'
 import ExportTypes from '../types/ExportTypes'
 import { action } from 'mobx'
 import exports from '../mobx/exportsStore'
+import defaultMethodStore from '../mobx/defaultMethodStore'
+import { observer } from 'mobx-react-lite'
 
-const App: FC = () => {
+const App = observer(() => {
   const createSample = action((type: ExportTypes) => {
     const frames: Operations[][] = []
     for (let i = 0; i < 300; i++) {
@@ -27,8 +29,7 @@ const App: FC = () => {
   })
 
   const createDefault = useCallback(() => {
-    // TODO: Use localStorage for default setting
-    createSample(ExportTypes.WEBM_WRITER)
+    createSample(defaultMethodStore.defaultMethod)
   }, [createSample])
 
   return (
@@ -56,6 +57,6 @@ const App: FC = () => {
       </Dropdown.Button>
     </>
   )
-}
+})
 
 export default App
