@@ -9,7 +9,7 @@ const Header: FC = () => {
 
   const handleClick = useCallback<Exclude<MenuProps['onClick'], undefined>>(e => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    router.replace(e.key)
+    router.replace(new URL(e.key, window.location.origin))
   }, [router])
 
   return (
