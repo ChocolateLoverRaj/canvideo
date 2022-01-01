@@ -1,0 +1,14 @@
+.row {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.videoPlayer {
+  max-height: 100%;
+}
+
+.code {
+  overflow: auto;
+  height: 100%;
+}

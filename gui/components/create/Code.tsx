@@ -1,9 +1,11 @@
-import { FC } from 'react'
+import { FC, useContext } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
-import Props from './Props'
+import CreateContext from './CreateContext'
 
-const Code: FC<Props> = ({ code: [code, setCode] }) => {
+const Code: FC = () => {
+  const [code, setCode] = useContext(CreateContext)
+
   return (
     <CodeMirror
       value={code}

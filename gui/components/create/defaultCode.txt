@@ -5,7 +5,7 @@ return {
     ['setFillStyle', ['green']],
     ['fillRect', [0, 0, t / 100, t / 100]]
   ],
-  width: 300,
-  height: 300,
+  width: 400,
+  height: 400,
   duration: 30000
 }
