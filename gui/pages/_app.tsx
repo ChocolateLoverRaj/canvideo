@@ -3,6 +3,7 @@ import 'antd/dist/antd.css'
 import { FC } from 'react'
 import Header from '../components/Header'
 import Head from 'next/head'
+import styles from '../styles/App.module.css'
 
 const App: FC<AppProps> = props => {
   const { Component, pageProps } = props
@@ -17,8 +18,10 @@ const App: FC<AppProps> = props => {
         <meta name='msapplication-TileColor' content='#603cba' />
         <meta name='theme-color' content='#ffffff' />
       </Head>
-      <Header />
-      <Component {...pageProps} />
+      <div className={styles.container}>
+        <Header />
+        <Component {...pageProps} />
+      </div>
     </>
   )
 }

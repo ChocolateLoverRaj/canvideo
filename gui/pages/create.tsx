@@ -11,6 +11,7 @@ import { action } from 'mobx'
 import exports from '../mobx/exportsStore'
 import defaultMethodStore from '../mobx/defaultMethodStore'
 import { observer } from 'mobx-react-lite'
+import Create from '../components/create'
 
 const App = observer(() => {
   const createSample = action((type: ExportTypes) => {
@@ -35,26 +36,7 @@ const App = observer(() => {
   return (
     <>
       <HeadTitle paths={[mainTitle, 'Create']} />
-      Create page will be have an editor eventually.
-      For now, you can create a sample video.
-      <br />
-      <Dropdown.Button
-        onClick={createDefault}
-        overlay={
-          <Menu>
-            {exportTypes.map(exportType => {
-              const handleClick = (): void => {
-                createSample(exportType)
-              }
-              return (
-                <Menu.Item key={exportType} onClick={handleClick}>Create with {exportTypeToText(exportType)}</Menu.Item>
-              )
-            })}
-          </Menu>
-        }
-      >
-        Create Sample Video
-      </Dropdown.Button>
+      <Create />
     </>
   )
 })

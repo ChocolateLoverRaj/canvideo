@@ -1,0 +1,11 @@
+return {
+  render: t => [
+    ['setFillStyle', ['white']],
+    ['fillRect', [0, 0, 300, 300]],
+    ['setFillStyle', ['green']],
+    ['fillRect', [0, 0, t / 100, t / 100]]
+  ],
+  width: 300,
+  height: 300,
+  duration: 30000
+}
