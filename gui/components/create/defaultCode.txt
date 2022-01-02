@@ -1,11 +1,12 @@
 return {
   render: t => [
-    ['setFillStyle', ['white']],
-    ['fillRect', [0, 0, 300, 300]],
     ['setFillStyle', ['green']],
-    ['fillRect', [0, 0, t / 100, t / 100]]
+    ['fillRect', [0, 0, t / 10, t / 10]]
   ],
-  width: 400,
-  height: 400,
-  duration: 30000
+  size: {
+    type: 'fixed',
+    width: 400,
+    height: 400
+  },
+  duration: 3000
 }
