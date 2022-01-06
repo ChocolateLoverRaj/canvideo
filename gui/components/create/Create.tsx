@@ -5,9 +5,9 @@ import Code from './Code'
 import defaultCode from './defaultCode.txt'
 import CreateContext from './CreateContext'
 import VideoPlayer from './VideoPlayer'
-
+import { preferNative as replaceAll } from 'string-replace-all-ponyfill'
 const Create: FC = () => {
-  const code = useState(() => defaultCode.replaceAll('\r\n', '\n'))
+  const code = useState(() => replaceAll(defaultCode, '\r\n', '\n'))
 
   return (
     <CreateContext.Provider value={code}>
