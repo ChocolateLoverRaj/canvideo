@@ -1,19 +1,23 @@
-import { FC, useContext } from 'react'
+import { useContext } from 'react'
 import CanvasSuccess from './CanvasSuccess'
 import CanvasProps from './CanvasProps'
-import VideoPlayerContext from './ControlsContext'
+import VideoPlayerContext from './VideoPlayerContext'
 import CanvasError from './CanvasError'
+import { observer } from 'mobx-react-lite'
+import CanvasLoading from './CanvasLoading'
 
-const Canvas: FC<CanvasProps> = props => {
+const Canvas = observer<CanvasProps>(props => {
   const { renderer } = useContext(VideoPlayerContext)
 
   return (
     <>
-      {renderer !== undefined
+      {renderer.wasSuccessful
         ? <CanvasSuccess {...props} />
-        : <CanvasError />}
+        : renderer.isExecuting
+          ? <CanvasLoading />
+          : <CanvasError error={renderer.error} />}
     </>
   )
-}
+})
 
 export default Canvas

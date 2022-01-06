@@ -2,7 +2,7 @@ import { Button, ButtonProps } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { PauseCircleOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { useContext } from 'react'
-import VideoPlayerContext from './ControlsContext'
+import VideoPlayerContext from './VideoPlayerContext'
 import { action } from 'mobx'
 
 const PauseButton = observer<ButtonProps>(props => {

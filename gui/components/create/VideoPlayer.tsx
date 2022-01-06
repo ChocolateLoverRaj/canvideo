@@ -2,11 +2,13 @@ import useSize from '@react-hook/size'
 import { FC, useContext, useRef, useState } from 'react'
 import Canvas from './Canvas'
 import Controls from './Controls'
-import VideoPlayerContext from './ControlsContext'
+import VideoPlayerContext from './VideoPlayerContext'
 import CreateContext from './CreateContext'
 import styles from './VideoPlayer.module.css'
 import VideoPlayerStore from './VideoPlayerStore'
-import { VideoRenderer } from './VideoRenderer'
+import { useMemoOne } from 'use-memo-one'
+import { ObservablePromise } from 'mobx-observable-promise'
+import importFromWorker from '../../lib/import-from-worker'
 
 const VideoPlayer: FC = () => {
   const containerRef = useRef(null)
@@ -16,13 +18,14 @@ const VideoPlayer: FC = () => {
 
   const [code] = useContext(CreateContext)
 
-  let renderer: VideoRenderer | undefined
-  try {
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-    renderer = new Function(code)()
-  } catch (e) {
-    console.error(e)
-  }
+  const renderer = useMemoOne(() => {
+    const observablePromise = new ObservablePromise(async () => await importFromWorker(code))
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    observablePromise.execute().catch()
+
+    ;(globalThis.code ?? (globalThis.code = [])).push(code)
+    return observablePromise
+  }, [code])
 
   const [playerStore] = useState(() => new VideoPlayerStore())
 

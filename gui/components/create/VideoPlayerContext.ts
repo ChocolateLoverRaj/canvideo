@@ -1,9 +1,10 @@
 import { createContext, Context } from 'react'
 import VideoPlayerStore from './VideoPlayerStore'
 import { VideoRenderer } from './VideoRenderer'
+import { ObservablePromise } from 'mobx-observable-promise'
 
 export interface IVideoPlayerContext {
-  renderer?: VideoRenderer
+  renderer: ObservablePromise<() => Promise<VideoRenderer>>
   playerStore: VideoPlayerStore
 }
 

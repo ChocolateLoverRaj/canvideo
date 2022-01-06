@@ -1,4 +1,4 @@
-return {
+export default {
   render: t => [
     ['setFillStyle', ['green']],
     ['fillRect', [0, 0, t / 10, t / 10]]
@@ -8,5 +8,5 @@ return {
     width: 400,
     height: 400
   },
-  duration: 3000
+  duration: 4000
 }

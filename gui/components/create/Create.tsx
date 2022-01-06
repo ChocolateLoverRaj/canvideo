@@ -7,7 +7,7 @@ import CreateContext from './CreateContext'
 import VideoPlayer from './VideoPlayer'
 
 const Create: FC = () => {
-  const code = useState(defaultCode.toString())
+  const code = useState(() => defaultCode.replaceAll('\r\n', '\n'))
 
   return (
     <CreateContext.Provider value={code}>

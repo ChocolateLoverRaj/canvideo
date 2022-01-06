@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import ButtonsDiv from './ButtonsDiv'
-import VideoProgressBar from './VideoProgressBar'
+import VideoProgressBar from './video-progress-bar'
 
 const Controls: FC = () => {
   return (

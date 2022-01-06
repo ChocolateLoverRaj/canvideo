@@ -18,7 +18,7 @@ export interface DynamicRatioSize {
 }
 
 export interface VideoRenderer {
-  render: (time: number) => Operations[]
+  render: (time: number) => Promise<Operations[]>
   size: FixedSize | AspectRatioSize | DynamicRatioSize
   duration?: number
 }

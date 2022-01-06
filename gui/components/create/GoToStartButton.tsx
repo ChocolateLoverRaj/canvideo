@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { useContext } from 'react'
-import VideoPlayerContext from './ControlsContext'
+import VideoPlayerContext from './VideoPlayerContext'
 import { Button, ButtonProps } from 'antd'
 import { StepBackwardOutlined } from '@ant-design/icons'
 import { action } from 'mobx'

@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   headers: async () => [
     {
@@ -18,6 +20,10 @@ module.exports = {
     config.module.rules.push({
       test: /\.txt/,
       type: 'asset/source'
+    }, {
+      test: /post-any-message/,
+      type: 'asset/resource',
+      issuer: path.join(__dirname, './lib/import-from-worker/babelPlugin.ts')
     })
     return config
   }
