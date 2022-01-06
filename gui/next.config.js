@@ -26,5 +26,8 @@ module.exports = {
       issuer: path.join(__dirname, './lib/import-from-worker/babelPlugin.ts')
     })
     return config
+  },
+  eslint: {
+    ignoreDuringBuilds: true
   }
 }
