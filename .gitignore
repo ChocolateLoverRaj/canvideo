@@ -7,3 +7,8 @@ Thumbs.db
 /logo/dist/*.d.ts
 /logo/dist/logo.svg
 /package/dist
+
+# Package Manager Locks - Since some people use different package managers from each other, they may go out of sync if we commit them
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
