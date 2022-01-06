@@ -27,14 +27,17 @@ specifiers:
   mobx-localstorage: ^1.2.0
   mobx-observable-promise: 0.5.14
   mobx-react-lite: ^3.2.2
+  mobx-utils: ^6.0.4
   never: ^1.0.3
   next: ^12.0.7
+  post-any-message: ^1.2.0
   rc-util: ^5.9.8
   react: ^17.0.2
   react-dom: ^17.0.2
   react-use-size: ^2.0.4
   ts-standard: ^10.0.0
   typescript: ^4.5.4
+  use-memo-one: ^1.1.2
   webm-writer: github:ChocolateLoverRaj/webm-writer-js#works
 
 dependencies:
@@ -55,12 +58,15 @@ dependencies:
   mobx-localstorage: 1.2.0_mobx@6.3.9
   mobx-observable-promise: 0.5.14
   mobx-react-lite: 3.2.2_c8dbfbd16e4760b60a2fbc68638b8165
+  mobx-utils: 6.0.4_mobx@6.3.9
   next: 12.0.7_react-dom@17.0.2+react@17.0.2
+  post-any-message: 1.2.0
   rc-util: 5.16.1_react-dom@17.0.2+react@17.0.2
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-use-size: 2.0.4_react@17.0.2
   typescript: 4.5.4
+  use-memo-one: 1.1.2_react@17.0.2
   webm-writer: github.com/ChocolateLoverRaj/webm-writer-js/21df345a446c1962db5d68eb2f9e313179c00bf2
 
 devDependencies:
@@ -3191,6 +3197,14 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     dev: false
 
+  /mobx-utils/6.0.4_mobx@6.3.9:
+    resolution: {integrity: sha512-CcTgFcCWN78eyRXU7OiKfhIVDEWFFoKdpfj49GIVcWykIQ4deXnaRnnKHElbVYFFgz1TOs8a3bDAq7qsSe864A==}
+    peerDependencies:
+      mobx: ^6.0.0
+    dependencies:
+      mobx: 6.3.9
+    dev: false
+
   /mobx/6.3.9:
     resolution: {integrity: sha512-u9vhETRPgx6s+MD2NhGaOQJMJa/qszflwFxKryCXotERWY77ocdrRQUp7Jwt1urjefUXNj3fQbTnKrCV+kBaXw==}
     dev: false
@@ -3640,6 +3654,10 @@ packages:
 
   /platform/1.3.6:
     resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
+    dev: false
+
+  /post-any-message/1.2.0:
+    resolution: {integrity: sha512-aLrv7LFmazAisYLGRah7PddwRNqfexjp6J3asmfB5RDI7IOIUCRqFhMJfPoG6iLxWD0wgXYkD6kOse086NaDwg==}
     dev: false
 
   /postcss/8.2.15:
@@ -4890,6 +4908,14 @@ packages:
     dependencies:
       punycode: 2.1.1
     dev: true
+
+  /use-memo-one/1.1.2_react@17.0.2:
+    resolution: {integrity: sha512-u2qFKtxLsia/r8qG0ZKkbytbztzRb317XCkT7yP8wxL0tZ/CzK2G+WWie5vWvpyeP7+YoPIwbJoIHJ4Ba4k0oQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0
+    dependencies:
+      react: 17.0.2
+    dev: false
 
   /use-subscription/1.5.1_react@17.0.2:
     resolution: {integrity: sha512-Xv2a1P/yReAjAbhylMfFplFKj9GssgTwN7RlcTxBujFQcloStWNDQdc4g4NRWH9xS4i/FDk04vQBptAXoF3VcA==}

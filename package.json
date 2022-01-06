@@ -1,8 +1,0 @@
-{
-	"dependencies": {
-		"mobx-observable-promise": "^0.5.16",
-		"mobx-utils": "^6.0.4",
-		"post-any-message": "^1.2.0",
-		"use-memo-one": "^1.1.2"
-	}
-}
