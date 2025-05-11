@@ -1,2 +1,7 @@
+> [!WARNING]  
+> Abandoned Project
+
 # canvideo
 An open-source tool for Node.js that can make animations and generate videos.
+
+The idea of this was to create animations and then render a video out of it. The coolest part about it is the logo that I made. It is a hand-written SVG logo.
